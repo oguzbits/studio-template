@@ -56,6 +56,16 @@ if (existsSync(target) && !existsSync(stateFile)) {
   );
 }
 
+const state = existsSync(stateFile)
+  ? JSON.parse(readFileSync(stateFile, 'utf8'))
+  : {};
+
+try {
+  await preflight();
+} catch (error) {
+  fail(error.message);
+}
+
 if (dryRun) {
   console.log(
     `Dry run: würde ${target} anlegen, Supabase-Projekt „${name}“ in ${REGION}, Vercel-Projekt „${name}“ (Root apps/web), Ports ab ${portBase(name)}.`,
@@ -63,9 +73,6 @@ if (dryRun) {
   process.exit(0);
 }
 
-const state = existsSync(stateFile)
-  ? JSON.parse(readFileSync(stateFile, 'utf8'))
-  : {};
 const save = () => {
   mkdirSync(resolve(target, '.studio'), { recursive: true });
   writeFileSync(stateFile, JSON.stringify(state, null, 2));
@@ -135,6 +142,34 @@ console.log(
 console.log(`\nLive: ${state.siteUrl}\nProjekt: ${target}`);
 
 // --- Schritte ---------------------------------------------------------------
+
+// Nur lesend: Tokens und Org/Scope prüfen, bevor irgendetwas angelegt wird.
+async function preflight() {
+  const orgs = await supabaseApi('GET', '/v1/organizations').catch((error) => {
+    throw new Error(
+      `SUPABASE_ACCESS_TOKEN abgelehnt (${error.status}). Token mit Zugriff auf die Organisation anlegen.`,
+    );
+  });
+  const org = env.SUPABASE_ORG_ID;
+  if (!orgs.some((o) => o.id === org || o.slug === org)) {
+    const visible = orgs.map((o) => `${o.slug ?? o.id} (${o.name})`).join(', ');
+    throw new Error(
+      `SUPABASE_ORG_ID „${org}“ ist für den Token nicht sichtbar. Sichtbar: ${visible || 'keine – Token hat keine Org-Rechte'}.`,
+    );
+  }
+  // `projects create` liest die Org-Details; Org-Liste allein reicht nicht
+  await supabaseApi('GET', `/v1/organizations/${org}`).catch((error) => {
+    throw new Error(
+      `SUPABASE_ACCESS_TOKEN darf die Organisation nicht lesen (${error.status}). Token-Rechte: Organisation lesen + Projekte anlegen/verwalten.`,
+    );
+  });
+  await vercelApi('GET', '/v9/projects?limit=1').catch((error) => {
+    throw new Error(
+      `VERCEL_TOKEN/VERCEL_SCOPE abgelehnt (${error.status}): ${error.message}`,
+    );
+  });
+  console.log('✓ Tokens geprüft (Supabase-Org und Vercel erreichbar)');
+}
 
 async function copyTemplate() {
   if (
@@ -213,32 +248,26 @@ async function copyTemplate() {
 }
 
 async function createSupabaseProject() {
-  const existing = JSON.parse(
-    supabase(['projects', 'list', '-o', 'json']),
-  ).find(
+  // Management API statt `supabase projects create`: die CLI scheitert mit Org-scoped Tokens
+  // („Failed to retrieve organization“), die API nicht; Passwort zudem nicht in `ps` sichtbar.
+  const projects = await supabaseApi('GET', '/v1/projects');
+  const existing = projects.find(
     (project) =>
-      project.name === name && project.organization_id === env.SUPABASE_ORG_ID,
+      project.name === name &&
+      [project.organization_id, project.organization_slug].includes(
+        env.SUPABASE_ORG_ID,
+      ),
   );
   state.dbPassword ??= randomBytes(24).toString('base64url');
   save();
   const project =
     existing ??
-    JSON.parse(
-      supabase([
-        'projects',
-        'create',
-        name,
-        '--org-id',
-        env.SUPABASE_ORG_ID,
-        '--region',
-        REGION,
-        // shortcut: Passwort kurz in `ps` sichtbar (create kennt keine Env-Variable), lokal unkritisch
-        '--db-password',
-        state.dbPassword,
-        '-o',
-        'json',
-      ]),
-    );
+    (await supabaseApi('POST', '/v1/projects', {
+      name,
+      organization_id: env.SUPABASE_ORG_ID,
+      region: REGION,
+      db_pass: state.dbPassword,
+    }));
   state.supabaseRef = project.id ?? project.ref;
   if (!state.supabaseRef) throw new Error('Supabase-Antwort ohne Projekt-Ref.');
   save();
@@ -595,17 +624,25 @@ function run(
   cmdArgs,
   { cwd = ROOT, env: extraEnv = {}, capture = false, input } = {},
 ) {
-  return execFileSync(cmd, cmdArgs, {
-    cwd,
-    env: { ...process.env, ...extraEnv },
-    encoding: 'utf8',
-    input,
-    stdio: [
-      input === undefined ? 'inherit' : 'pipe',
-      capture ? 'pipe' : 'inherit',
-      'inherit',
-    ],
-  });
+  try {
+    return execFileSync(cmd, cmdArgs, {
+      cwd,
+      env: { ...process.env, ...extraEnv },
+      encoding: 'utf8',
+      input,
+      stdio: [
+        input === undefined ? 'inherit' : 'pipe',
+        capture ? 'pipe' : 'inherit',
+        'inherit',
+      ],
+    });
+  } catch (error) {
+    // Node hängt sonst die volle Kommandozeile an (enthält z. B. --db-password)
+    const label = [cmd, ...cmdArgs.filter((a) => !a.startsWith('-'))]
+      .slice(0, 4)
+      .join(' ');
+    throw new Error(`${label} … fehlgeschlagen (Exit ${error.status ?? '?'})`);
+  }
 }
 
 function git(gitArgs) {
