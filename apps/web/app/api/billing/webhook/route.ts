@@ -3,6 +3,7 @@ import type Stripe from 'stripe';
 import { getLogger } from '@kit/shared/logger';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
+import studioConfig from '~/config/studio.config';
 import { type EntitlementStatus, mapStripeStatus } from '~/lib/billing/status';
 import { getStripe } from '~/lib/billing/stripe';
 
@@ -16,6 +17,12 @@ type EntitlementUpdate = {
 };
 
 const ctx = { name: 'billing.webhook' };
+
+// 23503: user deleted (FK), 22P02: user_id is not a uuid. Retrying cannot fix these.
+const PERMANENT_DB_ERRORS = new Set(['23503', '22P02']);
+
+// shortcut: concurrent deliveries for the same subscription can write an older re-fetched state until the next event, upgrade by ordering on event.created when that window matters
+// shortcut: refunds/chargebacks (charge.refunded, charge.dispute.created) do not revoke one-time entitlements (revoke manually in the DB), upgrade when one-time products matter
 
 export async function POST(request: Request) {
   const logger = await getLogger();
@@ -57,6 +64,15 @@ export async function POST(request: Request) {
     return new Response(null, { status: 200 });
   }
 
+  if (!Object.hasOwn(studioConfig.products, update.productKey)) {
+    logger.warn(
+      { ...ctx, eventId: event.id, productKey: update.productKey },
+      'Stripe event for a product not in studio.config, ignored',
+    );
+
+    return new Response(null, { status: 200 });
+  }
+
   const { error } = await getSupabaseServerAdminClient().rpc(
     'apply_billing_event',
     {
@@ -70,6 +86,15 @@ export async function POST(request: Request) {
       p_provider_ref: update.providerRef as string,
     },
   );
+
+  if (error && PERMANENT_DB_ERRORS.has(error.code)) {
+    logger.warn(
+      { ...ctx, eventId: event.id, error },
+      'apply_billing_event rejected the event permanently, acknowledged',
+    );
+
+    return new Response(null, { status: 200 });
+  }
 
   if (error) {
     logger.error(

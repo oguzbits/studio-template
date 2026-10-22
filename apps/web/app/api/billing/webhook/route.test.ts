@@ -36,12 +36,27 @@ const owner = {
   product_key: 'pro',
 };
 
+// whitespace makes a JSON parse/stringify round trip detectable: the signature
+// is computed over these exact bytes
+const rawBody = '{ "id": "evt_raw",  "object": "event" }\n';
+
 function request() {
   return new Request('http://localhost/api/billing/webhook', {
     method: 'POST',
     headers: { 'stripe-signature': 't=1,v1=sig' },
-    body: '{}',
+    body: rawBody,
   });
+}
+
+function subscriptionEvent(id: string, metadata: Record<string, string>) {
+  stripe.webhooks.constructEvent.mockReturnValue({
+    id,
+    type: 'customer.subscription.created',
+    data: { object: subscription('active', metadata) },
+  });
+  stripe.subscriptions.retrieve.mockResolvedValue(
+    subscription('active', metadata),
+  );
 }
 
 beforeEach(() => {
@@ -61,6 +76,65 @@ describe('POST /api/billing/webhook', () => {
     expect(res.status).toBe(400);
     expect(rpc).not.toHaveBeenCalled();
   });
+
+  it('verifies the signature over the raw body and the stripe-signature header', async () => {
+    subscriptionEvent('evt_sig', owner);
+
+    await POST(request());
+
+    expect(stripe.webhooks.constructEvent).toHaveBeenCalledWith(
+      rawBody,
+      't=1,v1=sig',
+      'whsec_test',
+    );
+  });
+
+  it('ignores a product_key that is not in studio.config with 200', async () => {
+    subscriptionEvent('evt_bad_product', {
+      ...owner,
+      product_key: '__proto__',
+    });
+
+    const res = await POST(request());
+
+    expect(res.status).toBe(200);
+    expect(rpc).not.toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  it('does not grant an unpaid one-time purchase (async payment pending)', async () => {
+    stripe.webhooks.constructEvent.mockReturnValue({
+      id: 'evt_unpaid',
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          mode: 'payment',
+          payment_status: 'unpaid',
+          payment_intent: 'pi_2',
+          client_reference_id: owner.user_id,
+          metadata: owner,
+        },
+      },
+    });
+
+    const res = await POST(request());
+
+    expect(res.status).toBe(200);
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it.each(['23503', '22P02'])(
+    'acknowledges DB error %s (deleted user / invalid uuid) with 200',
+    async (code) => {
+      subscriptionEvent('evt_gone', owner);
+      rpc.mockResolvedValue({ data: null, error: { code, message: 'x' } });
+
+      const res = await POST(request());
+
+      expect(res.status).toBe(200);
+      expect(logger.warn).toHaveBeenCalled();
+    },
+  );
 
   it('acknowledges an event without user_id with 200, logs it and writes nothing', async () => {
     stripe.webhooks.constructEvent.mockReturnValue({
@@ -152,7 +226,10 @@ describe('POST /api/billing/webhook', () => {
     stripe.subscriptions.retrieve.mockResolvedValue(
       subscription('active', owner),
     );
-    rpc.mockResolvedValue({ data: null, error: { message: 'boom' } });
+    rpc.mockResolvedValue({
+      data: null,
+      error: { code: '40001', message: 'serialization failure' },
+    });
 
     const res = await POST(request());
 

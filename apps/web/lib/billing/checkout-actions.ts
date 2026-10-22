@@ -10,6 +10,7 @@ import pathsConfig from '~/config/paths.config';
 import studioConfig, { type ProductKey } from '~/config/studio.config';
 
 import { PRICING_PATH } from './require-entitlement';
+import { accessDecision } from './status';
 import { getStripe } from './stripe';
 
 export const createCheckout = enhanceAction(
@@ -27,6 +28,11 @@ export const createCheckout = enhanceAction(
       throw new Error(
         `No Stripe price for product "${productKey}". Please provide the variable STRIPE_PRICE_${productKey.toUpperCase()}`,
       );
+    }
+
+    // never a second subscription: access or billing problems are handled in the portal
+    if (await hasOpenEntitlement(user.id, productKey)) {
+      await redirectToPortal(user.id);
     }
 
     const metadata = { user_id: user.id, product_key: productKey };
@@ -57,7 +63,11 @@ export const createCheckout = enhanceAction(
 );
 
 export const openPortal = enhanceAction(async (_formData: FormData, user) => {
-  const customerId = await findCustomerId(user.id);
+  await redirectToPortal(user.id);
+}, {});
+
+async function redirectToPortal(userId: string): Promise<never> {
+  const customerId = await findCustomerId(userId);
 
   if (!customerId) {
     redirect(PRICING_PATH);
@@ -69,7 +79,23 @@ export const openPortal = enhanceAction(async (_formData: FormData, user) => {
   });
 
   redirect(session.url);
-}, {});
+}
+
+async function hasOpenEntitlement(userId: string, productKey: ProductKey) {
+  const { data, error } = await getSupabaseServerAdminClient()
+    .from('entitlements')
+    .select('status, current_period_end')
+    .eq('user_id', userId)
+    .eq('product_key', productKey)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  // 'pricing' = none, canceled, or canceling whose period already ended
+  return data !== null && accessDecision(data, new Date()) !== 'pricing';
+}
 
 async function findCustomerId(userId: string) {
   const { data, error } = await getSupabaseServerAdminClient()

@@ -51,7 +51,8 @@ async function BillingOverview() {
         const product = studioConfig.products[key];
         const entitlement =
           entitlements.find((e) => e.product_key === key) ?? null;
-        const hasAccess = accessDecision(entitlement, now) === 'allow';
+        const decision = accessDecision(entitlement, now);
+        const hasAccess = decision === 'allow';
 
         return (
           <Card key={key}>
@@ -74,7 +75,17 @@ async function BillingOverview() {
               </CardAction>
             </CardHeader>
 
-            {hasAccess ? null : (
+            {decision === 'billing' ? (
+              <CardContent>
+                <form action={openPortal}>
+                  <Button type={'submit'} data-test={`fix-billing-${key}`}>
+                    Manage billing
+                  </Button>
+                </form>
+              </CardContent>
+            ) : null}
+
+            {decision === 'pricing' ? (
               <CardContent>
                 <form action={createCheckout.bind(null, key)}>
                   <Button type={'submit'} data-test={`checkout-${key}`}>
@@ -82,7 +93,7 @@ async function BillingOverview() {
                   </Button>
                 </form>
               </CardContent>
-            )}
+            ) : null}
           </Card>
         );
       })}
