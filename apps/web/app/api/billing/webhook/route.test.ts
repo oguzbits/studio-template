@@ -189,6 +189,30 @@ describe('POST /api/billing/webhook', () => {
     });
   });
 
+  it('treats a scheduled cancel_at as canceling and ends access at that date', async () => {
+    const cancelAt = periodEnd - 86_400;
+    stripe.webhooks.constructEvent.mockReturnValue({
+      id: 'evt_4',
+      type: 'customer.subscription.updated',
+      data: { object: subscription('active', owner) },
+    });
+    // newer Stripe portals set cancel_at and leave cancel_at_period_end false
+    stripe.subscriptions.retrieve.mockResolvedValue({
+      ...subscription('active', owner),
+      cancel_at: cancelAt,
+    });
+
+    await POST(request());
+
+    expect(rpc).toHaveBeenCalledWith(
+      'apply_billing_event',
+      expect.objectContaining({
+        p_status: 'canceling',
+        p_period_end: new Date(cancelAt * 1000).toISOString(),
+      }),
+    );
+  });
+
   it('grants a paid one-time purchase without period end', async () => {
     stripe.webhooks.constructEvent.mockReturnValue({
       id: 'evt_4',

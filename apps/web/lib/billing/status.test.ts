@@ -35,6 +35,16 @@ describe('mapStripeStatus', () => {
     },
   );
 
+  it('treats a scheduled cancel_at as canceling', () => {
+    expect(
+      mapStripeStatus({
+        status: 'active',
+        cancel_at_period_end: false,
+        cancel_at: 1_795_000_000,
+      }),
+    ).toBe('canceling');
+  });
+
   it('denies access for statuses Stripe adds later', () => {
     expect(
       mapStripeStatus({ status: 'something_new', cancel_at_period_end: false }),

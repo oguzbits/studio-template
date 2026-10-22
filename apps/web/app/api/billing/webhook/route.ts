@@ -159,7 +159,12 @@ async function toEntitlementUpdate(
 }
 
 function fromSubscription(sub: Stripe.Subscription): EntitlementUpdate {
-  const periodEnd = sub.items.data[0]?.current_period_end;
+  const itemPeriodEnd = sub.items.data[0]?.current_period_end;
+  // a cancel_at before the period end cuts access off earlier (see accessDecision)
+  const periodEnd =
+    sub.cancel_at && itemPeriodEnd
+      ? Math.min(sub.cancel_at, itemPeriodEnd)
+      : itemPeriodEnd;
 
   return {
     userId: sub.metadata.user_id,

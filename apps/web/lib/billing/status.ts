@@ -21,10 +21,12 @@ const BILLING_STATUSES: EntitlementStatus[] = [
 export function mapStripeStatus(s: {
   status: Stripe.Subscription.Status;
   cancel_at_period_end: boolean;
+  cancel_at?: number | null;
 }): EntitlementStatus {
   switch (s.status) {
     case 'active':
-      return s.cancel_at_period_end ? 'canceling' : 'active';
+      // newer portals schedule the cancellation via cancel_at, not cancel_at_period_end
+      return s.cancel_at_period_end || s.cancel_at ? 'canceling' : 'active';
     case 'trialing':
       return 'trialing';
     case 'past_due':
