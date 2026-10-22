@@ -21,11 +21,17 @@ describe('nextAction', () => {
 describe('summarize', () => {
   it('meldet nur übersprungene/fehlgeschlagene Pflicht-Keys als fehlend', () => {
     const { missingRequired, lines } = summarize(
-      [req, opt, { key: 'C', required: true }, { key: 'D', required: true }],
-      { A: 'skipped', B: 'skipped', C: 'failed', D: 'set' },
+      [
+        req,
+        opt,
+        { key: 'C', required: true },
+        { key: 'D', required: true },
+        { key: 'E', required: 'warn' },
+      ],
+      { A: 'skipped', B: 'skipped', C: 'failed', D: 'set', E: 'skipped' },
     );
     expect(missingRequired).toEqual(['A', 'C']);
-    expect(lines).toHaveLength(4);
+    expect(lines).toHaveLength(5);
   });
 });
 

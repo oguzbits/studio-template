@@ -61,6 +61,15 @@ describe('runLocalChecks', () => {
     expect(byLabel(results, 'VERCEL_SCOPE')).toBeUndefined();
   });
 
+  it('fehlender Warn-Key (Impressum) ist nur Warnung', async () => {
+    const secrets = () => ({ ...allSecrets(), LEGAL_NAME: '' });
+    const results = await runLocalChecks(probes({ secrets }), okCheck);
+    expect(byLabel(results, 'LEGAL_NAME')).toMatchObject({
+      ok: false,
+      hard: false,
+    });
+  });
+
   it('Resend ohne verifizierte Domain: Warnung, kein harter Fehler', async () => {
     const checkFn = async (key) =>
       key === 'RESEND_API_KEY'

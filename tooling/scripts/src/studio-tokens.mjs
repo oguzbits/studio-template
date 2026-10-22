@@ -17,6 +17,8 @@ const TOKEN_URLS = {
   openai: 'https://platform.openai.com/api-keys',
 };
 
+// required: true = studio:new braucht den Wert (fehlt → Fehler); 'warn' = Build läuft, Funktion fehlt
+// (wie env-check.ts: nur Warnung); false = optional.
 const entry = (key, required, secret, hint, tokenUrl) => ({
   key,
   required,
@@ -52,7 +54,7 @@ export const SHARED_KEYS = [
   ),
   entry(
     'ANTHROPIC_API_KEY',
-    true,
+    'warn',
     true,
     'Anthropic-API-Key (Default-Provider)',
     TOKEN_URLS.anthropic,
@@ -66,15 +68,15 @@ export const SHARED_KEYS = [
   ),
   entry(
     'ADMIN_EMAILS',
-    true,
+    'warn',
     false,
     'Komma-getrennte E-Mails mit Zugriff auf /admin',
   ),
-  entry('LEGAL_NAME', true, false, 'Impressum: Name des Anbieters'),
-  entry('LEGAL_STREET', true, false, 'Impressum: Straße und Hausnummer'),
-  entry('LEGAL_ZIP_CITY', true, false, 'Impressum: PLZ und Ort'),
-  entry('LEGAL_EMAIL', true, false, 'Impressum: Kontakt-E-Mail'),
-  entry('LEGAL_PHONE', true, false, 'Impressum: Telefon'),
+  entry('LEGAL_NAME', 'warn', false, 'Impressum: Name des Anbieters'),
+  entry('LEGAL_STREET', 'warn', false, 'Impressum: Straße und Hausnummer'),
+  entry('LEGAL_ZIP_CITY', 'warn', false, 'Impressum: PLZ und Ort'),
+  entry('LEGAL_EMAIL', 'warn', false, 'Impressum: Kontakt-E-Mail'),
+  entry('LEGAL_PHONE', 'warn', false, 'Impressum: Telefon'),
   entry('LEGAL_VAT_ID', false, false, 'Impressum: USt-IdNr.'),
   entry(
     'LEGAL_RESPONSIBLE',

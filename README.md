@@ -11,7 +11,9 @@ Einmalig:
    OS-Schlüsselbund), fragt jeden fehlenden Wert ab (öffnet die Token-Seite), prüft ihn live und speichert ihn
    verschlüsselt. Wiederholbar: bereits gültige Werte werden nur mit `✓` gemeldet.
    - Pflicht: Supabase-Token und -Org, Vercel-Token, Resend-Key (setzt auch Supabase-SMTP; ohne bricht der
-     Produktions-Build ab), `ADMIN_EMAILS`, `LEGAL_*`, `ANTHROPIC_API_KEY`.
+     Produktions-Build ab).
+   - Abgefragt, fehlend nur Warnung: `ADMIN_EMAILS` (sonst ist `/admin` zu), `LEGAL_*` (sonst Platzhalter im
+     Impressum – vor dem Launch Pflicht), `ANTHROPIC_API_KEY` (nur für Produkte mit KI-Funktionen).
    - Empfohlen: `STRIPE_SECRET_KEY` (Test, `sk_test_…`): `studio:new` legt dann Produkte, Preise, Webhook und
      Kundenportal selbst an.
    - Optional: `VERCEL_SCOPE` (Team-Accounts), `OPENAI_API_KEY`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`.

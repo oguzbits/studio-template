@@ -16,12 +16,12 @@ const LABEL = {
 export function summarize(entries, outcomes) {
   const lines = entries.map(
     ({ key, required }) =>
-      `${MARK[outcomes[key]]} ${key}  ${LABEL[outcomes[key]]}${required ? '' : ' (optional)'}`,
+      `${MARK[outcomes[key]]} ${key}  ${LABEL[outcomes[key]]}${required === true ? '' : ' (optional)'}`,
   );
   const missingRequired = entries
     .filter(
       ({ key, required }) =>
-        required && ['skipped', 'failed'].includes(outcomes[key]),
+        required === true && ['skipped', 'failed'].includes(outcomes[key]),
     )
     .map(({ key }) => key);
   return { lines, missingRequired };

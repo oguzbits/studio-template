@@ -143,9 +143,14 @@ describe('loadSharedSecrets', () => {
         /^dotenvx get lieferte kein lesbares JSON$/,
       );
     }));
-  it('LEGAL_PHONE ist Pflicht', () => {
-    expect(SHARED_KEYS.find((e) => e.key === 'LEGAL_PHONE').required).toBe(
-      true,
-    );
+  it('Impressum, Admin und KI warnen nur (wie env-check.ts)', () => {
+    for (const key of [
+      'LEGAL_PHONE',
+      'LEGAL_NAME',
+      'ADMIN_EMAILS',
+      'ANTHROPIC_API_KEY',
+    ]) {
+      expect(SHARED_KEYS.find((e) => e.key === key).required).toBe('warn');
+    }
   });
 });

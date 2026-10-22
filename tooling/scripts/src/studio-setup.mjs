@@ -56,7 +56,7 @@ for (const entry of SHARED_KEYS) {
   }
 
   console.log(
-    `\n${key}${required ? '' : ' (optional)'}: ${hint}${result ? `\n  Aktueller Wert ungültig: ${result.error}` : ''}`,
+    `\n${key}${required === true ? '' : ' (optional)'}: ${hint}${result ? `\n  Aktueller Wert ungültig: ${result.error}` : ''}`,
   );
   if (tokenUrl) {
     console.log(`  Token erzeugen: ${tokenUrl}`);

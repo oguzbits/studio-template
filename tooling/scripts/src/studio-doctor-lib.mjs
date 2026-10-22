@@ -55,17 +55,19 @@ export async function runLocalChecks(probes, checkFn = checkKey) {
       const out = [];
       for (const { key, required } of SHARED_KEYS) {
         if (!required) continue;
+        // 'warn': Build läuft ohne den Wert, nur die Funktion fehlt
+        const hard = required === true;
         if (!secrets[key]) {
           out.push({
             label: key,
             ok: false,
-            hard: true,
+            hard,
             detail: 'fehlt (pnpm studio:setup)',
           });
           continue;
         }
         const r = await checkFn(key, secrets[key], secrets);
-        out.push({ label: key, ok: r.ok, hard: true, detail: r.error });
+        out.push({ label: key, ok: r.ok, hard, detail: r.error });
         if (
           key === 'RESEND_API_KEY' &&
           r.ok &&
