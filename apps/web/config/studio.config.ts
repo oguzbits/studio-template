@@ -44,7 +44,7 @@ const products = {
 } satisfies Record<string, z.input<typeof ProductSchema>>;
 
 // Source: claude-api skill model table (Anthropic list prices, USD/MTok, prompts <=100K for Haiku 5.5), 2026-10-22;
-// OpenAI price is from memory, unverified. FX assumption 1 USD = 0.92 EUR, update when prices or rate change.
+// OpenAI: developers.openai.com/api/docs/models/gpt-4o-mini ($0.15/$0.60), 2026-10-22. FX assumption 1 USD = 0.92 EUR, update when prices or rate change.
 const ai = {
   provider: process.env.AI_PROVIDER ?? 'anthropic',
   defaultModel: process.env.AI_MODEL || 'claude-haiku-5-5',
