@@ -19,4 +19,5 @@
 | supastarter-Abgleich | Subagent researcher (haiku) | ~1.5 min | 28k | 1 echter Fund: Open Redirect im Kit (behoben) |
 | Gesamt-Review | Subagent opus (nach Limit fortgesetzt) | ~2 min | 136k | 5 wichtig (Daily-Fallback, Redirect-Bypass, Vercel-Upload, URL geraten, EMAIL_FROM), alle behoben |
 | Review-Fixes | Hauptsession | ~15 min | – | pgTAP 50, Vitest Callback 8 |
-| **Summe Subagenten** | | ~65 min | ~1,66 Mio. | ohne Hauptsession; M9-Lauf offen |
+| M9 Probelauf (6 Versuche) | Hauptsession | ~45 min Wanduhr | – | netto ~9 min; 4 Skript-Fixes, Next-Sicherheitsupdate, turbo `LEGAL_*` |
+| **Summe Subagenten** | | ~65 min | ~1,66 Mio. | ohne Hauptsession |
