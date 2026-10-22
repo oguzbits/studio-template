@@ -16,10 +16,8 @@ export function SiteNavigationItem({
       href={path}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'hover:bg-muted flex h-9 items-center rounded-lg px-3 text-sm font-medium transition-colors',
-        active
-          ? 'text-foreground'
-          : 'text-muted-foreground hover:text-foreground',
+        'flex h-10 items-center text-base underline-offset-[0.3em] hover:underline',
+        active ? 'text-foreground underline' : 'text-muted-foreground',
       )}
     >
       {children}

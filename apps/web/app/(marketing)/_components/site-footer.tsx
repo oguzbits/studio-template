@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { Trans } from '@kit/ui/trans';
 
-import { AppLogo } from '~/components/app-logo';
+import { Wordmark } from '~/components/wordmark';
 import appConfig from '~/config/app.config';
 import siteConfig from '~/config/site.config';
 
@@ -51,34 +51,32 @@ export async function SiteFooter() {
   const year = await getCopyrightYear();
 
   return (
-    <footer className={'mt-auto border-t py-12'}>
-      <div
-        className={
-          'container mx-auto flex flex-col gap-10 md:flex-row md:justify-between'
-        }
-      >
-        <div className={'flex max-w-xs flex-col gap-3'}>
-          <AppLogo className="w-[85px] md:w-[95px]" />
-          <p className={'text-muted-foreground text-sm'}>
+    <footer className={'container mt-auto pt-20 pb-12 md:pt-28'}>
+      <div className={'grid gap-14 lg:grid-cols-12'}>
+        <div className={'lg:col-span-5'}>
+          <Wordmark className={'text-4xl md:text-5xl'} />
+          <p className={'text-muted-foreground mt-4 max-w-[32ch] text-lg'}>
             {siteConfig.tagline}
           </p>
         </div>
 
         <nav
           aria-label={'Footer'}
-          className={'grid grid-cols-1 gap-8 sm:grid-cols-3 md:gap-16'}
+          className={
+            'grid grid-cols-2 gap-10 sm:flex sm:justify-between lg:col-span-6 lg:col-start-7'
+          }
         >
           {columns.map((col) => (
-            <div key={col.heading} className={'flex flex-col gap-3'}>
-              <h2 className={'text-sm font-medium'}>{col.heading}</h2>
-              <ul className={'flex flex-col gap-2'}>
+            <div key={col.heading} className={'flex flex-col gap-4'}>
+              <h2 className={'text-base font-medium'}>{col.heading}</h2>
+              <ul className={'flex flex-col gap-3'}>
                 {col.links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
                       prefetch={'prefetch' in link ? link.prefetch : undefined}
                       className={
-                        'text-muted-foreground hover:text-foreground text-sm'
+                        'text-muted-foreground hover:text-foreground underline-offset-[0.3em] hover:underline'
                       }
                     >
                       {link.label}
@@ -91,7 +89,7 @@ export async function SiteFooter() {
         </nav>
       </div>
 
-      <p className={'text-muted-foreground container mx-auto mt-10 text-xs'}>
+      <p className={'text-muted-foreground mt-20 text-sm'}>
         <Trans
           i18nKey="marketing.copyright"
           values={{ product: appConfig.name, year }}

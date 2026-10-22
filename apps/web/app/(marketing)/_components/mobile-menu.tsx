@@ -4,8 +4,6 @@ import { useRef } from 'react';
 
 import Link from 'next/link';
 
-import { Menu } from 'lucide-react';
-
 /** Native <details> menu: keyboard and screen reader support come for free, no Base UI. */
 export function MobileMenu(props: {
   links: { label: string; path: string }[];
@@ -20,18 +18,17 @@ export function MobileMenu(props: {
       onKeyDown={(e) => e.key === 'Escape' && close()}
     >
       <summary
-        aria-label={'Menu'}
         className={
-          'hover:bg-muted flex size-10 cursor-pointer list-none items-center justify-center rounded-lg [&::-webkit-details-marker]:hidden'
+          'flex h-10 cursor-pointer list-none items-center text-base [&::-webkit-details-marker]:hidden'
         }
       >
-        <Menu className={'size-5'} aria-hidden />
+        Menu
       </summary>
 
       <nav
         aria-label={'Mobile'}
         className={
-          'bg-popover absolute top-12 right-0 flex w-56 flex-col rounded-xl border p-1 shadow-lg'
+          'bg-popover absolute top-12 right-0 z-10 flex w-56 flex-col rounded-lg p-2 group-open:shadow-lg' // taste-skill-ignore: an open menu floats
         }
       >
         {props.links.map((link) => (
@@ -40,7 +37,7 @@ export function MobileMenu(props: {
             href={link.path}
             onClick={close}
             className={
-              'hover:bg-muted flex h-11 items-center rounded-lg px-3 text-sm font-medium'
+              'hover:bg-muted flex h-11 items-center rounded-md px-3 text-base'
             }
           >
             {link.label}
@@ -52,7 +49,7 @@ export function MobileMenu(props: {
           prefetch={false}
           onClick={close}
           className={
-            'hover:bg-muted flex h-11 items-center rounded-lg px-3 text-sm font-medium'
+            'hover:bg-muted flex h-11 items-center rounded-md px-3 text-base'
           }
         >
           Sign in

@@ -52,7 +52,7 @@ export function SiteHeaderAccountSection() {
 
 function AuthButtons() {
   return (
-    <div className={'flex items-center gap-1'}>
+    <div className={'flex items-center gap-4'}>
       <If condition={features.enableThemeToggle}>
         <ThemeToggle />
       </If>
@@ -60,10 +60,9 @@ function AuthButtons() {
       <Link
         href={pathsConfig.auth.signIn}
         prefetch={false}
-        className={cn(
-          buttonVariants({ variant: 'ghost' }),
-          'hidden h-10 px-4 md:inline-flex',
-        )}
+        className={
+          'text-muted-foreground hidden h-10 items-center text-base underline-offset-[0.3em] hover:underline md:inline-flex'
+        }
       >
         <Trans i18nKey={'auth.signIn'} />
       </Link>

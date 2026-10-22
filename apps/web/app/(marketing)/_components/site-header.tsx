@@ -1,20 +1,19 @@
-import { AppLogo } from '~/components/app-logo';
+import { Wordmark } from '~/components/wordmark';
 
 import { MobileMenu } from './mobile-menu';
 import { SiteHeaderAccountSection } from './site-header-account-section';
 import { SiteNavigation, navLinks } from './site-navigation';
 
+// A plain bar on the page ground: not sticky, so it never sits on top of content.
 export function SiteHeader() {
   return (
-    <header
-      className={'bg-background/80 sticky top-0 z-10 border-b backdrop-blur-lg'}
-    >
-      <div className={'container mx-auto flex h-16 items-center gap-6'}>
-        <AppLogo />
+    <header>
+      <div className={'container flex h-20 items-center gap-10'}>
+        <Wordmark />
 
         <SiteNavigation />
 
-        <div className={'ml-auto flex items-center gap-1'}>
+        <div className={'ml-auto flex items-center gap-3'}>
           <SiteHeaderAccountSection />
           <MobileMenu links={navLinks} />
         </div>

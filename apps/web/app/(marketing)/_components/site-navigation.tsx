@@ -9,7 +9,7 @@ export const navLinks = [
 
 export function SiteNavigation() {
   return (
-    <nav aria-label={'Main'} className={'hidden items-center gap-1 md:flex'}>
+    <nav aria-label={'Main'} className={'hidden items-center gap-8 md:flex'}>
       {navLinks.map((item) => (
         <SiteNavigationItem key={item.path} path={item.path}>
           {item.label}
