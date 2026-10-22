@@ -118,7 +118,10 @@ export function MagicLinkAuthContainer({
             <TermsAndConditionsFormField />
           </If>
 
-          <Button className={'h-10'} disabled={signInWithOtpMutation.isPending}>
+          <Button
+            className={'h-11 text-base'}
+            disabled={signInWithOtpMutation.isPending}
+          >
             <If
               condition={signInWithOtpMutation.isPending}
               fallback={<Trans i18nKey={'auth.sendEmailLink'} />}

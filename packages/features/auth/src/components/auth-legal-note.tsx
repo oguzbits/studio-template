@@ -10,7 +10,7 @@ export function AuthLegalNote({
   termsPath?: string;
 }) {
   return (
-    <p className={'text-muted-foreground text-center text-xs'}>
+    <p className={'text-muted-foreground text-center text-sm'}>
       <Trans
         i18nKey={termsPath ? 'auth.legalNoteTerms' : 'auth.legalNote'}
         components={{

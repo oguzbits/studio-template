@@ -2,10 +2,8 @@ import Link from 'next/link';
 
 import { getTranslations } from 'next-intl/server';
 
+import { AuthCard, AuthHeading } from '@kit/auth/shared';
 import { SignInMethodsContainer } from '@kit/auth/sign-in';
-import { buttonVariants } from '@kit/ui/button';
-import { cn } from '@kit/ui/utils';
-import { Heading } from '@kit/ui/heading';
 import { Trans } from '@kit/ui/trans';
 
 import authConfig from '~/config/auth.config';
@@ -26,25 +24,30 @@ const paths = {
 function SignInPage() {
   return (
     <>
-      <div className={'flex flex-col items-center'}>
-        <Heading level={2} className={'text-2xl tracking-tight lg:text-2xl'}>
+      <AuthHeading
+        title={<Trans i18nKey={'auth.signInHeading'} />}
+        subtitle={
           <Trans
-            i18nKey={'auth.signInHeading'}
+            i18nKey={'auth.signInSubheading'}
             values={{ productName: process.env.NEXT_PUBLIC_PRODUCT_NAME }}
           />
-        </Heading>
-      </div>
+        }
+      />
 
-      <SignInMethodsContainer paths={paths} providers={authConfig.providers} />
+      <AuthCard>
+        <SignInMethodsContainer
+          paths={paths}
+          providers={authConfig.providers}
+        />
+      </AuthCard>
 
       <div className={'flex justify-center'}>
         <Link
           href={pathsConfig.auth.signUp}
           prefetch={false}
-          className={cn(
-            buttonVariants({ variant: 'link', size: 'sm' }),
-            'underline',
-          )}
+          className={
+            'text-muted-foreground hover:text-foreground text-sm underline underline-offset-4'
+          }
         >
           <Trans i18nKey={'auth.doNotHaveAccountYet'} />
         </Link>

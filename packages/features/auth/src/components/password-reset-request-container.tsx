@@ -102,7 +102,7 @@ export function PasswordResetRequestContainer(params: {
               />
 
               <Button
-                className={'h-10'}
+                className={'h-11 text-base'}
                 disabled={resetPasswordMutation.isPending}
                 type="submit"
               >

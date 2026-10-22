@@ -1,12 +1,12 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@kit/ui/tabs';
 import { Trans } from '@kit/ui/trans';
 
 /**
- * Layout only: OAuth on top, divider "or", then the email methods.
+ * Layout only: OAuth on top, a plain "or", then one email method. With both
+ * email methods enabled the other one is a quiet text switch under the form.
  * Pass null for a method that is not enabled.
  */
 export function AuthMethods({
@@ -18,42 +18,49 @@ export function AuthMethods({
   magicLink: ReactNode | null;
   oauth: ReactNode | null;
 }) {
+  const [method, setMethod] = useState<'password' | 'magic-link'>('password');
   const hasEmail = Boolean(password || magicLink);
+  const both = Boolean(password && magicLink);
 
   return (
-    <div className={'flex flex-col gap-y-4'}>
+    <div className={'flex flex-col gap-y-5'}>
       {oauth}
 
       {oauth && hasEmail ? (
-        <div role={'separator'} className={'flex items-center gap-x-3'}>
-          <span className={'bg-border h-px flex-1'} />
-
-          <span className={'text-muted-foreground text-xs'}>
-            <Trans i18nKey={'auth.or'} />
-          </span>
-
-          <span className={'bg-border h-px flex-1'} />
-        </div>
+        <p
+          role={'separator'}
+          className={'text-muted-foreground text-center text-sm'}
+        >
+          <Trans i18nKey={'auth.or'} />
+        </p>
       ) : null}
 
-      {password && magicLink ? (
-        <Tabs defaultValue={'password'} className={'gap-4'}>
-          <TabsList className={'w-full'}>
-            <TabsTrigger value={'password'}>
-              <Trans i18nKey={'auth.tabPassword'} />
-            </TabsTrigger>
+      {both
+        ? method === 'password'
+          ? password
+          : magicLink
+        : (password ?? magicLink)}
 
-            <TabsTrigger value={'magic-link'}>
-              <Trans i18nKey={'auth.tabMagicLink'} />
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={'password'}>{password}</TabsContent>
-          <TabsContent value={'magic-link'}>{magicLink}</TabsContent>
-        </Tabs>
-      ) : (
-        (password ?? magicLink)
-      )}
+      {both ? (
+        <button
+          type={'button'}
+          data-test={'auth-method-switch'}
+          onClick={() =>
+            setMethod(method === 'password' ? 'magic-link' : 'password')
+          }
+          className={
+            'text-muted-foreground hover:text-foreground self-center text-sm underline underline-offset-4'
+          }
+        >
+          <Trans
+            i18nKey={
+              method === 'password'
+                ? 'auth.useMagicLinkInstead'
+                : 'auth.usePasswordInstead'
+            }
+          />
+        </button>
+      ) : null}
     </div>
   );
 }

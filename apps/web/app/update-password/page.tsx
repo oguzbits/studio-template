@@ -3,10 +3,10 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 
 import { UpdatePasswordForm } from '@kit/auth/password-reset';
-import { AuthLayoutShell } from '@kit/auth/shared';
+import { AuthCard, AuthLayoutShell } from '@kit/auth/shared';
 
-import { AppLogo } from '~/components/app-logo';
 import { AuthProvider } from '~/components/auth-provider';
+import { Wordmark } from '~/components/wordmark';
 import { ZodJitless } from '~/components/zod-jitless';
 import { AuthFormSkeleton } from '~/components/skeletons/page-skeletons';
 import pathsConfig from '~/config/paths.config';
@@ -20,7 +20,7 @@ export const generateMetadata = async () => {
   };
 };
 
-const Logo = () => <AppLogo href={''} />;
+const Logo = () => <Wordmark />;
 
 interface UpdatePasswordPageProps {
   searchParams: Promise<{
@@ -52,7 +52,11 @@ async function UpdatePassword(props: UpdatePasswordPageProps) {
   const { callback } = await props.searchParams;
   const redirectTo = callback ?? pathsConfig.app.home;
 
-  return <UpdatePasswordForm redirectTo={redirectTo} />;
+  return (
+    <AuthCard>
+      <UpdatePasswordForm redirectTo={redirectTo} />
+    </AuthCard>
+  );
 }
 
 export default UpdatePasswordPage;

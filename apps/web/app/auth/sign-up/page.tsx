@@ -2,10 +2,8 @@ import Link from 'next/link';
 
 import { getTranslations } from 'next-intl/server';
 
+import { AuthCard, AuthHeading } from '@kit/auth/shared';
 import { SignUpMethodsContainer } from '@kit/auth/sign-up';
-import { buttonVariants } from '@kit/ui/button';
-import { cn } from '@kit/ui/utils';
-import { Heading } from '@kit/ui/heading';
 import { Trans } from '@kit/ui/trans';
 
 import authConfig from '~/config/auth.config';
@@ -26,26 +24,26 @@ const paths = {
 function SignUpPage() {
   return (
     <>
-      <div className={'flex flex-col items-center'}>
-        <Heading level={2} className={'text-2xl tracking-tight lg:text-2xl'}>
-          <Trans i18nKey={'auth.signUpHeading'} />
-        </Heading>
-      </div>
-
-      <SignUpMethodsContainer
-        providers={authConfig.providers}
-        displayTermsCheckbox={authConfig.displayTermsCheckbox}
-        paths={paths}
+      <AuthHeading
+        title={<Trans i18nKey={'auth.signUpHeading'} />}
+        subtitle={<Trans i18nKey={'auth.signUpSubheading'} />}
       />
+
+      <AuthCard>
+        <SignUpMethodsContainer
+          providers={authConfig.providers}
+          displayTermsCheckbox={authConfig.displayTermsCheckbox}
+          paths={paths}
+        />
+      </AuthCard>
 
       <div className={'flex justify-center'}>
         <Link
           href={pathsConfig.auth.signIn}
           prefetch={false}
-          className={cn(
-            buttonVariants({ variant: 'link', size: 'sm' }),
-            'underline',
-          )}
+          className={
+            'text-muted-foreground hover:text-foreground text-sm underline underline-offset-4'
+          }
         >
           <Trans i18nKey={'auth.alreadyHaveAnAccount'} />
         </Link>

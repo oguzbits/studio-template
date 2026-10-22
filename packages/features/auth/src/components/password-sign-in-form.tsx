@@ -105,7 +105,7 @@ export function PasswordSignInForm({
                   prefetch={false}
                   className={cn(
                     buttonVariants({ size: 'sm', variant: 'link' }),
-                    'px-0 text-xs underline',
+                    'text-muted-foreground hover:text-foreground px-0 text-sm underline',
                   )}
                 >
                   <Trans i18nKey={'auth.passwordForgottenQuestion'} />
@@ -117,7 +117,7 @@ export function PasswordSignInForm({
 
         <Button
           data-test="auth-submit-button"
-          className={'group h-10 w-full'}
+          className={'group h-11 w-full text-base'}
           type="submit"
           disabled={loading}
         >
