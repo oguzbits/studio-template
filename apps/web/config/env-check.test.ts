@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { checkEnv } from './env-check';
 
 const valid = {
+  NEXT_PUBLIC_PRODUCT_NAME: 'Acme',
   NEXT_PUBLIC_SITE_URL: 'https://acme.vercel.app',
   NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
   NEXT_PUBLIC_SUPABASE_ANON_KEY: 'anon',
@@ -90,5 +91,41 @@ describe('checkEnv', () => {
 
     expect(errors).toHaveLength(2);
     expect(errors.join('\n')).not.toMatch(/key-SECRET|pk_live/);
+  });
+
+  it('rejects an http site URL', () => {
+    const { errors } = check({ NEXT_PUBLIC_SITE_URL: 'http://acme.app' });
+
+    expect(errors.join('\n')).toMatch(/NEXT_PUBLIC_SITE_URL/);
+  });
+
+  it('rejects identical light and dark theme colors', () => {
+    const { errors } = check({
+      NEXT_PUBLIC_THEME_COLOR: '#fff',
+      NEXT_PUBLIC_THEME_COLOR_DARK: '#fff',
+    });
+
+    expect(errors.join('\n')).toMatch(/NEXT_PUBLIC_THEME_COLOR_DARK/);
+  });
+
+  it('accepts different theme colors', () => {
+    const { errors } = check({
+      NEXT_PUBLIC_THEME_COLOR: '#fff',
+      NEXT_PUBLIC_THEME_COLOR_DARK: '#000',
+    });
+
+    expect(errors).toEqual([]);
+  });
+
+  it('rejects an unknown default theme', () => {
+    const { errors } = check({ NEXT_PUBLIC_DEFAULT_THEME_MODE: 'neon' });
+
+    expect(errors.join('\n')).toMatch(/NEXT_PUBLIC_DEFAULT_THEME_MODE/);
+  });
+
+  it('requires a product name', () => {
+    const { errors } = check({ NEXT_PUBLIC_PRODUCT_NAME: undefined });
+
+    expect(errors.join('\n')).toMatch(/NEXT_PUBLIC_PRODUCT_NAME/);
   });
 });

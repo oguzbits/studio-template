@@ -33,9 +33,24 @@ export function checkEnv(env: Env, productKeys: string[]) {
   };
   const any = () => true;
 
+  require('NEXT_PUBLIC_PRODUCT_NAME', any, 'product name shown in the UI');
   require('NEXT_PUBLIC_SITE_URL', (v) =>
     v.startsWith('https://') &&
     !v.includes('localhost'), 'public https URL of the deployment');
+  const theme = env.NEXT_PUBLIC_DEFAULT_THEME_MODE;
+  if (theme && !['light', 'dark', 'system'].includes(theme)) {
+    errors.push(
+      'NEXT_PUBLIC_DEFAULT_THEME_MODE is invalid (light, dark or system)',
+    );
+  }
+  if (
+    env.NEXT_PUBLIC_THEME_COLOR &&
+    env.NEXT_PUBLIC_THEME_COLOR === env.NEXT_PUBLIC_THEME_COLOR_DARK
+  ) {
+    errors.push(
+      'NEXT_PUBLIC_THEME_COLOR_DARK must differ from NEXT_PUBLIC_THEME_COLOR',
+    );
+  }
   require('NEXT_PUBLIC_SUPABASE_URL', (v) =>
     v.startsWith('https://'), 'https URL of the Supabase project');
   require('NEXT_PUBLIC_SUPABASE_ANON_KEY', any, 'Supabase anon key');

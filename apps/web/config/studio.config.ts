@@ -13,6 +13,7 @@ const ProductSchema = z
     priceId: z.string(),
     priceMonthlyEur: z.number().positive().optional(),
     priceEur: z.number().positive().optional(),
+    features: z.array(z.string().min(1)).optional(),
   })
   // `studio:new` creates the Stripe price from these amounts
   .refine(

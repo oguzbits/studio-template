@@ -1,23 +1,33 @@
-import { z } from 'zod';
+// Public marketing copy. Pure data: imported by client components, so no zod here.
+// The schema lives in site.schema.ts and is checked by site.config.test.ts.
+export type FeatureIcon =
+  | 'shield'
+  | 'credit-card'
+  | 'globe'
+  | 'zap'
+  | 'lock'
+  | 'mail'
+  | 'sparkles'
+  | 'clock';
 
-// Public marketing copy. Pure data: imported by client components via app.config.
-// Defaults are true for every product built on this template; replace them per product.
-const SiteSchema = z.object({
-  tagline: z.string().min(1),
-  description: z.string().min(1),
-  hero: z.object({
-    title: z.string().min(1),
-    subtitle: z.string().min(1),
-    cta: z.object({ label: z.string().min(1), href: z.string().min(1) }),
-  }),
-  features: z
-    .array(z.object({ title: z.string().min(1), description: z.string() }))
-    .max(6),
+export type SiteConfig = {
+  tagline: string;
+  description: string;
+  hero: {
+    title: string;
+    subtitle: string;
+    cta: { label: string; href: string };
+    announcement?: { label: string; href?: string };
+    // substring of title, rendered in the accent color
+    highlight?: string;
+  };
+  features: { title: string; description: string; icon?: FeatureIcon }[];
   // empty = /faq returns 404 and is left out of sitemap and navigation
-  faq: z.array(z.object({ question: z.string().min(1), answer: z.string() })),
-});
+  faq: { question: string; answer: string }[];
+};
 
-const siteConfig = SiteSchema.parse({
+// Defaults are true for every product built on this template; replace them per product.
+const siteConfig = {
   tagline: 'The simple way to get it done',
   description:
     'Sign up in seconds, pay securely with Stripe and cancel anytime. Hosted in the EU.',
@@ -65,6 +75,6 @@ const siteConfig = SiteSchema.parse({
         'In the EU (Frankfurt). The privacy policy lists every service we use.',
     },
   ],
-} satisfies z.input<typeof SiteSchema>);
+} satisfies SiteConfig;
 
 export default siteConfig;

@@ -1,33 +1,19 @@
-import { z } from 'zod';
-
+// Plain object: imported by client components, so no zod here.
 type LanguagePriority = 'user' | 'application';
 
-const FeatureFlagsSchema = z.object({
-  enableThemeToggle: z.boolean({
-    error: 'Provide the variable NEXT_PUBLIC_ENABLE_THEME_TOGGLE',
-  }),
-  languagePriority: z
-    .enum(['user', 'application'], {
-      error: 'Provide the variable NEXT_PUBLIC_LANGUAGE_PRIORITY',
-    })
-    .default('application'),
-  enableVersionUpdater: z.boolean({
-    error: 'Provide the variable NEXT_PUBLIC_ENABLE_VERSION_UPDATER',
-  }),
-});
-
-const featuresFlagConfig = FeatureFlagsSchema.parse({
+const featuresFlagConfig = {
   enableThemeToggle: getBoolean(
     process.env.NEXT_PUBLIC_ENABLE_THEME_TOGGLE,
     true,
   ),
-  languagePriority: process.env
-    .NEXT_PUBLIC_LANGUAGE_PRIORITY as LanguagePriority,
+  // shortcut: unknown values are not rejected, add a check to env-check if a deploy ever sets one
+  languagePriority: (process.env.NEXT_PUBLIC_LANGUAGE_PRIORITY ||
+    'application') as LanguagePriority,
   enableVersionUpdater: getBoolean(
     process.env.NEXT_PUBLIC_ENABLE_VERSION_UPDATER,
     false,
   ),
-} satisfies z.infer<typeof FeatureFlagsSchema>);
+};
 
 export default featuresFlagConfig;
 

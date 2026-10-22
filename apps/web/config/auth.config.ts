@@ -1,20 +1,13 @@
+// Plain object: imported by client components, so no zod here.
 import type { Provider } from '@supabase/supabase-js';
 
-import { z } from 'zod';
+type AuthConfig = {
+  captchaTokenSiteKey?: string;
+  displayTermsCheckbox?: boolean;
+  providers: { password: boolean; magicLink: boolean; oAuth: Provider[] };
+};
 
-const providers: z.ZodType<Provider> = getProviders();
-
-const AuthConfigSchema = z.object({
-  captchaTokenSiteKey: z.string().optional(),
-  displayTermsCheckbox: z.boolean().optional(),
-  providers: z.object({
-    password: z.boolean(),
-    magicLink: z.boolean(),
-    oAuth: providers.array(),
-  }),
-});
-
-const authConfig = AuthConfigSchema.parse({
+const authConfig: AuthConfig = {
   // NB: This is a public key, so it's safe to expose.
   // Copy the value from the Supabase Dashboard.
   captchaTokenSiteKey: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,
@@ -30,32 +23,6 @@ const authConfig = AuthConfigSchema.parse({
     magicLink: process.env.NEXT_PUBLIC_AUTH_MAGIC_LINK === 'true',
     oAuth: process.env.NEXT_PUBLIC_AUTH_GOOGLE === 'true' ? ['google'] : [],
   },
-} satisfies z.infer<typeof AuthConfigSchema>);
+};
 
 export default authConfig;
-
-function getProviders() {
-  return z.enum([
-    'apple',
-    'azure',
-    'bitbucket',
-    'discord',
-    'facebook',
-    'figma',
-    'github',
-    'gitlab',
-    'google',
-    'kakao',
-    'keycloak',
-    'linkedin',
-    'linkedin_oidc',
-    'notion',
-    'slack',
-    'spotify',
-    'twitch',
-    'twitter',
-    'workos',
-    'zoom',
-    'fly',
-  ]);
-}

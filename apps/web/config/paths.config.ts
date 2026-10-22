@@ -1,22 +1,5 @@
-import { z } from 'zod';
-
-const PathsSchema = z.object({
-  auth: z.object({
-    signIn: z.string().min(1),
-    signUp: z.string().min(1),
-    verifyMfa: z.string().min(1),
-    callback: z.string().min(1),
-    passwordReset: z.string().min(1),
-    passwordUpdate: z.string().min(1),
-  }),
-  app: z.object({
-    home: z.string().min(1),
-    profileSettings: z.string().min(1),
-    billing: z.string().min(1),
-  }),
-});
-
-const pathsConfig = PathsSchema.parse({
+// Plain object: imported by client components, so no zod here.
+const pathsConfig = {
   auth: {
     signIn: '/auth/sign-in',
     signUp: '/auth/sign-up',
@@ -30,6 +13,6 @@ const pathsConfig = PathsSchema.parse({
     profileSettings: '/home/settings',
     billing: '/home/billing',
   },
-} satisfies z.infer<typeof PathsSchema>);
+};
 
 export default pathsConfig;

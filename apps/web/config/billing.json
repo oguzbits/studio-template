@@ -7,6 +7,15 @@
     "customer.subscription.deleted"
   ],
   "products": {
-    "pro": { "name": "Pro", "mode": "subscription", "priceMonthlyEur": 9 }
+    "pro": {
+      "name": "Pro",
+      "mode": "subscription",
+      "priceMonthlyEur": 9,
+      "features": [
+        "Full access to the Pro area",
+        "Secure checkout with Stripe",
+        "Cancel anytime in the customer portal"
+      ]
+    }
   }
 }
