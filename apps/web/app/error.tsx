@@ -59,6 +59,10 @@ const ErrorPage = ({
           >
             <Trans i18nKey={'common.tryAgain'} />
           </button>
+
+          <Link href={'/contact'} className={'quiet-link text-base'}>
+            <Trans i18nKey={'marketing.contact'} />
+          </Link>
         </div>
       </main>
     </div>

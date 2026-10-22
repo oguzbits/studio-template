@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { billingCancel } from './handlers/billing-cancel';
+import { contactNotification } from './handlers/contact-notification';
 import { dailyDigest } from './handlers/daily-digest';
 import { welcomeEmail } from './handlers/welcome-email';
 
@@ -14,4 +15,5 @@ export const handlers = new Map<string, JobHandler>([
   ['welcome-email', welcomeEmail],
   ['daily-digest', dailyDigest],
   ['billing-cancel', billingCancel],
+  ['contact-notification', contactNotification],
 ]);

@@ -39,6 +39,7 @@ async function getPaths() {
     '/',
     ...(siteConfig.faq.length > 0 ? ['/faq'] : []),
     '/pricing',
+    '/contact',
     '/impressum',
     '/datenschutz',
     '/kuendigen',

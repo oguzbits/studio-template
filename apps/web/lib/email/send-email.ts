@@ -18,6 +18,7 @@ export async function sendEmail(params: {
   to: string;
   subject: string;
   react: ReactElement;
+  replyTo?: string;
   idempotencyKey?: string;
 }): Promise<{ id: string }> {
   const apiKey = process.env.RESEND_API_KEY;
@@ -46,7 +47,13 @@ export async function sendEmail(params: {
   const html = await render(params.react);
 
   const { data, error } = await new Resend(apiKey).emails.send(
-    { from, to: params.to, subject: params.subject, html },
+    {
+      from,
+      to: params.to,
+      subject: params.subject,
+      html,
+      replyTo: params.replyTo,
+    },
     params.idempotencyKey
       ? { idempotencyKey: params.idempotencyKey }
       : undefined,

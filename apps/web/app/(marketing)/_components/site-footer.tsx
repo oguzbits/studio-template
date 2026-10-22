@@ -28,6 +28,7 @@ const columns = [
     links: [
       { href: '/pricing', label: 'Pricing' },
       ...(siteConfig.faq.length > 0 ? [{ href: '/faq', label: 'FAQ' }] : []),
+      { href: '/contact', label: 'Contact' },
     ],
   },
   {
