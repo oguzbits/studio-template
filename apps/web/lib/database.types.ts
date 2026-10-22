@@ -285,6 +285,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      admin_metrics: { Args: Record<PropertyKey, never>; Returns: Json };
       apply_billing_event: {
         Args: {
           p_event_id: string;

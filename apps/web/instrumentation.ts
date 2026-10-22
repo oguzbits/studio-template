@@ -1,15 +1,25 @@
 /**
- * This file is used to register monitoring instrumentation
- * for your Next.js application.
+ * Monitoring instrumentation. Sentry is only initialised when SENTRY_DSN is set.
  */
+import * as Sentry from '@sentry/nextjs';
 import { type Instrumentation } from 'next';
 
-/**
- * @name onRequestError
- * @description This function is called when an error occurs during the request lifecycle.
- * It is used to capture the error and send it to the monitoring service.
- * @param err
- */
-export const onRequestError: Instrumentation.onRequestError = (err) => {
-  console.error(`Server Side Error:`, err);
+export async function register() {
+  if (!process.env.SENTRY_DSN) {
+    return;
+  }
+
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 0,
+    sendDefaultPii: false,
+  });
+}
+
+export const onRequestError: Instrumentation.onRequestError = (...args) => {
+  if (process.env.SENTRY_DSN) {
+    Sentry.captureRequestError(...args);
+  }
+
+  console.error(`Server Side Error:`, args[0]);
 };

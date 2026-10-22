@@ -29,6 +29,8 @@ und wartet auf `/api/health`. Bricht ein Schritt ab, setzt ein erneuter Aufruf d
 (Zustand in `.studio/state.json`, nicht committet). Am Ende steht die manuelle Checkliste (Stripe-Konto,
 Webhook, Resend-Domain/DNS, Domain) in `docs/launch-checklist.md`.
 
+Fehler-Monitoring: Sentry ist nur aktiv, wenn `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN` gesetzt sind. Empfohlen ist die EU-Region (de.sentry.io).
+
 Env-Variablen: siehe `.env.example`. Lokale Supabase des Templates: Ports 55320–55326.
 
 ---

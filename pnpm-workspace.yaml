@@ -12,6 +12,7 @@ catalog:
   '@next/bundle-analyzer': 16.4.0
   '@playwright/test': ^1.64.1
   '@base-ui/react': 1.9.0
+  '@sentry/nextjs': 10.76.1
   '@supabase/ssr': ^0.12.7
   '@supabase/supabase-js': 2.117.3
   '@tailwindcss/postcss': ^4.1.14
@@ -74,4 +75,5 @@ allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
   'esbuild': true
+  '@sentry/cli': false
   'sharp': true
