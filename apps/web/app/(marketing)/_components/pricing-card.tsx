@@ -17,9 +17,17 @@ export function PricingCard(props: {
   highlighted: boolean;
   // plain-text label, only when there is more than one plan to choose from
   popular: boolean;
+  // lg and up: the page shows the features elsewhere
+  featuresBeside?: boolean;
   product: Product;
 }) {
-  const { productKey: key, highlighted, popular, product } = props;
+  const {
+    productKey: key,
+    highlighted,
+    popular,
+    product,
+    featuresBeside,
+  } = props;
   const price =
     product.mode === 'subscription'
       ? product.priceMonthlyEur
@@ -49,7 +57,12 @@ export function PricingCard(props: {
       </p>
 
       {product.features && product.features.length > 0 && (
-        <ul className={'mt-10 flex flex-col gap-3 text-lg'}>
+        <ul
+          className={cn(
+            'mt-10 flex flex-col gap-3 text-lg',
+            featuresBeside && 'lg:hidden',
+          )}
+        >
           {product.features.map((f) => (
             <li key={f}>{f}</li>
           ))}

@@ -5,12 +5,13 @@ export function SitePageHeader({
   subtitle,
   container = true,
   className = '',
-}: {
+  children,
+}: React.PropsWithChildren<{
   title: string;
   subtitle: string;
   container?: boolean;
   className?: string;
-}) {
+}>) {
   return (
     <div
       className={cn(
@@ -23,6 +24,7 @@ export function SitePageHeader({
       <p className={'max-w-[40ch] text-xl leading-snug md:text-2xl'}>
         {subtitle}
       </p>
+      {children}
     </div>
   );
 }
