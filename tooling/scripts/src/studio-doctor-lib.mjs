@@ -68,16 +68,19 @@ export async function runLocalChecks(probes, checkFn = checkKey) {
         }
         const r = await checkFn(key, secrets[key], secrets);
         out.push({ label: key, ok: r.ok, hard, detail: r.error });
-        if (
-          key === 'RESEND_API_KEY' &&
-          r.ok &&
-          (r.verifiedDomains === 0 || r.warning)
-        ) {
+        if (key === 'RESEND_API_KEY' && r.ok && r.verifiedDomains === 0) {
           out.push({
             label: 'Resend-Domain',
             ok: false,
             hard: false,
             detail: RESEND_DOMAIN_HINT,
+          });
+        } else if (key === 'RESEND_API_KEY' && r.ok && r.warning) {
+          out.push({
+            label: 'Resend-Domain',
+            ok: false,
+            hard: false,
+            detail: r.warning,
           });
         }
       }

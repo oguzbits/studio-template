@@ -5,6 +5,12 @@ export function nextAction(entry, value, result) {
   return value && result?.ok ? 'ok' : 'ask';
 }
 
+// Suffix je `required`-Wert (true | 'warn' | false)
+export const SUFFIX = {
+  true: '',
+  warn: ' (vor Launch nötig)',
+  false: ' (optional)',
+};
 const MARK = { ok: '✓', set: '✓', skipped: '–', failed: '✗' };
 const LABEL = {
   ok: 'vorhanden und gültig',
@@ -16,7 +22,7 @@ const LABEL = {
 export function summarize(entries, outcomes) {
   const lines = entries.map(
     ({ key, required }) =>
-      `${MARK[outcomes[key]]} ${key}  ${LABEL[outcomes[key]]}${required === true ? '' : ' (optional)'}`,
+      `${MARK[outcomes[key]]} ${key}  ${LABEL[outcomes[key]]}${SUFFIX[required]}`,
   );
   const missingRequired = entries
     .filter(

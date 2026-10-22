@@ -88,6 +88,20 @@ describe('runLocalChecks', () => {
         'Mails nur an die eigene Resend-Adresse; Fremde können sich nicht registrieren. Domain anlegen (später studio:launch).',
     });
   });
+
+  it('Resend-Key nur zum Senden: Warnung statt Domain-Hinweis', async () => {
+    const checkFn = async (key) =>
+      key === 'RESEND_API_KEY'
+        ? { ok: true, warning: 'Domain-Status unbekannt' }
+        : { ok: true };
+    const results = await runLocalChecks(probes(), checkFn);
+    expect(byLabel(results, 'Resend-Domain')).toEqual({
+      label: 'Resend-Domain',
+      ok: false,
+      hard: false,
+      detail: 'Domain-Status unbekannt',
+    });
+  });
 });
 
 describe('checkLive', () => {

@@ -32,6 +32,10 @@ describe('summarize', () => {
     );
     expect(missingRequired).toEqual(['A', 'C']);
     expect(lines).toHaveLength(5);
+    expect(lines[1]).toContain('(optional)');
+    expect(lines[4]).toContain('(vor Launch nötig)');
+    expect(lines[4]).not.toContain('(optional)');
+    expect(lines[0]).not.toContain('(');
   });
 });
 
