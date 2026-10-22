@@ -16,3 +16,7 @@
 | M7 Betrieb | Subagent sonnet | ~5 min | 84k | Sentry 10.76.1 ohne withSentryConfig; @sentry/cli-Build aus |
 | M7 Review | Subagent sonnet | ~1 min | 59k | 1 wichtig (unbestätigte Admin-Mail), 6 minor |
 | M7 Review-Fixes + E2E-Spec | Hauptsession | ~10 min | – | requireAdmin liest auth.users frisch; Trials nicht in MRR |
+| supastarter-Abgleich | Subagent researcher (haiku) | ~1.5 min | 28k | 1 echter Fund: Open Redirect im Kit (behoben) |
+| Gesamt-Review | Subagent opus (nach Limit fortgesetzt) | ~2 min | 136k | 5 wichtig (Daily-Fallback, Redirect-Bypass, Vercel-Upload, URL geraten, EMAIL_FROM), alle behoben |
+| Review-Fixes | Hauptsession | ~15 min | – | pgTAP 50, Vitest Callback 8 |
+| **Summe Subagenten** | | ~65 min | ~1,66 Mio. | ohne Hauptsession; M9-Lauf offen |

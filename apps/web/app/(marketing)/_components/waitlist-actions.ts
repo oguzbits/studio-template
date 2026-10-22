@@ -7,6 +7,7 @@ import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client'
 
 const EmailSchema = z.string().trim().toLowerCase().pipe(z.email());
 
+// shortcut: öffentlich ohne Rate-Limit/Captcha (Tabelle kann zugespammt werden), bei Missbrauch `captcha: true` (Turnstile, CAPTCHA_SECRET_TOKEN) aktivieren
 export const joinWaitlist = enhanceAction(
   async (formData: FormData) => {
     const parsed = EmailSchema.safeParse(formData.get('email'));

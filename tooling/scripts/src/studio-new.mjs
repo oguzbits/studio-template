@@ -1,7 +1,7 @@
 // `pnpm studio:new <name> [--dry-run]`: neues Projekt aus diesem Template anlegen und live schalten.
-// Ablauf: Kopie → Supabase (EU) → Migrationen → Vercel-Projekt + Env → Auth/SMTP/Vault → Deploy → Checkliste.
+// Ablauf: Kopie → Supabase (EU) → Migrationen → Vercel-Projekt + Env → Deploy → echte URL prüfen → Auth/SMTP/Vault → Checkliste.
 // Wiederholbar: Der Zustand liegt in <ziel>/.studio/state.json; erledigte Schritte werden übersprungen.
-import { execFileSync, execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import {
   chmodSync,
@@ -87,13 +87,19 @@ try {
     () => state.siteUrl,
   );
   await step('Env-Variablen setzen', setVercelEnv, () => state.envSet);
+  await step('.env.local schreiben', writeLocalEnv, () => state.localEnv);
+  await step('Deploy (Produktion)', deploy, () => state.deployed);
+  // Auth-URLs und Vault erst mit der echten Domain, sonst ruft pg_cron eine fremde App mit CRON_SECRET auf
+  await step(
+    'Produktions-URL prüfen',
+    verifySiteUrl,
+    () => state.siteUrlVerified,
+  );
   await step(
     'Supabase Auth, SMTP, Vault',
     configureSupabase,
     () => state.supabaseConfigured,
   );
-  await step('.env.local schreiben', writeLocalEnv, () => state.localEnv);
-  await step('Deploy (Produktion)', deploy, () => state.deployed);
   await step('Live-Check /api/health', waitForHealth, () => state.live);
 } catch (error) {
   console.error(
@@ -114,7 +120,10 @@ writeFileSync(
   `# Launch-Checkliste ${name}\n\n${checklist}\n`,
 );
 git(['add', 'docs/launch-checklist.md']);
-git(['commit', '-q', '-m', 'docs: launch checklist from studio:new']);
+// erneuter Lauf nach Erfolg: nichts zu committen
+if (git(['status', '--porcelain', 'docs/launch-checklist.md']).trim()) {
+  git(['commit', '-q', '-m', 'docs: launch checklist from studio:new']);
+}
 
 console.log(`\n${checklist}\n`);
 console.log('Zeiten:');
@@ -142,8 +151,17 @@ async function copyTemplate() {
     ['-C', ROOT, 'rev-parse', '--short', 'HEAD'],
     { encoding: 'utf8' },
   ).trim();
+  // abgebrochene Kopie (nur state.json, copied fehlt): neu beginnen
+  rmSync(target, { recursive: true, force: true });
   mkdirSync(target, { recursive: true });
-  execSync(`git -C "${ROOT}" archive HEAD | tar -x -C "${target}"`);
+  save();
+  execFileSync('sh', [
+    '-c',
+    'git -C "$1" archive HEAD | tar -x -C "$2"',
+    'sh',
+    ROOT,
+    target,
+  ]);
   for (const path of [
     'docs/superpowers',
     'docs/ledger.md',
@@ -173,6 +191,11 @@ async function copyTemplate() {
   writeFileSync(
     resolve(target, '.gitignore'),
     `${readFileSync(resolve(target, '.gitignore'), 'utf8')}\n# studio:new state\n.studio\n`,
+  );
+  // `vercel deploy` lädt das Verzeichnis hoch und liest .gitignore nicht: Secrets ausschließen
+  writeFileSync(
+    resolve(target, '.vercelignore'),
+    '.studio\n.env*.local\n.env.keys\n',
   );
 
   git(['init', '-q', '-b', 'main']);
@@ -209,6 +232,7 @@ async function createSupabaseProject() {
         env.SUPABASE_ORG_ID,
         '--region',
         REGION,
+        // shortcut: Passwort kurz in `ps` sichtbar (create kennt keine Env-Variable), lokal unkritisch
         '--db-password',
         state.dbPassword,
         '-o',
@@ -238,22 +262,10 @@ async function waitForSupabase() {
 }
 
 async function pushMigrations() {
+  // Passwort per Env statt Argument (nicht in `ps` sichtbar)
   const dbEnv = { SUPABASE_DB_PASSWORD: state.dbPassword };
-  supabase(
-    [
-      'link',
-      '--project-ref',
-      state.supabaseRef,
-      '--password',
-      state.dbPassword,
-    ],
-    dbEnv,
-  );
-  supabase(
-    ['db', 'push', '--linked', '--include-all', '--password', state.dbPassword],
-    dbEnv,
-    'y\n',
-  );
+  supabase(['link', '--project-ref', state.supabaseRef], dbEnv);
+  supabase(['db', 'push', '--linked', '--include-all'], dbEnv, 'y\n');
   const keys = await supabaseApi(
     'GET',
     `/v1/projects/${state.supabaseRef}/api-keys`,
@@ -298,6 +310,8 @@ async function setVercelEnv() {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: state.anonKey,
     SUPABASE_SERVICE_ROLE_KEY: state.serviceRoleKey,
     CRON_SECRET: state.cronSecret,
+    // ohne verifizierte Resend-Domain der einzige erlaubte Absender; EMAIL_FROM aus den Secrets gewinnt
+    EMAIL_FROM: `${name} <onboarding@resend.dev>`,
     // pnpm-Version aus packageManager verwenden
     ENABLE_EXPERIMENTAL_COREPACK: '1',
   };
@@ -325,6 +339,32 @@ async function setVercelEnv() {
     })),
   );
   state.envSet = true;
+  save();
+}
+
+// Vor dem ersten Deploy ist die Domain nur geraten (`<name>.vercel.app` kann vergeben sein).
+async function verifySiteUrl() {
+  const { domains = [] } = await vercelApi(
+    'GET',
+    `/v9/projects/${state.vercelProjectId}/domains`,
+  );
+  const domain = domains
+    .map((d) => d.name)
+    .filter((d) => d.endsWith('.vercel.app'))
+    .sort((a, b) => a.length - b.length)[0];
+  if (!domain) throw new Error('Vercel meldet keine Produktions-Domain.');
+
+  const actual = `https://${domain}`;
+  if (actual !== state.siteUrl) {
+    console.log(
+      `  Vercel hat ${actual} vergeben (geraten war ${state.siteUrl}): Env aktualisieren, neu deployen.`,
+    );
+    state.siteUrl = actual;
+    save();
+    await setVercelEnv();
+    await deploy();
+  }
+  state.siteUrlVerified = true;
   save();
 }
 
@@ -528,8 +568,21 @@ async function api(url, method, token, body) {
   });
   const text = await response.text();
   if (!response.ok) {
+    // Fehlertexte können den Request zurückspiegeln (z. B. Vault-SQL): bekannte Secrets schwärzen
+    const secrets = [
+      state?.cronSecret,
+      state?.dbPassword,
+      state?.serviceRoleKey,
+      env.RESEND_API_KEY,
+      env.GOOGLE_CLIENT_SECRET,
+      token,
+    ].filter(Boolean);
+    // erst schwärzen, dann kürzen (sonst bliebe ein abgeschnittenes Secret stehen)
+    const detail = secrets
+      .reduce((out, secret) => out.replaceAll(secret, '***'), text)
+      .slice(0, 300);
     const error = new Error(
-      `${method} ${new URL(url).pathname} → ${response.status}: ${text.slice(0, 300)}`,
+      `${method} ${new URL(url).pathname} → ${response.status}: ${detail}`,
     );
     error.status = response.status;
     throw error;
