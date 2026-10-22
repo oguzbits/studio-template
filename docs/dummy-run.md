@@ -27,7 +27,8 @@ Checkliste (Stripe-Konto, Produkt, Webhook, Kundenportal: geschätzt 10–15 min
 - Impressum zeigt die Platzhalter (`LEGAL_*` nicht in `.env.shared` gesetzt) – gewolltes Verhalten.
 - Registrierung: Bestätigungsmail kam über Resend-SMTP an, Adresse bestätigt; der Link endete aber auf
   „could not authenticate you“ (Supabase-Default-Template mit PKCE-Link, im anderen Browser geöffnet). Login per
-  Passwort funktionierte. Fix: Skript lädt die Kit-Templates (`/auth/confirm?token_hash=…`) hoch (`5ac67f7`).
+  Passwort funktionierte. Fix: Skript lädt die Kit-Templates (`/auth/confirm?token_hash=…`) hoch (`5ac67f7`);
+  danach Login per Magic Link bestätigt.
 - Stripe-Testzahlung 9 €/Monat: Kunde angelegt, 2 Webhook-Events verarbeitet, `entitlements.pro` = `active`
   bis 2026-11-22; Job `welcome-email` erledigt (1 Versuch).
 
