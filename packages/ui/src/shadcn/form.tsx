@@ -104,21 +104,32 @@ const FormControl: React.FC<
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
-  return useRender({
+  const aria = {
+    id: formItemId,
+    'aria-describedby': !error
+      ? `${formDescriptionId}`
+      : `${formDescriptionId} ${formMessageId}`,
+    'aria-invalid': !!error,
+  };
+
+  const wrapped = useRender({
     defaultTagName: 'div',
     render: props.render,
     props: {
       ...props,
-      id: formItemId,
+      ...aria,
       'aria-labelledby': formItemId,
-      'aria-describedby': !error
-        ? `${formDescriptionId}`
-        : `${formDescriptionId} ${formMessageId}`,
-      'aria-invalid': !!error,
       className: cn(props.className),
       children: props.children,
     },
   });
+
+  // The control itself gets the id, so FormLabel's htmlFor labels the input (a wrapper div left it unlabelled).
+  if (!props.render && React.isValidElement(props.children)) {
+    return React.cloneElement(props.children as React.ReactElement, aria);
+  }
+
+  return wrapped;
 };
 FormControl.displayName = 'FormControl';
 

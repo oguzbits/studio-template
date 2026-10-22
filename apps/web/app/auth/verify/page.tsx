@@ -10,6 +10,7 @@ import { checkRequiresMultiFactorAuthentication } from '@kit/supabase/check-requ
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 import { AuthFormSkeleton } from '~/components/skeletons/page-skeletons';
+import { ZodJitless } from '~/components/zod-jitless';
 import pathsConfig from '~/config/paths.config';
 
 interface Props {
@@ -61,12 +62,14 @@ async function VerifyChallenge(props: Props) {
   const redirectPath = nextPath ?? pathsConfig.app.home;
 
   return (
-    <MultiFactorChallengeContainer
-      userId={data.claims.sub}
-      paths={{
-        redirectPath,
-      }}
-    />
+    <ZodJitless>
+      <MultiFactorChallengeContainer
+        userId={data.claims.sub}
+        paths={{
+          redirectPath,
+        }}
+      />
+    </ZodJitless>
   );
 }
 

@@ -7,10 +7,12 @@ import type { AuthError } from '@supabase/supabase-js';
 import { ResendAuthLinkForm } from '@kit/auth/resend-email-link';
 import { Alert, AlertDescription, AlertTitle } from '@kit/ui/alert';
 import { alertExtras } from '@kit/ui/alert-extras';
-import { Button } from '@kit/ui/button';
+import { buttonVariants } from '@kit/ui/button';
+import { cn } from '@kit/ui/utils';
 import { Trans } from '@kit/ui/trans';
 
 import { AuthFormSkeleton } from '~/components/skeletons/page-skeletons';
+import { ZodJitless } from '~/components/zod-jitless';
 import pathsConfig from '~/config/paths.config';
 
 interface AuthCallbackErrorPageProps {
@@ -72,7 +74,11 @@ function AuthCallbackForm(props: {
 }) {
   switch (props.code) {
     case 'otp_expired':
-      return <ResendAuthLinkForm redirectPath={props.redirectPath} />;
+      return (
+        <ZodJitless>
+          <ResendAuthLinkForm redirectPath={props.redirectPath} />
+        </ZodJitless>
+      );
     default:
       return <SignInButton signInPath={props.signInPath} />;
   }
@@ -80,13 +86,9 @@ function AuthCallbackForm(props: {
 
 function SignInButton(props: { signInPath: string }) {
   return (
-    <Button
-      nativeButton={false}
-      render={<Link href={props.signInPath} />}
-      className={'w-full'}
-    >
+    <Link href={props.signInPath} className={cn(buttonVariants(), 'w-full')}>
       <Trans i18nKey={'auth.signIn'} />
-    </Button>
+    </Link>
   );
 }
 

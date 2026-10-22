@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
 import { SignInMethodsContainer } from '@kit/auth/sign-in';
-import { Button } from '@kit/ui/button';
+import { buttonVariants } from '@kit/ui/button';
+import { cn } from '@kit/ui/utils';
 import { Heading } from '@kit/ui/heading';
 import { Trans } from '@kit/ui/trans';
 
@@ -37,17 +38,16 @@ function SignInPage() {
       <SignInMethodsContainer paths={paths} providers={authConfig.providers} />
 
       <div className={'flex justify-center'}>
-        <Button
-          nativeButton={false}
-          variant={'link'}
-          size={'sm'}
-          className={'underline'}
-          render={
-            <Link href={pathsConfig.auth.signUp}>
-              <Trans i18nKey={'auth.doNotHaveAccountYet'} />
-            </Link>
-          }
-        />
+        <Link
+          href={pathsConfig.auth.signUp}
+          prefetch={false}
+          className={cn(
+            buttonVariants({ variant: 'link', size: 'sm' }),
+            'underline',
+          )}
+        >
+          <Trans i18nKey={'auth.doNotHaveAccountYet'} />
+        </Link>
       </div>
     </>
   );

@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 
 import { Badge } from '@kit/ui/badge';
-import { Button } from '@kit/ui/button';
+import { Button, buttonVariants } from '@kit/ui/button';
 import {
   Card,
   CardAction,
@@ -58,9 +58,9 @@ async function BillingOverview() {
         </CardHeader>
 
         <CardContent>
-          <Button nativeButton={false} render={<Link href={'/pricing'} />}>
+          <Link href={'/pricing'} className={buttonVariants()}>
             See plans
-          </Button>
+          </Link>
         </CardContent>
       </Card>
     );

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Button } from '@kit/ui/button';
+import { Button, buttonVariants } from '@kit/ui/button';
 
 import { AuthGate } from '~/components/auth-gate';
 import pathsConfig from '~/config/paths.config';
@@ -39,16 +39,12 @@ function CancelPage() {
               </form>
             }
             signedOut={
-              <Button
-                nativeButton={false}
-                render={
-                  <Link
-                    href={`${pathsConfig.auth.signIn}?next=${encodeURIComponent('/kuendigen')}`}
-                  />
-                }
+              <Link
+                href={`${pathsConfig.auth.signIn}?next=${encodeURIComponent('/kuendigen')}`}
+                className={buttonVariants()}
               >
                 Verträge hier kündigen
-              </Button>
+              </Link>
             }
           />
         </div>

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Button } from '@kit/ui/button';
+import { buttonVariants } from '@kit/ui/button';
 import {
   Card,
   CardDescription,
@@ -33,19 +33,15 @@ export default function HomePage() {
           </CardHeader>
 
           <CardFooter className={'gap-2'}>
-            <Button
-              nativeButton={false}
-              render={<Link href={pathsConfig.app.billing} />}
-            >
+            <Link href={pathsConfig.app.billing} className={buttonVariants()}>
               Billing
-            </Button>
-            <Button
-              variant={'outline'}
-              nativeButton={false}
-              render={<Link href={pathsConfig.app.profileSettings} />}
+            </Link>
+            <Link
+              href={pathsConfig.app.profileSettings}
+              className={buttonVariants({ variant: 'outline' })}
             >
               Settings
-            </Button>
+            </Link>
           </CardFooter>
         </Card>
       </PageBody>

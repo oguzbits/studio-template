@@ -1,11 +1,9 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from 'zod';
 
 import { useSignInWithOtp } from '@kit/supabase/hooks/use-sign-in-with-otp';
 import { Alert, AlertDescription, AlertTitle } from '@kit/ui/alert';
@@ -24,6 +22,7 @@ import { Input } from '@kit/ui/input';
 import { Trans } from '@kit/ui/trans';
 
 import { useCaptchaToken } from '../captcha/client';
+import { lazyZodResolver } from '../lazy-zod-resolver';
 import { TermsAndConditionsFormField } from './terms-and-conditions-form-field';
 
 export function MagicLinkAuthContainer({
@@ -45,11 +44,11 @@ export function MagicLinkAuthContainer({
   const signInWithOtpMutation = useSignInWithOtp();
 
   const form = useForm({
-    resolver: zodResolver(
-      z.object({
-        email: z.string().email(),
-      }),
-    ),
+    resolver: lazyZodResolver<{ email: string }>(async () => {
+      const { z } = await import('zod');
+
+      return z.object({ email: z.string().email() });
+    }),
     defaultValues: {
       email: defaultValues?.email ?? '',
     },

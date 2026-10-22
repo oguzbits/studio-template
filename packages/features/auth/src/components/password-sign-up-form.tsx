@@ -1,6 +1,5 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
@@ -19,7 +18,7 @@ import { If } from '@kit/ui/if';
 import { Input } from '@kit/ui/input';
 import { Trans } from '@kit/ui/trans';
 
-import { PasswordSignUpSchema } from '../schemas/password-sign-up.schema';
+import { lazyZodResolver } from '../lazy-zod-resolver';
 import { TermsAndConditionsFormField } from './terms-and-conditions-form-field';
 
 export function PasswordSignUpForm({
@@ -44,7 +43,16 @@ export function PasswordSignUpForm({
   const t = useTranslations();
 
   const form = useForm({
-    resolver: zodResolver(PasswordSignUpSchema),
+    resolver: lazyZodResolver<{
+      email: string;
+      password: string;
+      repeatPassword: string;
+    }>(async () => {
+      const { PasswordSignUpSchema } =
+        await import('../schemas/password-sign-up.schema');
+
+      return PasswordSignUpSchema;
+    }),
     defaultValues: {
       email: defaultValues?.email ?? '',
       password: '',

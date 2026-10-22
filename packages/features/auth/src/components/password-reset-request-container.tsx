@@ -1,9 +1,7 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 import { useRequestResetPassword } from '@kit/supabase/hooks/use-request-reset-password';
 import { Alert, AlertDescription } from '@kit/ui/alert';
@@ -22,11 +20,8 @@ import { Input } from '@kit/ui/input';
 import { Trans } from '@kit/ui/trans';
 
 import { useCaptchaToken } from '../captcha/client';
+import { lazyZodResolver } from '../lazy-zod-resolver';
 import { AuthErrorAlert } from './auth-error-alert';
-
-const PasswordResetSchema = z.object({
-  email: z.string().email(),
-});
 
 export function PasswordResetRequestContainer(params: {
   redirectPath: string;
@@ -38,8 +33,12 @@ export function PasswordResetRequestContainer(params: {
   const error = resetPasswordMutation.error;
   const success = resetPasswordMutation.data;
 
-  const form = useForm<z.infer<typeof PasswordResetSchema>>({
-    resolver: zodResolver(PasswordResetSchema),
+  const form = useForm<{ email: string }>({
+    resolver: lazyZodResolver(async () => {
+      const { z } = await import('zod');
+
+      return z.object({ email: z.string().email() });
+    }),
     defaultValues: {
       email: '',
     },

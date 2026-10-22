@@ -22,7 +22,7 @@ export function AuthLayoutShell({
     >
       {Logo ? <Logo /> : null}
 
-      <div
+      <main
         className={cn(
           'bg-background flex w-full max-w-[400px] flex-col gap-y-4',
           contentClassName,
@@ -31,7 +31,7 @@ export function AuthLayoutShell({
         {children}
 
         <AuthLegalNote privacyPath={'/datenschutz'} />
-      </div>
+      </main>
     </div>
   );
 }

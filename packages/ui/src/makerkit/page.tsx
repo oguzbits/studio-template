@@ -128,7 +128,7 @@ export function PageBody(
 ) {
   const className = cn('flex min-w-0 flex-1 flex-col lg:px-4', props.className);
 
-  return <div className={className}>{props.children}</div>;
+  return <main className={className}>{props.children}</main>;
 }
 
 export function PageNavigation(props: React.PropsWithChildren) {

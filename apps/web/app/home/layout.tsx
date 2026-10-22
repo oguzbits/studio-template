@@ -3,6 +3,7 @@ import { SidebarProvider } from '@kit/ui/sidebar';
 
 import { AppLogo } from '~/components/app-logo';
 import { AuthProvider } from '~/components/auth-provider';
+import { ZodJitless } from '~/components/zod-jitless';
 import { navigationConfig } from '~/config/navigation.config';
 
 // home imports
@@ -21,13 +22,15 @@ import { HomeSidebar } from './_components/home-sidebar';
  */
 function HomeLayout({ children }: React.PropsWithChildren) {
   return (
-    <AuthProvider>
-      {navigationConfig.style === 'sidebar' ? (
-        <SidebarLayout>{children}</SidebarLayout>
-      ) : (
-        <HeaderLayout>{children}</HeaderLayout>
-      )}
-    </AuthProvider>
+    <ZodJitless>
+      <AuthProvider>
+        {navigationConfig.style === 'sidebar' ? (
+          <SidebarLayout>{children}</SidebarLayout>
+        ) : (
+          <HeaderLayout>{children}</HeaderLayout>
+        )}
+      </AuthProvider>
+    </ZodJitless>
   );
 }
 

@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 
-import { Button } from '@kit/ui/button';
+import { Button, buttonVariants } from '@kit/ui/button';
+import { cn } from '@kit/ui/utils';
 import {
   Form,
   FormControl,
@@ -21,7 +21,8 @@ import { If } from '@kit/ui/if';
 import { Input } from '@kit/ui/input';
 import { Trans } from '@kit/ui/trans';
 
-import { PasswordSignInSchema } from '../schemas/password-sign-in.schema';
+import { lazyZodResolver } from '../lazy-zod-resolver';
+import type { PasswordSignInSchema } from '../schemas/password-sign-in.schema';
 
 export function PasswordSignInForm({
   onSubmit,
@@ -33,7 +34,12 @@ export function PasswordSignInForm({
   const t = useTranslations('auth');
 
   const form = useForm<z.infer<typeof PasswordSignInSchema>>({
-    resolver: zodResolver(PasswordSignInSchema),
+    resolver: lazyZodResolver(async () => {
+      const { PasswordSignInSchema } =
+        await import('../schemas/password-sign-in.schema');
+
+      return PasswordSignInSchema;
+    }),
     defaultValues: {
       email: '',
       password: '',
@@ -94,15 +100,16 @@ export function PasswordSignInForm({
               <FormMessage />
 
               <div>
-                <Button
-                  nativeButton={false}
-                  render={<Link href={'/auth/password-reset'} />}
-                  size={'sm'}
-                  variant={'link'}
-                  className={'px-0 text-xs underline'}
+                <Link
+                  href={'/auth/password-reset'}
+                  prefetch={false}
+                  className={cn(
+                    buttonVariants({ size: 'sm', variant: 'link' }),
+                    'px-0 text-xs underline',
+                  )}
                 >
                   <Trans i18nKey={'auth.passwordForgottenQuestion'} />
-                </Button>
+                </Link>
               </div>
             </FormItem>
           )}

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Button } from '@kit/ui/button';
+import { Button, buttonVariants } from '@kit/ui/button';
 import { Trans } from '@kit/ui/trans';
 
 import { SiteHeader } from '~/(marketing)/_components/site-header';
@@ -36,9 +36,9 @@ const ErrorPage = ({
         </div>
 
         <div className={'flex gap-x-3'}>
-          <Button nativeButton={false} render={<Link href={'/'} />}>
+          <Link href={'/'} className={buttonVariants()}>
             <Trans i18nKey={'common.backToHomePage'} />
-          </Button>
+          </Link>
 
           <Button variant={'outline'} onClick={reset}>
             <Trans i18nKey={'common.tryAgain'} />

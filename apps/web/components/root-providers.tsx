@@ -29,7 +29,7 @@ const CaptchaTokenSetter = dynamic(async () => {
     return Promise.resolve(() => null);
   }
 
-  const { CaptchaTokenSetter } = await import('@kit/auth/captcha/client');
+  const { CaptchaTokenSetter } = await import('@kit/auth/captcha/token-setter');
 
   return {
     default: CaptchaTokenSetter,

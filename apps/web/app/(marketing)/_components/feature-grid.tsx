@@ -44,7 +44,7 @@ export function FeatureGrid() {
                   <Icon className={'size-5'} aria-hidden />
                 </span>
               )}
-              <h3 className={'font-medium'}>{f.title}</h3>
+              <h2 className={'font-medium'}>{f.title}</h2>
               <p className={'text-muted-foreground text-sm'}>{f.description}</p>
             </li>
           );

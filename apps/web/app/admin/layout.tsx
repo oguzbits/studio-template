@@ -8,11 +8,11 @@ import { requireAdmin } from '~/lib/admin/load-metrics';
 export default function AdminLayout({ children }: React.PropsWithChildren) {
   return (
     <AuthProvider>
-      <div className="mx-auto max-w-4xl space-y-6 p-6">
+      <main className="mx-auto max-w-4xl space-y-6 p-6">
         <Suspense fallback={<p>Loading…</p>}>
           <Guard>{children}</Guard>
         </Suspense>
-      </div>
+      </main>
     </AuthProvider>
   );
 }

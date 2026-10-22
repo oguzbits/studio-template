@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { getTranslations } from 'next-intl/server';
 
-import { Button } from '@kit/ui/button';
+import { buttonVariants } from '@kit/ui/button';
 import { Trans } from '@kit/ui/trans';
 
 import { SiteHeader } from '~/(marketing)/_components/site-header';
@@ -36,9 +36,9 @@ const NotFoundPage = () => {
           </p>
         </div>
 
-        <Button nativeButton={false} render={<Link href={'/'} />}>
+        <Link href={'/'} className={buttonVariants()}>
           <Trans i18nKey={'common.backToHomePage'} />
-        </Button>
+        </Link>
       </main>
     </div>
   );

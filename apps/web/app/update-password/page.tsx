@@ -7,6 +7,7 @@ import { AuthLayoutShell } from '@kit/auth/shared';
 
 import { AppLogo } from '~/components/app-logo';
 import { AuthProvider } from '~/components/auth-provider';
+import { ZodJitless } from '~/components/zod-jitless';
 import { AuthFormSkeleton } from '~/components/skeletons/page-skeletons';
 import pathsConfig from '~/config/paths.config';
 import { requireUserInServerComponent } from '~/lib/server/require-user-in-server-component';
@@ -33,13 +34,15 @@ interface UpdatePasswordPageProps {
  */
 function UpdatePasswordPage(props: UpdatePasswordPageProps) {
   return (
-    <AuthProvider>
-      <AuthLayoutShell Logo={Logo}>
-        <Suspense fallback={<AuthFormSkeleton />}>
-          <UpdatePassword searchParams={props.searchParams} />
-        </Suspense>
-      </AuthLayoutShell>
-    </AuthProvider>
+    <ZodJitless>
+      <AuthProvider>
+        <AuthLayoutShell Logo={Logo}>
+          <Suspense fallback={<AuthFormSkeleton />}>
+            <UpdatePassword searchParams={props.searchParams} />
+          </Suspense>
+        </AuthLayoutShell>
+      </AuthProvider>
+    </ZodJitless>
   );
 }
 
