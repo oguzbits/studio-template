@@ -26,10 +26,11 @@ Stand 2026-10-23. Grundlage: [Evaluation](../../evaluation-2026-10-22.md) Punkt 
 
 ## 1. Theme und Typografie
 
-- `apps/web/styles/shadcn-ui.css`: Tokens aus ui-analyse §5 (OKLCH, Hue 260, Teal-Akzent) für hell und dunkel.
+- ~~`apps/web/styles/shadcn-ui.css`: Tokens aus ui-analyse §5 (OKLCH, Hue 260, Teal-Akzent) für hell und dunkel.
   Primärbutton invertiert (`--primary` = Vordergrund), Teal als eigenes Token `--accent-brand` (Text-Variante
   L 0.53 für Kontrast ≥ 4,5:1 auf Hell) für Links, Häkchen, Fokus, Badge, H1-Highlight.
-  `--secondary`, `--muted`, `--accent` unterscheidbar (Surface-Stufen background / card / muted).
+  `--secondary`, `--muted`, `--accent` unterscheidbar (Surface-Stufen background / card / muted).~~
+  **Ersetzt** durch die Revision unten (warm-neutrale Tokens, grüner Akzent nur auf der Primäraktion).
 - `--radius: 0.5rem`; Karten/Dialoge 12 px; Controls 40 px Standard, 48 px Hero-CTA/Auth.
 - `lib/fonts.ts`: Geist (next/font/google, Variable Font) statt Inter; Headings 600, H1 −0,035 em.
 - Regel: Statisches mit 1 px Border ohne Schatten; Schwebendes Border + weicher Schatten; Dunkel ohne Schatten.
@@ -41,7 +42,8 @@ Stand 2026-10-23. Grundlage: [Evaluation](../../evaluation-2026-10-22.md) Punkt 
 - Ziel: kein Base-UI/floating-ui im Marketing-Erstbundle.
 - Desktop-Navigation: einfache `<Link>`s statt `NavigationMenu`. Mobil: `<details>`/`<summary>`-Menü (CSS,
   Tastatur und Screenreader nativ) statt `DropdownMenu`.
-- Header sticky, `backdrop-blur`, 1 px Unterkante; Logo aus `AppLogo`.
+- ~~Header sticky, `backdrop-blur`, 1 px Unterkante; Logo aus `AppLogo`.~~ **Ersetzt**: schlichte Leiste,
+  Serifen-Wortmarke (siehe Revision).
 - Links auf `/auth/*` (Header, Hero-CTA, Pricing) mit `prefetch={false}`: der Supabase-Client der Auth-Seiten
   (~93 KB) wird nicht mehr auf Marketing-Seiten vorgeladen.
 - Konto-Bereich im Header (eingeloggt: Nutzer-Menü) darf Base-UI behalten, wird aber erst nach Auth-Prüfung
@@ -57,14 +59,15 @@ Stand 2026-10-23. Grundlage: [Evaluation](../../evaluation-2026-10-22.md) Punkt 
 
 ## 4. Landing (`app/(marketing)/page.tsx`)
 
-- Hero: Announcement-Pill (optional, `siteConfig.hero.announcement`), H1 mit Akzent-Teil
+- ~~Hero: Announcement-Pill (optional, `siteConfig.hero.announcement`), H1 mit Akzent-Teil
   (`siteConfig.hero.highlight`, optional, Teilstring des Titels), Untertitel, zwei CTAs (Primär + Outline auf
   `/pricing`), dezenter radialer Teal-Glow (Alpha ≤ 0,12). LCP bleibt die H1 (kein Fade, keine Webfont-Blockade).
 - `HeroMock` (`app/(marketing)/_components/hero-mock.tsx`, Server-Komponente): Browser-Rahmen mit kleinem
   App-Mock aus `@kit/ui`-Primitiven (Sidebar-Leiste, Karten, Liste); `aria-hidden`, pro Produkt austauschbar.
 - Feature-Grid 3×2: Icon, Titel, Satz. `siteConfig.features[].icon` optional aus einer festen Lucide-Auswahl
   (Map in der Komponente, kein dynamischer Import).
-- FAQ-Akkordeon (`<details>`), nur wenn `faq` gefüllt; End-CTA-Band mit Warteliste.
+- FAQ-Akkordeon (`<details>`), nur wenn `faq` gefüllt; End-CTA-Band mit Warteliste.~~
+  **Ersetzt** (Pill, Akzent-H1, Glow, HeroMock, Icon-Karten, FAQ-Akkordeon) durch die Revision unten.
 - Eigene Komponenten statt `@kit/ui/marketing`, wo dessen Markup im Weg ist.
 
 ## 5. Pricing (`app/(marketing)/pricing/page.tsx`)
@@ -114,3 +117,27 @@ Stand 2026-10-23. Grundlage: [Evaluation](../../evaluation-2026-10-22.md) Punkt 
 
 Onboarding, Kontaktformular, Admin-Nutzerliste (→ 2c), Jahres-Toggle, Kundenlogos/Social Proof,
 Cookie-Banner, `⌘K`, Org-Switcher, neue Sprachen.
+
+## Revision (2026-10-23, nach Nutzerfeedback)
+
+Feedback: das Ergebnis von 2b wirkte wie „AI slop“. Neue Richtung: ruhig, ehrlich, neutral für viele Produkte,
+redaktionell (Prinzip à la Claude/Anthropic, aber ohne deren Palette, Schrift oder Logo).
+
+- **Palette** (`shadcn-ui.css`): warm-neutraler Grund `#f6f5f3`, Tinte `#1b1814`, gedämpft `#5f5a55`; dunkel
+  Dunkelgrau `#1f1e1c` statt Schwarz, Tinte `#eae8e3`. Genau ein Akzent, tiefes Grün `#245c41` (dunkel
+  `#97c8ac`), nur auf der Primäraktion und im Fokusring. Kein Creme+Terrakotta, kein `--accent-brand`.
+  Kontraste ≥ 4,5:1 hell und dunkel (gedämpft auf Fläche 5,65 bzw. 6,0).
+- **Schrift**: Newsreader (next/font/google, variabel, swap, latin, preload) nur für H1/H2 auf Marketing,
+  Auth und Fehlerseiten (`font-display`, `section-heading`, `page-title`); Geist bleibt für Text und UI, die
+  App (`/home`) bleibt serifenlos.
+- **Landing**: linksbündiger Hero mit Serifen-H1 (max. 2 Zeilen), ein Satz, eine Primäraktion und ein
+  ruhiger Link; drei Feature-Aussagen als Text; FAQ als schlichtes Frage/Antwort; Warteliste auf flacher
+  Tonfläche. Config ohne `hero.announcement`, `hero.highlight` und `features[].icon`.
+- **Pricing**: Spalten ohne Kartenrahmen, großer Serifenpreis; der empfohlene Plan liegt auf einer flachen
+  Tonfläche; „Popular“ nur als Text und nur bei mehr als einem Produkt. `highlightedProduct` unverändert.
+- **Header/Footer**: nicht sticky, kein Blur, keine Pill-Navigation; Wortmarke als Serifentext.
+- **Auth**: zentrierter kurzer Titel mit einem grauen Satz, Formular auf einer Fläche (Radius 28 px,
+  Tonstufe statt Rahmen), OAuth zuerst, „or“, dann E-Mail; Passwort/Magic Link als leiser Text-Umschalter
+  statt Tabs (ersetzt §6 „Tabs“). `data-test`-Attribute bleiben.
+- **404/Fehler**: zentrierte Serifenaussage, ein Satz, eine Primäraktion.
+- Geprüft mit dem taste-skill-Inspektor (0 FAIL auf `/`, `/pricing`, `/auth/sign-in`, 404) und Lighthouse.
