@@ -80,7 +80,7 @@ export const SHARED_KEYS = [
   entry('LEGAL_VAT_ID', false, false, 'Impressum: USt-IdNr.'),
   entry(
     'LEGAL_RESPONSIBLE',
-    true,
+    'warn',
     false,
     'Impressum: Verantwortlich nach § 18 MStV',
   ),

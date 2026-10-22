@@ -144,12 +144,11 @@ describe('loadSharedSecrets', () => {
       );
     }));
   it('Impressum, Admin und KI warnen nur (wie env-check.ts)', () => {
-    for (const key of [
-      'LEGAL_PHONE',
-      'LEGAL_NAME',
-      'ADMIN_EMAILS',
-      'ANTHROPIC_API_KEY',
-    ]) {
+    const legal = SHARED_KEYS.map((e) => e.key).filter(
+      (key) => key.startsWith('LEGAL_') && key !== 'LEGAL_VAT_ID',
+    );
+    expect(legal).toHaveLength(6);
+    for (const key of [...legal, 'ADMIN_EMAILS', 'ANTHROPIC_API_KEY']) {
       expect(SHARED_KEYS.find((e) => e.key === key).required).toBe('warn');
     }
   });
