@@ -127,7 +127,7 @@ redaktionell (Prinzip à la Claude/Anthropic, aber ohne deren Palette, Schrift o
   Dunkelgrau `#1f1e1c` statt Schwarz, Tinte `#eae8e3`. Genau ein Akzent, tiefes Grün `#245c41` (dunkel
   `#97c8ac`), nur auf der Primäraktion und im Fokusring. Kein Creme+Terrakotta, kein `--accent-brand`.
   Kontraste ≥ 4,5:1 hell und dunkel (gedämpft auf Fläche 5,65 bzw. 6,0).
-- **Schrift**: Newsreader (next/font/google, variabel, swap, latin, preload) nur für H1/H2 auf Marketing,
+- **Schrift**: Newsreader (next/font/google, statischer 400-Schnitt statt Variable Font: 22 statt 58 KB, swap, latin, preload) nur für H1/H2 auf Marketing,
   Auth und Fehlerseiten (`font-display`, `section-heading`, `page-title`); Geist bleibt für Text und UI, die
   App (`/home`) bleibt serifenlos.
 - **Landing**: linksbündiger Hero mit Serifen-H1 (max. 2 Zeilen), ein Satz, eine Primäraktion und ein
