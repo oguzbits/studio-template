@@ -23,9 +23,12 @@ const heading = sans;
 /**
  * @display
  * @description Serif for H1/H2 on marketing, auth and error pages (`font-display`).
- * Preloaded because the hero H1 is the LCP element.
+ * Preloaded because the hero H1 is the LCP element. One static 400 cut instead
+ * of the variable file: the serif is only ever set at 400, and the variable
+ * file (58 KB) cost ~150-300 ms of simulated mobile LCP.
  */
 const display = DisplayFont({
+  weight: '400',
   subsets: ['latin'],
   variable: '--font-display-face',
   fallback: ['Georgia', 'Times New Roman', 'serif'],
