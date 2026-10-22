@@ -4,7 +4,6 @@ import { createElement } from 'react';
 
 import { z } from 'zod';
 
-import { getLogger } from '@kit/shared/logger';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
 import appConfig from '~/config/app.config';
@@ -17,69 +16,63 @@ import { loadUserEmail } from './load-user-email';
 
 const PayloadSchema = z.object({ user_id: z.guid(), day: z.iso.date() });
 
-// 23503: the user was deleted after the job was enqueued
+// 23503: the user was deleted while the digest was being sent
 const USER_GONE = '23503';
 
+/*
+ * Send first, record after. A crash between the two only means the retry sends
+ * again, and the Resend idempotency key (24 h window) turns that, like any
+ * concurrent duplicate job, into the same single email. digest_sends only lets
+ * later jobs for the day stop early.
+ */
 export const dailyDigest: JobHandler = async (payload) => {
   const { user_id: userId, day } = PayloadSchema.parse(payload);
   const client = getSupabaseServerAdminClient();
   const key = { user_id: userId, day };
 
-  // the row reserves the send: a second job for the same day finds it and stops
-  const { data: reserved, error } = await client
+  const { data: sent, error } = await client
     .from('digest_sends')
-    .upsert(key, { onConflict: 'user_id,day', ignoreDuplicates: true })
     .select('user_id')
+    .match(key)
     .maybeSingle();
 
-  if (error?.code === USER_GONE) {
-    return;
-  }
-
   if (error) {
-    throw new Error(`Reserving the digest failed: ${error.message}`, {
+    throw new Error(`Loading the digest record failed: ${error.message}`, {
       cause: error,
     });
   }
 
-  if (!reserved) {
+  if (sent) {
     return;
   }
 
-  try {
-    const items = await getDigestItems(userId, day);
+  const items = await getDigestItems(userId, day);
 
-    // nothing to report today; the reservation stays so retries do not send either
-    if (items.length === 0) {
-      return;
-    }
+  if (items.length === 0) {
+    return;
+  }
 
-    const email = await loadUserEmail(userId);
+  const email = await loadUserEmail(userId);
 
-    if (!email) {
-      return;
-    }
+  if (!email) {
+    return;
+  }
 
-    await sendEmail({
-      to: email,
-      subject: `Your ${appConfig.name} digest for ${day}`,
-      react: createElement(DigestEmail, { items, date: day }),
-      idempotencyKey: `digest:${userId}:${day}`,
+  await sendEmail({
+    to: email,
+    subject: `Your ${appConfig.name} digest for ${day}`,
+    react: createElement(DigestEmail, { items, date: day }),
+    idempotencyKey: `digest:${userId}:${day}`,
+  });
+
+  const { error: recordError } = await client
+    .from('digest_sends')
+    .upsert(key, { onConflict: 'user_id,day', ignoreDuplicates: true });
+
+  // a failed record retries the job; the idempotency key keeps the resend a no-op
+  if (recordError && recordError.code !== USER_GONE) {
+    throw new Error(`Recording the digest failed: ${recordError.message}`, {
+      cause: recordError,
     });
-  } catch (error) {
-    // release the reservation so the retry sends
-    const { error: deleteError } = await client
-      .from('digest_sends')
-      .delete()
-      .match(key);
-
-    if (deleteError) {
-      (await getLogger()).error(
-        { name: 'jobs.daily-digest', userId, day, error: deleteError },
-        'Releasing the digest reservation failed, the digest will be skipped',
-      );
-    }
-
-    throw error;
   }
 };

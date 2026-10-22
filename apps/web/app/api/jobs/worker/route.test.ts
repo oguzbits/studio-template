@@ -64,6 +64,13 @@ describe('/api/jobs/worker', () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 
+  it('does not enqueue digests for ?daily=1 without the correct secret', async () => {
+    expect((await GET(request(undefined, '?daily=1'))).status).toBe(401);
+    expect((await GET(request('Bearer wrong', '?daily=1'))).status).toBe(401);
+    expect(rpc).not.toHaveBeenCalled();
+    expect(runWorker).not.toHaveBeenCalled();
+  });
+
   it('enqueues the daily digests before running the worker with ?daily=1', async () => {
     const response = await GET(request('Bearer cron-secret', '?daily=1'));
 

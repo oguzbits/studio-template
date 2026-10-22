@@ -12,10 +12,15 @@ const MAX_ERROR_LENGTH = 2000;
 
 const ctx = { name: 'jobs.worker' };
 
+/**
+ * Claims one job at a time, so jobs the run never gets to stay queued instead of
+ * waiting out the visibility timeout. budgetMs stays below the route's maxDuration (60 s).
+ */
 export async function runWorker({
   limit = 10,
   now = new Date(),
-}: { limit?: number; now?: Date } = {}): Promise<{
+  budgetMs = 45_000,
+}: { limit?: number; now?: Date; budgetMs?: number } = {}): Promise<{
   done: number;
   failed: number;
   retried: number;
@@ -23,16 +28,27 @@ export async function runWorker({
   const client = getSupabaseServerAdminClient();
   const logger = await getLogger();
   const result = { done: 0, failed: 0, retried: 0 };
+  const startedAt = Date.now();
 
-  const { data: jobs, error } = await client.rpc('claim_jobs', {
-    p_limit: limit,
-  });
+  for (
+    let processed = 0;
+    processed < limit && Date.now() - startedAt < budgetMs;
+    processed++
+  ) {
+    const { data: jobs, error } = await client.rpc('claim_jobs', {
+      p_limit: 1,
+    });
 
-  if (error) {
-    throw new Error(`claim_jobs failed: ${error.message}`, { cause: error });
-  }
+    if (error) {
+      throw new Error(`claim_jobs failed: ${error.message}`, { cause: error });
+    }
 
-  for (const job of jobs) {
+    const job = jobs[0];
+
+    if (!job) {
+      break;
+    }
+
     try {
       const handler = handlers.get(job.type);
 

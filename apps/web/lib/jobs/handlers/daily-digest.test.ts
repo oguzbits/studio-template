@@ -13,28 +13,19 @@ type Row = { user_id: string; day: string };
 
 // in-memory digest_sends with the primary key (user_id, day)
 const table = {
-  upsert: (row: Row) => ({
-    select: () => ({
-      maybeSingle: async () => {
-        const key = `${row.user_id}:${row.day}`;
-
-        if (digestSends.has(key)) {
-          return { data: null, error: null };
-        }
-
-        digestSends.add(key);
-
-        return { data: row, error: null };
-      },
+  select: () => ({
+    match: (row: Row) => ({
+      maybeSingle: async () => ({
+        data: digestSends.has(`${row.user_id}:${row.day}`) ? row : null,
+        error: null,
+      }),
     }),
   }),
-  delete: () => ({
-    match: async (row: Row) => {
-      digestSends.delete(`${row.user_id}:${row.day}`);
+  upsert: async (row: Row) => {
+    digestSends.add(`${row.user_id}:${row.day}`);
 
-      return { error: null };
-    },
-  }),
+    return { error: null };
+  },
 };
 
 vi.mock('@kit/supabase/server-admin-client', () => ({
@@ -66,8 +57,7 @@ beforeEach(() => {
 });
 
 describe('daily-digest', () => {
-  it('sends at most one digest per user and day', async () => {
-    await dailyDigest({ user_id: userId, day }, ctx);
+  it('sends the digest and records it', async () => {
     await dailyDigest({ user_id: userId, day }, ctx);
 
     expect(sendEmail).toHaveBeenCalledTimes(1);
@@ -78,9 +68,26 @@ describe('daily-digest', () => {
       }),
     );
     expect(getDigestItems).toHaveBeenCalledWith(userId, day);
+    expect(digestSends.has(`${userId}:${day}`)).toBe(true);
   });
 
-  it('releases the reservation and rethrows when sending fails', async () => {
+  it('sends nothing when the digest for the day is already recorded', async () => {
+    digestSends.add(`${userId}:${day}`);
+
+    await dailyDigest({ user_id: userId, day }, ctx);
+
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(getDigestItems).not.toHaveBeenCalled();
+  });
+
+  it('sends at most one digest per user and day', async () => {
+    await dailyDigest({ user_id: userId, day }, ctx);
+    await dailyDigest({ user_id: userId, day }, ctx);
+
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it('records nothing and rethrows when sending fails, so the retry sends', async () => {
     sendEmail.mockRejectedValueOnce(new Error('resend down'));
 
     await expect(dailyDigest({ user_id: userId, day }, ctx)).rejects.toThrow(
@@ -88,18 +95,16 @@ describe('daily-digest', () => {
     );
     expect(digestSends.size).toBe(0);
 
-    // the retry sends
     await dailyDigest({ user_id: userId, day }, ctx);
     expect(sendEmail).toHaveBeenCalledTimes(2);
   });
 
-  it('sends nothing for an empty digest but keeps the reservation', async () => {
+  it('sends nothing for an empty digest', async () => {
     getDigestItems.mockResolvedValue([]);
 
     await dailyDigest({ user_id: userId, day }, ctx);
 
     expect(sendEmail).not.toHaveBeenCalled();
-    expect(digestSends.has(`${userId}:${day}`)).toBe(true);
   });
 
   it('rejects an invalid payload', async () => {

@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 create extension if not exists dblink with schema extensions;
 
-select plan(16);
+select plan(21);
 
 -- SKIP LOCKED ----------------------------------------------
 -- Session B sees only committed rows, so it commits the two fixture jobs itself,
@@ -76,13 +76,22 @@ $$;
 -- Visibility timeout --------------------------------------
 insert into public.jobs (id, type, status, attempts, run_at) values
   ('00000000-0000-0000-0000-0000000000d1', 'test', 'running', 1, now() - interval '100 years'),
-  ('00000000-0000-0000-0000-0000000000d2', 'test', 'running', 1, now() + interval '5 minutes');
+  ('00000000-0000-0000-0000-0000000000d2', 'test', 'running', 1, now() + interval '5 minutes'),
+  ('00000000-0000-0000-0000-0000000000d5', 'test', 'running', 5, now() - interval '100 years');
 
 select is(
   (select array_agg(id) from public.claim_jobs(10)
-   where id in ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000d2')),
+   where id in ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000d2',
+                '00000000-0000-0000-0000-0000000000d5')),
   array['00000000-0000-0000-0000-0000000000d1']::uuid[],
-  'an expired running job is reclaimed, one within its timeout is not'
+  'an expired running job is reclaimed, one within its timeout or out of attempts is not'
+);
+
+select is(
+  (select row(status, last_error)::text from public.jobs
+   where id = '00000000-0000-0000-0000-0000000000d5'),
+  row('failed'::public.job_status, 'abandoned after 5 attempts (worker crashed or timed out)')::text,
+  'an expired running job without attempts left is marked failed'
 );
 
 select is(
@@ -107,11 +116,15 @@ select is(
 insert into public.jobs (id, type, status, attempts) values
   ('00000000-0000-0000-0000-0000000000e1', 'test', 'running', 1),
   ('00000000-0000-0000-0000-0000000000e4', 'test', 'running', 4),
-  ('00000000-0000-0000-0000-0000000000e5', 'test', 'running', 5);
+  ('00000000-0000-0000-0000-0000000000e5', 'test', 'running', 5),
+  ('00000000-0000-0000-0000-0000000000e6', 'test', 'queued', 1),
+  ('00000000-0000-0000-0000-0000000000e7', 'test', 'queued', 5);
 
 select public.complete_job('00000000-0000-0000-0000-0000000000e1');
 select public.fail_job('00000000-0000-0000-0000-0000000000e4', 'boom 4', '2030-01-01T00:00:00Z');
 select public.fail_job('00000000-0000-0000-0000-0000000000e5', 'boom 5', '2030-01-01T00:00:00Z');
+select public.complete_job('00000000-0000-0000-0000-0000000000e6');
+select public.fail_job('00000000-0000-0000-0000-0000000000e7', 'stale', '2030-01-01T00:00:00Z');
 
 select is(
   (select status from public.jobs where id = '00000000-0000-0000-0000-0000000000e1'),
@@ -133,15 +146,33 @@ select is(
   'fail_job on the 5th attempt marks the job failed'
 );
 
+select is(
+  (select status from public.jobs where id = '00000000-0000-0000-0000-0000000000e6'),
+  'queued'::public.job_status,
+  'complete_job from a stale worker leaves a job that is no longer running alone'
+);
+
+select is(
+  (select row(status, last_error)::text from public.jobs
+   where id = '00000000-0000-0000-0000-0000000000e7'),
+  row('queued'::public.job_status, null::text)::text,
+  'fail_job from a stale worker leaves a job that is no longer running alone'
+);
+
 -- Account deletion cancels billing ------------------------
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000f1', 'jobs-f1@test.local'),
   ('00000000-0000-0000-0000-0000000000f2', 'jobs-f2@test.local');
 
-insert into public.billing_customers (user_id, customer_id) values
-  ('00000000-0000-0000-0000-0000000000f1', 'cus_jobs_test');
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000f3', 'jobs-f3@test.local');
 
-delete from auth.users where id = '00000000-0000-0000-0000-0000000000f1';
+insert into public.billing_customers (user_id, provider, customer_id) values
+  ('00000000-0000-0000-0000-0000000000f1', 'stripe', 'cus_jobs_test'),
+  ('00000000-0000-0000-0000-0000000000f3', 'other', 'cus_jobs_other');
+
+delete from auth.users where id in
+  ('00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000f3');
 
 select is(
   (select count(*) from public.jobs
@@ -150,15 +181,33 @@ select is(
   'deleting a user enqueues one billing-cancel job for the customer'
 );
 
+select is(
+  (select count(*) from public.jobs
+   where type = 'billing-cancel' and payload->>'customer_id' = 'cus_jobs_other'),
+  0::bigint,
+  'a customer of another provider gets no Stripe cancel job'
+);
+
 -- Daily digest --------------------------------------------
 delete from public.jobs where type = 'daily-digest';
 
+insert into auth.users (id, phone) values
+  ('00000000-0000-0000-0000-0000000000f4', '+491700000000');
+
+select public.enqueue_daily_digests();
 select public.enqueue_daily_digests();
 
 select is(
   (select count(*) from public.jobs where type = 'daily-digest'),
-  (select count(*) from auth.users),
-  'enqueue_daily_digests adds one job per user'
+  (select count(*) from auth.users where email is not null),
+  'enqueue_daily_digests adds one job per user with email, also when called twice'
+);
+
+select is(
+  (select count(*) from public.jobs
+   where type = 'daily-digest' and payload->>'user_id' = '00000000-0000-0000-0000-0000000000f4'),
+  0::bigint,
+  'a user without email gets no digest job'
 );
 
 select is(
