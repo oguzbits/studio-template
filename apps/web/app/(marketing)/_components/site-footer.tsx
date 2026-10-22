@@ -52,20 +52,11 @@ export async function SiteFooter() {
           ],
         },
         {
-          heading: <Trans i18nKey="marketing.legal" />,
+          heading: 'Rechtliches',
           links: [
-            {
-              href: '/terms-of-service',
-              label: <Trans i18nKey="marketing.termsOfService" />,
-            },
-            {
-              href: '/privacy-policy',
-              label: <Trans i18nKey="marketing.privacyPolicy" />,
-            },
-            {
-              href: '/cookie-policy',
-              label: <Trans i18nKey="marketing.cookiePolicy" />,
-            },
+            { href: '/impressum', label: 'Impressum' },
+            { href: '/datenschutz', label: 'Datenschutz' },
+            { href: '/kuendigen', label: 'Verträge hier kündigen' },
           ],
         },
       ]}

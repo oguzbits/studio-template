@@ -37,9 +37,10 @@ async function getPaths() {
   const paths = [
     '/',
     '/faq',
-    '/cookie-policy',
-    '/terms-of-service',
-    '/privacy-policy',
+    '/pricing',
+    '/impressum',
+    '/datenschutz',
+    '/kuendigen',
     // add more paths here
   ];
 

@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+import { getLogger } from '@kit/shared/logger';
+
+import { resolveLegal } from './legal';
+
 const ProductSchema = z.object({
   name: z.string().min(1),
   mode: z.enum(['subscription', 'payment']),
@@ -11,6 +15,14 @@ const ProductSchema = z.object({
 const StudioConfigSchema = z.object({
   products: z.record(z.string(), ProductSchema),
 });
+
+const { legal, missing } = resolveLegal(process.env);
+
+if (missing.length > 0) {
+  void getLogger().then((logger) =>
+    logger.warn({ missing }, 'Legal details missing, pages show placeholders'),
+  );
+}
 
 const products = {
   pro: {
@@ -25,8 +37,12 @@ export type ProductKey = keyof typeof products;
 
 type StudioConfig = {
   products: Record<ProductKey, z.infer<typeof ProductSchema>>;
+  legal: typeof legal;
 };
 
-const studioConfig = StudioConfigSchema.parse({ products }) as StudioConfig;
+const studioConfig = {
+  ...StudioConfigSchema.parse({ products }),
+  legal,
+} as StudioConfig;
 
 export default studioConfig;

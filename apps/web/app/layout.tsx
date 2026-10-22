@@ -4,6 +4,7 @@ import { routing } from '@kit/i18n/routing';
 import { Toaster } from '@kit/ui/sonner';
 import { cn } from '@kit/ui/utils';
 
+import { Analytics } from '~/components/analytics';
 import { RootProviders } from '~/components/root-providers';
 import appConfig from '~/config/app.config';
 import { heading, sans } from '~/lib/fonts';
@@ -45,6 +46,8 @@ export default async function RootLayout({
           {/* inside the providers so it can follow next-themes reactively */}
           <Toaster richColors={true} position="top-center" />
         </RootProviders>
+
+        <Analytics />
       </body>
     </html>
   );

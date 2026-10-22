@@ -23,20 +23,11 @@ export function TermsAndConditionsFormField(
                   <Trans
                     i18nKey={'auth.acceptTermsAndConditions'}
                     components={{
-                      TermsOfServiceLink: (
-                        <Link
-                          target={'_blank'}
-                          className={'underline'}
-                          href={'/terms-of-service'}
-                        >
-                          <Trans i18nKey={'auth.termsOfService'} />
-                        </Link>
-                      ),
                       PrivacyPolicyLink: (
                         <Link
                           target={'_blank'}
                           className={'underline'}
-                          href={'/privacy-policy'}
+                          href={'/datenschutz'}
                         >
                           <Trans i18nKey={'auth.privacyPolicy'} />
                         </Link>
