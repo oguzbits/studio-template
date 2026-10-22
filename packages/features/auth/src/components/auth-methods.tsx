@@ -37,7 +37,7 @@ export function AuthMethods({
       ) : null}
 
       {password && magicLink ? (
-        <Tabs defaultValue={'password'}>
+        <Tabs defaultValue={'password'} className={'gap-4'}>
           <TabsList className={'w-full'}>
             <TabsTrigger value={'password'}>
               <Trans i18nKey={'auth.tabPassword'} />

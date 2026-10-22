@@ -11,7 +11,11 @@ function LogoImage({ className }: { className?: string }) {
         <Monogram px={28} />
       </span>
 
-      <span className={'text-base font-semibold tracking-tight'}>
+      <span
+        className={
+          'text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden'
+        }
+      >
         {process.env.NEXT_PUBLIC_PRODUCT_NAME}
       </span>
     </span>
