@@ -5,11 +5,17 @@ import { z } from 'zod';
 import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
+import { rateLimit } from '~/lib/rate-limit';
+
 const EmailSchema = z.string().trim().toLowerCase().pipe(z.email());
 
-// shortcut: öffentlich ohne Rate-Limit/Captcha (Tabelle kann zugespammt werden), bei Missbrauch `captcha: true` (Turnstile, CAPTCHA_SECRET_TOKEN) aktivieren
 export const joinWaitlist = enhanceAction(
   async (formData: FormData) => {
+    // before validation: junk submissions count too
+    if (!(await rateLimit('waitlist', 5, 3600))) {
+      return { ok: false, error: 'rate-limited' } as const;
+    }
+
     const parsed = EmailSchema.safeParse(formData.get('email'));
 
     if (!parsed.success) {

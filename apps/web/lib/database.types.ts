@@ -261,6 +261,25 @@ export type Database = {
         };
         Relationships: [];
       };
+      rate_limits: {
+        Row: {
+          count: number;
+          key: string;
+          window_start: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          count?: number;
+          key: string;
+          window_start: string;
+        };
+        Update: {
+          count?: number;
+          key?: string;
+          window_start?: string;
+        };
+        Relationships: [];
+      };
       waitlist: {
         Row: {
           created_at: string;
@@ -296,6 +315,10 @@ export type Database = {
           p_trial_end: string;
           p_user_id: string;
         };
+        Returns: boolean;
+      };
+      check_rate_limit: {
+        Args: { p_key: string; p_max: number; p_window_seconds: number };
         Returns: boolean;
       };
       claim_jobs: {

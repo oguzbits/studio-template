@@ -7,7 +7,7 @@ import { Input } from '@kit/ui/input';
 
 import { joinWaitlist } from './waitlist-actions';
 
-type State = 'idle' | 'done' | 'invalid' | 'failed';
+type State = 'idle' | 'done' | 'invalid' | 'limited' | 'failed';
 
 export function WaitlistForm() {
   const [state, action, pending] = useActionState<State, FormData>(
@@ -15,7 +15,9 @@ export function WaitlistForm() {
       try {
         const result = await joinWaitlist(formData);
 
-        return result.ok ? 'done' : 'invalid';
+        if (result.ok) return 'done';
+
+        return result.error === 'rate-limited' ? 'limited' : 'invalid';
       } catch {
         return 'failed';
       }
@@ -46,6 +48,11 @@ export function WaitlistForm() {
       {state === 'invalid' && (
         <p className={'text-destructive text-sm'}>
           Please enter a valid email.
+        </p>
+      )}
+      {state === 'limited' && (
+        <p className={'text-destructive text-sm'}>
+          Too many attempts, please try again later.
         </p>
       )}
       {state === 'failed' && (
