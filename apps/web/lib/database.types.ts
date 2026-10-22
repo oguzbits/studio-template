@@ -149,6 +149,34 @@ export type Database = {
         };
         Relationships: [];
       };
+      contact_messages: {
+        Row: {
+          created_at: string;
+          email: string;
+          handled: boolean;
+          id: string;
+          message: string;
+          name: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          email: string;
+          handled?: boolean;
+          id?: string;
+          message: string;
+          name?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          handled?: boolean;
+          id?: string;
+          message?: string;
+          name?: string | null;
+        };
+        Relationships: [];
+      };
       digest_sends: {
         Row: {
           day: string;
