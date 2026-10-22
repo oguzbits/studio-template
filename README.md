@@ -7,16 +7,14 @@ Resend-Mails, Job-Queue mit Daily-Digest, KI-Schicht, Rechtsseiten, `/admin`. F�
 
 Einmalig:
 
-1. `pnpm studio:secrets:init` legt `../studio-secrets/.env.shared` an (dotenvx-verschlüsselt, Schlüssel im
-   OS-Schlüsselbund). Werte setzen mit
-   `pnpm --filter web exec dotenvx set KEY wert -f ../../../studio-secrets/.env.shared --no-armor`:
-   - Pflicht: `SUPABASE_ACCESS_TOKEN` (Supabase → Account → Access Tokens), `SUPABASE_ORG_ID`,
-     `VERCEL_TOKEN` (Vercel → Account → Tokens), bei Team-Accounts `VERCEL_SCOPE`, `RESEND_API_KEY`
-     (setzt auch Supabase-SMTP; ohne bricht der Produktions-Build ab).
+1. `pnpm studio:setup` legt bei Bedarf `../studio-secrets/.env.shared` an (dotenvx-verschlüsselt, Schlüssel im
+   OS-Schlüsselbund), fragt jeden fehlenden Wert ab (öffnet die Token-Seite), prüft ihn live und speichert ihn
+   verschlüsselt. Wiederholbar: bereits gültige Werte werden nur mit `✓` gemeldet.
+   - Pflicht: Supabase-Token und -Org, Vercel-Token, Resend-Key (setzt auch Supabase-SMTP; ohne bricht der
+     Produktions-Build ab), `ADMIN_EMAILS`, `LEGAL_*`, `ANTHROPIC_API_KEY`.
    - Empfohlen: `STRIPE_SECRET_KEY` (Test, `sk_test_…`): `studio:new` legt dann Produkte, Preise, Webhook und
      Kundenportal selbst an.
-   - Optional: `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`,
-     `ANTHROPIC_API_KEY`, `ADMIN_EMAILS`, `LEGAL_*`.
+   - Optional: `VERCEL_SCOPE` (Team-Accounts), `OPENAI_API_KEY`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`.
 2. Docker läuft (für lokale Supabase und `pnpm check`).
 
 Pro Projekt (Template-Repo muss committet sein):

@@ -33,6 +33,7 @@
     "check": "pnpm typecheck && pnpm lint && pnpm format && pnpm test && pnpm test:db && pnpm --filter web build:test",
     "prepare": "husky",
     "studio:secrets:init": "node tooling/scripts/src/secrets-init.mjs",
+    "studio:setup": "node tooling/scripts/src/studio-setup.mjs",
     "studio:new": "node tooling/scripts/src/studio-new.mjs",
     "studio:audit": "node tooling/scripts/src/studio-audit.mjs"
   },
