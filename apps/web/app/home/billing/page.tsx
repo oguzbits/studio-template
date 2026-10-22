@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 
+import Link from 'next/link';
+
 import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
 import {
@@ -26,7 +28,7 @@ export const metadata = {
 export default function BillingPage() {
   return (
     <>
-      <PageHeader description={'Your plans and payments'} />
+      <PageHeader title={'Billing'} description={'Your plans and payments'} />
 
       <PageBody>
         <div className={'flex w-full flex-1 flex-col gap-4 lg:max-w-2xl'}>
@@ -44,6 +46,25 @@ export default function BillingPage() {
 async function BillingOverview() {
   const { entitlements, hasCustomer, now } = await loadBilling();
   const productKeys = Object.keys(studioConfig.products) as ProductKey[];
+
+  if (entitlements.length === 0) {
+    return (
+      <Card data-test={'billing-empty'}>
+        <CardHeader>
+          <CardTitle>No active plan</CardTitle>
+          <CardDescription>
+            You have not purchased anything yet. Pick a plan to get started.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <Button nativeButton={false} render={<Link href={'/pricing'} />}>
+            See plans
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <>

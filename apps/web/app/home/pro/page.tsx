@@ -12,7 +12,7 @@ export const metadata = {
 export default function ProPage() {
   return (
     <>
-      <PageHeader description={'Demo page behind the paywall'} />
+      <PageHeader title={'Pro'} description={'Demo page behind the paywall'} />
 
       <PageBody>
         <Suspense fallback={<Skeleton className={'h-20 w-full rounded-lg'} />}>

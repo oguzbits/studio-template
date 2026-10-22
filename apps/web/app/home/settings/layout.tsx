@@ -4,7 +4,7 @@ import { PageHeader } from '@kit/ui/page';
 function UserSettingsLayout(props: React.PropsWithChildren) {
   return (
     <>
-      <PageHeader description={<AppBreadcrumbs />} />
+      <PageHeader title={'Settings'} description={<AppBreadcrumbs />} />
 
       {props.children}
     </>

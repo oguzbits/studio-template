@@ -20,7 +20,7 @@ export const metadata = {
 export default function HomePage() {
   return (
     <>
-      <PageHeader description={`Welcome to ${appConfig.name}`} />
+      <PageHeader title={'Home'} description={`Welcome to ${appConfig.name}`} />
 
       <PageBody>
         <Card className={'w-full lg:max-w-2xl'}>

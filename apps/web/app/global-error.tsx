@@ -1,15 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-
-import { ArrowLeft, MessageCircle } from 'lucide-react';
-
-import { Button } from '@kit/ui/button';
-import { Heading } from '@kit/ui/heading';
-import { Trans } from '@kit/ui/trans';
-
-import { SiteHeader } from '~/(marketing)/_components/site-header';
-
+// Replaces the root layout, so no providers, no CSS and no i18n are available:
+// plain markup with inline styles and English copy.
 const GlobalErrorPage = ({
   error,
   reset,
@@ -19,66 +11,57 @@ const GlobalErrorPage = ({
 }) => {
   console.error(error);
 
+  const button = {
+    font: 'inherit',
+    padding: '0 16px',
+    height: 40,
+    borderRadius: 8,
+    border: '1px solid #8883',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    display: 'inline-flex',
+    alignItems: 'center',
+  } as const;
+
   return (
-    <html>
-      <body>
-        <div className={'flex h-screen flex-1 flex-col'}>
-          <SiteHeader />
+    <html lang="en">
+      <body
+        style={{
+          margin: 0,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 24,
+          padding: 16,
+          textAlign: 'center',
+          fontFamily: 'system-ui, sans-serif',
+          colorScheme: 'light dark',
+        }}
+      >
+        <div style={{ maxWidth: 440 }}>
+          <h1 style={{ fontSize: 30, margin: '0 0 8px', fontWeight: 600 }}>
+            Sorry, something went wrong.
+          </h1>
 
-          <div
-            className={
-              'container m-auto flex w-full flex-1 flex-col items-center justify-center'
-            }
+          <p style={{ margin: 0, opacity: 0.7 }}>
+            An unexpected error occurred. Please try again.
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: 12 }}>
+          <a href="/" style={{ ...button, background: '#111', color: '#fff' }}>
+            Back to home
+          </a>
+
+          <button
+            type="button"
+            onClick={reset}
+            style={{ ...button, background: 'transparent', color: 'inherit' }}
           >
-            <div className={'flex flex-col items-center space-y-8'}>
-              <div>
-                <h1 className={'font-heading text-9xl font-semibold'}>
-                  <Trans i18nKey={'common.errorPageHeading'} />
-                </h1>
-              </div>
-
-              <div className={'flex flex-col items-center space-y-8'}>
-                <div
-                  className={
-                    'flex max-w-xl flex-col items-center space-y-1 text-center'
-                  }
-                >
-                  <div>
-                    <Heading level={2}>
-                      <Trans i18nKey={'common.genericError'} />
-                    </Heading>
-                  </div>
-
-                  <p className={'text-muted-foreground text-lg'}>
-                    <Trans i18nKey={'common.genericErrorSubHeading'} />
-                  </p>
-                </div>
-
-                <div>
-                  <Button
-                    className={'w-full'}
-                    variant={'default'}
-                    onClick={reset}
-                  >
-                    <ArrowLeft className={'mr-2 h-4'} />
-
-                    <Trans i18nKey={'common.goBack'} />
-                  </Button>
-
-                  <Button
-                    nativeButton={false}
-                    render={<Link href={'/contact'} />}
-                    className={'w-full'}
-                    variant={'outline'}
-                  >
-                    <MessageCircle className={'mr-2 h-4'} />
-
-                    <Trans i18nKey={'common.contactUs'} />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+            Try again
+          </button>
         </div>
       </body>
     </html>
