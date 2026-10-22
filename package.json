@@ -32,7 +32,8 @@
     "test:e2e": "pnpm --filter web-e2e test",
     "check": "pnpm typecheck && pnpm lint && pnpm format && pnpm test && pnpm test:db && pnpm --filter web build:test",
     "prepare": "husky",
-    "studio:secrets:init": "node tooling/scripts/src/secrets-init.mjs"
+    "studio:secrets:init": "node tooling/scripts/src/secrets-init.mjs",
+    "studio:new": "node tooling/scripts/src/studio-new.mjs"
   },
   "devDependencies": {
     "@manypkg/cli": "catalog:",

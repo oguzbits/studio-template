@@ -1,3 +1,38 @@
+# studio-template
+
+Eigene SaaS-Vorlage auf Basis von MakerKit lite (MIT, siehe `NOTICE`): Login, Stripe-Abos und Einmalkäufe,
+Resend-Mails, Job-Queue mit Daily-Digest, KI-Schicht, Rechtsseiten, `/admin`. Für Agenten: `AGENTS.md`.
+
+## Neues Projekt in unter 30 Minuten
+
+Einmalig:
+
+1. `pnpm studio:secrets:init` legt `../studio-secrets/.env.shared` an (dotenvx-verschlüsselt, Schlüssel im
+   OS-Schlüsselbund). Werte setzen mit
+   `pnpm --filter web exec dotenvx set KEY wert -f ../../../studio-secrets/.env.shared --no-armor`:
+   - Pflicht: `SUPABASE_ACCESS_TOKEN` (Supabase → Account → Access Tokens), `SUPABASE_ORG_ID`,
+     `VERCEL_TOKEN` (Vercel → Account → Tokens), bei Team-Accounts `VERCEL_SCOPE`.
+   - Optional: `RESEND_API_KEY` (setzt dann auch Supabase-SMTP), `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`,
+     `ANTHROPIC_API_KEY`, `ADMIN_EMAILS`, `LEGAL_*`.
+2. Docker läuft (für lokale Supabase und `pnpm check`).
+
+Pro Projekt (Template-Repo muss committet sein):
+
+```bash
+pnpm studio:new mein-projekt            # --dry-run zeigt nur den Plan
+```
+
+Das Skript kopiert `HEAD` nach `../mein-projekt` (eigene lokale Ports), legt ein Supabase-Projekt in
+`eu-central-1` an, pusht die Migrationen, legt das Vercel-Projekt (Root `apps/web`) samt Env-Variablen an,
+setzt Supabase Auth-URLs, SMTP und die Vault-Secrets für pg_cron, schreibt `apps/web/.env.local`, deployt
+und wartet auf `/api/health`. Bricht ein Schritt ab, setzt ein erneuter Aufruf dort fort
+(Zustand in `.studio/state.json`, nicht committet). Am Ende steht die manuelle Checkliste (Stripe-Konto,
+Webhook, Resend-Domain/DNS, Domain) in `docs/launch-checklist.md`.
+
+Env-Variablen: siehe `.env.example`. Lokale Supabase des Templates: Ports 55320–55326.
+
+---
+
 ![Makerkit - Next.js Supabase SaaS Starter Kit \[Lite version\]](apps/web/public/images/makerkit.webp)
 
 # NEW! Next.js Supabase SaaS Starter Kit (Lite)
@@ -110,7 +145,7 @@ Then run the following command to start Supabase:
 pnpm run supabase:web:start
 ```
 
-Once the Supabase server is running, please access the Supabase Dashboard using the port in the output of the previous command. Normally, you find it at [http://localhost:54323](http://localhost:54323).
+Once the Supabase server is running, please access the Supabase Dashboard using the port in the output of the previous command. Normally, you find it at [http://localhost:55323](http://localhost:55323).
 
 You will also find all the Supabase services printed in the terminal after the command is executed.
 
@@ -213,7 +248,7 @@ Here are the available variables:
 | `NEXT_PUBLIC_DEFAULT_THEME_MODE` | The default theme mode of your SaaS product | `light` |
 | `NEXT_PUBLIC_THEME_COLOR` | The default theme color of your SaaS product | `#ffffff` |
 | `NEXT_PUBLIC_THEME_COLOR_DARK` | The default theme color of your SaaS product in dark mode | `#0a0a0a` |
-| `NEXT_PUBLIC_SUPABASE_URL` | The URL of your Supabase project | `http://127.0.0.1:54321` |
+| `NEXT_PUBLIC_SUPABASE_URL` | The URL of your Supabase project | `http://127.0.0.1:55321` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The anon key of your Supabase project | ''
 | `SUPABASE_SERVICE_ROLE_KEY` | The service role key of your Supabase project | ''
 
@@ -293,13 +328,13 @@ Supabase verschickt Bestätigungs-, Magic-Link- und Passwort-Reset-Mails selbst.
 2. Host `smtp.resend.com`, Port `465`, User `resend`, Passwort = Resend-API-Key.
 3. Absender = Adresse einer in Resend verifizierten Domain (passend zu `EMAIL_FROM`).
 
-`pnpm studio:new` setzt das automatisch über die Management API, sobald `RESEND_API_KEY` vorhanden ist (kommt mit M8).
+`pnpm studio:new` setzt das automatisch über die Management API, sobald `RESEND_API_KEY` vorhanden ist.
 
 ### Hintergrund-Jobs
 
 Jobs liegen in `public.jobs` und werden von `/api/jobs/worker` abgearbeitet (max. 5 Versuche mit exponentiellem Backoff, Handler in `apps/web/lib/jobs/handlers/`).
 
-- Primärer Auslöser: pg_cron ruft den Worker jede Minute per pg_net auf. Dafür braucht die Datenbank die Vault-Secrets `worker_url` und `cron_secret` (setzt später `pnpm studio:new`). Fehlen sie, passiert nichts.
+- Primärer Auslöser: pg_cron ruft den Worker jede Minute per pg_net auf. Dafür braucht die Datenbank die Vault-Secrets `worker_url` und `cron_secret` (setzt `pnpm studio:new`). Fehlen sie, passiert nichts.
 - Fallback: Vercel Cron ruft `/api/jobs/worker?daily=1` einmal täglich auf (Limit im Hobby-Plan) und legt dabei auch die Daily-Digest-Jobs an.
 - Beide zusammen sind unbedenklich: Jobs werden mit `FOR UPDATE SKIP LOCKED` geclaimt, und der Digest ist pro Nutzer und Tag idempotent.
 - Lokal den Worker von Hand aufrufen: `curl -H "Authorization: Bearer $CRON_SECRET" localhost:3000/api/jobs/worker`
