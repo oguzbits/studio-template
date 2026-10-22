@@ -40,7 +40,7 @@ export class Mailbox {
       deleteAfter: boolean;
     },
   ) {
-    const url = `http://127.0.0.1:54324/api/v1/search?query=to:${encodeURIComponent(email)}`;
+    const url = `http://127.0.0.1:55324/api/v1/search?query=to:${encodeURIComponent(email)}`;
 
     const response = await fetch(url);
 
@@ -55,7 +55,7 @@ export class Mailbox {
     }
 
     const messageId = json.messages[0]?.ID;
-    const messageUrl = `http://127.0.0.1:54324/api/v1/message/${messageId}`;
+    const messageUrl = `http://127.0.0.1:55324/api/v1/message/${messageId}`;
 
     const messageResponse = await fetch(messageUrl);
 

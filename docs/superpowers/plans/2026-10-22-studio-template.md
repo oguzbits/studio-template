@@ -47,6 +47,15 @@
 - UI-Sprache bleibt Englisch (Kit), nur Impressum/Datenschutz/Kündigen auf Deutsch.
 - Externe Schritte (CLI-Installation, Supabase-Projekt, Vercel-Deploy) erlaubt, aber vor dem ersten externen Schritt einmal kurz fragen.
 - `../studio-secrets` lege ich lokal an: verschlüsselte `.env.shared` mit leeren Werten, `.env.keys` in `.gitignore`. Kein GitHub-Repo.
+- Lokale Supabase-Ports 55320–55326 (statt 543xx), wegen Konflikt mit anderen lokalen Stacks; `project_id = "studio-template"`.
+- Guard: Die vier committeten, öffentlichen Kit-Env-Dateien (`apps/web/.env`, `.env.development`, `.env.production`, `.env.test`) lösen „ask“ aus statt „deny“.
+
+## Umsetzungsnotizen
+
+- Die Agent-Hook-Skripte liegen in `tooling/scripts/src/agent/` (Tests laufen über `pnpm test`), nicht in `scripts/agent/`.
+- Das Secrets-Repo legt der Nutzer einmalig mit `pnpm studio:secrets:init` an (der Guard blockt den Agenten beim Schreiben von `.env.shared`, und das ist gewollt). dotenvx speichert den Schlüssel im OS-Keystore, und Armor (der gehostete Dienst) ist per `--no-armor` aus.
+- `studio.config.ts` liegt nach Kit-Konvention in `apps/web/config/studio.config.ts` und wird in M2 angelegt (erster Nutzer).
+- dotenvx `--overload`: Dateiwerte überschreiben auch Shell-Variablen.
 
 ## Review Focus
 

@@ -13,8 +13,8 @@
     "start": "pnpm with-env next start",
     "start:test": "NODE_ENV=test pnpm with-env:test next start",
     "typecheck": "tsc --noEmit",
-    "with-env": "dotenv -e ./.env.local --",
-    "with-env:test": "dotenv -e ./.env.test --",
+    "with-env": "dotenvx run --quiet -f ${STUDIO_SECRETS_DIR:-../../../studio-secrets}/${STUDIO_SECRETS_FILE:-.env.shared} -f ${STUDIO_LOCAL_ENV_FILE:-.env.local} --overload --",
+    "with-env:test": "dotenvx run --quiet -f ./.env.test --",
     "supabase": "supabase",
     "supabase:start": "supabase status || supabase start",
     "supabase:stop": "supabase stop",
@@ -26,7 +26,9 @@
     "supabase:typegen": "pnpm run supabase:typegen:packages && pnpm run supabase:typegen:app",
     "supabase:typegen:packages": "supabase gen types typescript --local > ../../packages/supabase/src/database.types.ts",
     "supabase:typegen:app": "supabase gen types typescript --local > ./lib/database.types.ts",
-    "supabase:db:dump:local": "supabase db dump --local --data-only"
+    "supabase:db:dump:local": "supabase db dump --local --data-only",
+    "test": "vitest run --passWithNoTests",
+    "test:db": "(supabase status > /dev/null 2>&1 || supabase start) && supabase test db"
   },
   "dependencies": {
     "@hookform/resolvers": "catalog:",
@@ -57,6 +59,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "catalog:",
     "@kit/tsconfig": "workspace:*",
     "@next/bundle-analyzer": "catalog:",
     "@tailwindcss/postcss": "catalog:",
@@ -66,12 +69,12 @@
     "@types/react-dom": "catalog:",
     "autoprefixer": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
-    "dotenv-cli": "catalog:",
     "pino-pretty": "catalog:",
     "supabase": "catalog:",
     "tailwindcss": "catalog:",
     "tailwindcss-animate": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "browserslist": [
     "last 1 versions",

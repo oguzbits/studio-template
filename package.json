@@ -16,7 +16,7 @@
     "dev": "cross-env FORCE_COLOR=1 turbo dev --parallel",
     "lint:fix": "oxlint --fix",
     "typecheck": "turbo typecheck --cache-dir=.turbo",
-    "test": "turbo test --cache-dir=.turbo",
+    "test": "turbo test --cache-dir=.turbo --filter=!web-e2e",
     "update": "pnpm update -r",
     "syncpack:list": "pnpm dlx syncpack list-mismatches",
     "syncpack:fix": "pnpm dlx syncpack fix-mismatches",
@@ -27,16 +27,32 @@
     "lint": "oxlint",
     "format": "oxfmt --check",
     "format:fix": "oxfmt",
-    "healthcheck": "oxlint --fix && oxfmt && pnpm run typecheck && manypkg fix"
+    "healthcheck": "oxlint --fix && oxfmt && pnpm run typecheck && manypkg fix",
+    "test:db": "pnpm --filter web test:db",
+    "test:e2e": "pnpm --filter web-e2e test",
+    "check": "pnpm typecheck && pnpm lint && pnpm format && pnpm test && pnpm test:db && pnpm --filter web build:test",
+    "prepare": "husky",
+    "studio:secrets:init": "node tooling/scripts/src/secrets-init.mjs"
   },
   "devDependencies": {
     "@manypkg/cli": "catalog:",
     "@turbo/gen": "catalog:",
     "cross-env": "catalog:",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:"
+  },
+  "lint-staged": {
+    "*.{js,mjs,jsx,ts,tsx}": [
+      "oxlint --fix",
+      "oxfmt"
+    ],
+    "*.{json,jsonc,md,css,yaml,yml}": [
+      "oxfmt"
+    ]
   },
   "engines": {
     "node": ">=22.13.0"

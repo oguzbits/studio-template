@@ -47,3 +47,6 @@ yarn-error.log*
 .contentlayer/
 # prds
 .prds/
+
+# dotenvx private keys
+.env.keys

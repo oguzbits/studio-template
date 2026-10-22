@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "node ./src/dev.mjs",
     "checks": "node ./src/checks.mjs",
-    "requirements": "node ./src/requirements.mjs"
+    "requirements": "node ./src/requirements.mjs",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "vitest": "catalog:"
   }
 }
