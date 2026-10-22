@@ -53,3 +53,6 @@ yarn-error.log*
 
 # studio:audit-Ergebnisse
 .studio
+
+# taste-skill inspector screenshots and reports
+.taste-skill/
