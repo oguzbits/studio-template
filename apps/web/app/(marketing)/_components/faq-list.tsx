@@ -1,30 +1,25 @@
-import { ChevronDown } from 'lucide-react';
-
+/** Plain questions and answers, all visible: nothing to open, nothing boxed. */
 export function FaqList(props: {
   items: { question: string; answer: string }[];
+  // h2 where the list sits directly under the page h1 (/faq)
+  as?: 'h2' | 'h3';
 }) {
+  const Question = props.as ?? 'h3';
+
   if (props.items.length === 0) return null;
 
   return (
-    <div className={'mx-auto flex w-full max-w-2xl flex-col'}>
+    <dl className={'grid gap-x-16 gap-y-12 md:grid-cols-2'}>
       {props.items.map((item) => (
-        <details key={item.question} className={'group border-b py-4'}>
-          <summary
-            className={
-              'flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden'
-            }
-          >
-            {item.question}
-            <ChevronDown
-              aria-hidden
-              className={
-                'text-muted-foreground size-5 shrink-0 transition-transform group-open:rotate-180'
-              }
-            />
-          </summary>
-          <p className={'text-muted-foreground pt-2 text-sm'}>{item.answer}</p>
-        </details>
+        <div key={item.question}>
+          <dt>
+            <Question className={'text-2xl font-medium tracking-tight'}>
+              {item.question}
+            </Question>
+          </dt>
+          <dd className={'mt-3 text-lg'}>{item.answer}</dd>
+        </div>
       ))}
-    </div>
+    </dl>
   );
 }

@@ -25,19 +25,9 @@ describe('siteConfig', () => {
     expect(() => SiteSchema.parse(bad)).toThrow();
   });
 
-  // a highlight that is not part of the title would render nothing
-  it('rejects a highlight that is not part of the title', () => {
-    const hero = { ...siteConfig.hero, highlight: 'not in the title' };
+  it('rejects an empty feature title', () => {
+    const features = [{ title: '', description: 'x' }];
 
-    expect(() => SiteSchema.parse({ ...siteConfig, hero })).toThrow();
-  });
-
-  it('accepts a highlight that is part of the title', () => {
-    const hero = {
-      ...siteConfig.hero,
-      highlight: siteConfig.hero.title.slice(-4),
-    };
-
-    expect(() => SiteSchema.parse({ ...siteConfig, hero })).not.toThrow();
+    expect(() => SiteSchema.parse({ ...siteConfig, features })).toThrow();
   });
 });

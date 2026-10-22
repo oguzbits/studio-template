@@ -1,101 +1,47 @@
 import Link from 'next/link';
 
-import { ArrowRight } from 'lucide-react';
-
 import { buttonVariants } from '@kit/ui/button';
 import { cn } from '@kit/ui/utils';
 
 import siteConfig from '~/config/site.config';
 
-import { HeroMock } from './hero-mock';
-
-function Title({ title, highlight }: { title: string; highlight?: string }) {
-  const i = highlight ? title.indexOf(highlight) : -1;
-
-  if (!highlight || i < 0) return <>{title}</>;
-
-  return (
-    <>
-      {title.slice(0, i)}
-      <span className={'text-accent-brand'}>{highlight}</span>
-      {title.slice(i + highlight.length)}
-    </>
-  );
-}
-
 /** Server component, no animation: the H1 is the LCP element and paints on first render. */
 export function Hero() {
-  const { announcement, title, highlight, subtitle, cta } = siteConfig.hero;
-
-  const pill = (
-    <span
-      className={
-        'text-muted-foreground bg-card inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm'
-      }
-    >
-      <span className={'bg-accent-brand size-1.5 rounded-full'} aria-hidden />
-      {announcement?.label}
-      {announcement?.href && <ArrowRight className={'size-3.5'} aria-hidden />}
-    </span>
-  );
+  const { title, subtitle, cta } = siteConfig.hero;
 
   return (
-    <section className={'relative overflow-hidden px-4 pt-16 pb-12 md:pt-24'}>
-      <div
-        aria-hidden
+    <section className={'container pt-16 pb-24 md:pt-28 md:pb-40'}>
+      <h1
         className={
-          'pointer-events-none absolute inset-x-0 top-0 -z-10 h-[32rem] [background:radial-gradient(ellipse_50%_60%_at_50%_0%,oklch(0.7_0.12_190/0.12),transparent)]'
-        }
-      />
-
-      <div
-        className={
-          'container mx-auto flex flex-col items-center gap-6 text-center'
+          'font-display text-[clamp(2.75rem,0.5rem+9.6vw,10rem)] leading-[0.96] font-normal tracking-[-0.035em] text-balance'
         }
       >
-        {announcement &&
-          (announcement.href ? (
-            <Link href={announcement.href} className={'rounded-full'}>
-              {pill}
-            </Link>
-          ) : (
-            pill
-          ))}
+        {title}
+      </h1>
 
-        <h1
+      <div className={'mt-8 flex flex-col gap-10 md:mt-12'}>
+        <p
           className={
-            'max-w-4xl text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.035em] text-balance md:text-[4rem]'
+            'max-w-[34ch] text-xl leading-snug text-pretty md:text-2xl'
           }
         >
-          <Title title={title} highlight={highlight} />
-        </h1>
-
-        <p className={'text-muted-foreground max-w-2xl text-lg text-balance'}>
           {subtitle}
         </p>
 
-        <div className={'flex flex-col gap-3 sm:flex-row'}>
+        <div className={'flex flex-wrap items-center gap-x-8 gap-y-4'}>
           <Link
             href={cta.href}
             prefetch={cta.href.startsWith('/auth') ? false : undefined}
             className={cn(buttonVariants(), 'h-12 px-6 text-base')}
           >
             {cta.label}
-            <ArrowRight aria-hidden />
           </Link>
-          <Link
-            href={'/pricing'}
-            className={cn(
-              buttonVariants({ variant: 'outline' }),
-              'h-12 px-6 text-base',
-            )}
-          >
+
+          <Link href={'/pricing'} className={'quiet-link text-base'}>
             See pricing
           </Link>
         </div>
       </div>
-
-      <HeroMock />
     </section>
   );
 }

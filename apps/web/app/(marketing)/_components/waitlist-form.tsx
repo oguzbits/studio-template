@@ -38,9 +38,14 @@ export function WaitlistForm() {
           required
           placeholder={'you@example.com'}
           aria-label={'Email'}
+          className={'bg-background h-12 px-4 text-base'}
         />
 
-        <Button type={'submit'} disabled={pending}>
+        <Button
+          type={'submit'}
+          disabled={pending}
+          className={'h-12 px-6 text-base'}
+        >
           Join waitlist
         </Button>
       </div>

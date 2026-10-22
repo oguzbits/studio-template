@@ -1,15 +1,5 @@
 // Public marketing copy. Pure data: imported by client components, so no zod here.
 // The schema lives in site.schema.ts and is checked by site.config.test.ts.
-export type FeatureIcon =
-  | 'shield'
-  | 'credit-card'
-  | 'globe'
-  | 'zap'
-  | 'lock'
-  | 'mail'
-  | 'sparkles'
-  | 'clock';
-
 export type SiteConfig = {
   tagline: string;
   description: string;
@@ -17,43 +7,37 @@ export type SiteConfig = {
     title: string;
     subtitle: string;
     cta: { label: string; href: string };
-    announcement?: { label: string; href?: string };
-    // substring of title, rendered in the accent color
-    highlight?: string;
   };
-  features: { title: string; description: string; icon?: FeatureIcon }[];
+  features: { title: string; description: string }[];
   // empty = /faq returns 404 and is left out of sitemap and navigation
   faq: { question: string; answer: string }[];
 };
 
-// Defaults are true for every product built on this template; replace them per product.
+// The hero and tagline are fill-ins that read as such: replace them per product.
+// Features and FAQ are true for every product built on this template.
 const siteConfig = {
-  tagline: 'The simple way to get it done',
+  tagline: 'Your product, in a few words',
   description:
     'Sign up in seconds, pay securely with Stripe and cancel anytime. Hosted in the EU.',
   hero: {
-    title: 'The simple way to get it done',
+    // two lines at most at every width: keep it near 30 characters
+    title: 'Your product, in one sentence.',
     subtitle:
-      'Sign up in seconds, pay securely with Stripe and cancel anytime. Hosted in the EU.',
-    cta: { label: 'Get started', href: '/auth/sign-up' },
-    announcement: { label: 'Hosted in the EU', href: '/pricing' },
-    highlight: 'get it done',
+      'Say here what it does and who it is for. Accounts, payments with Stripe and hosting in the EU already work.',
+    cta: { label: 'Create an account', href: '/auth/sign-up' },
   },
   features: [
     {
       title: 'Hosted in the EU',
-      icon: 'globe',
       description:
         'Your data is stored in Frankfurt and protected by row-level security.',
     },
     {
       title: 'Secure payments',
-      icon: 'credit-card',
       description: 'Checkout runs on Stripe. We never see your card details.',
     },
     {
       title: 'Cancel anytime',
-      icon: 'clock',
       description:
         'Manage or cancel your subscription yourself in the customer portal.',
     },

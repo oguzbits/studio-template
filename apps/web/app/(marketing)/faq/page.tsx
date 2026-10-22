@@ -45,15 +45,13 @@ async function FAQPage() {
         dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }}
       />
 
-      <div className={'flex flex-col space-y-4 xl:space-y-8'}>
-        <SitePageHeader
-          title={t('marketing.faq')}
-          subtitle={t('marketing.faqSubtitle')}
-        />
+      <SitePageHeader
+        title={t('marketing.faq')}
+        subtitle={t('marketing.faqSubtitle')}
+      />
 
-        <div className={'container flex flex-col space-y-8 pb-16'}>
-          <FaqList items={faqItems} />
-        </div>
+      <div className={'container pb-24 md:pb-40'}>
+        <FaqList items={faqItems} as={'h2'} />
       </div>
     </>
   );
