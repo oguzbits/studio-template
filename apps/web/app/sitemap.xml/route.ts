@@ -3,6 +3,7 @@ import { cacheLife } from 'next/cache';
 import { getServerSideSitemap } from 'next-sitemap';
 
 import appConfig from '~/config/app.config';
+import siteConfig from '~/config/site.config';
 
 /**
  * @description The maximum age of the sitemap in seconds.
@@ -36,7 +37,7 @@ async function getPaths() {
 
   const paths = [
     '/',
-    '/faq',
+    ...(siteConfig.faq.length > 0 ? ['/faq'] : []),
     '/pricing',
     '/impressum',
     '/datenschutz',

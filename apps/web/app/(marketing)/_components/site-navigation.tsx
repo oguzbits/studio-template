@@ -11,6 +11,8 @@ import {
 import { NavigationMenu, NavigationMenuList } from '@kit/ui/navigation-menu';
 import { Trans } from '@kit/ui/trans';
 
+import siteConfig from '~/config/site.config';
+
 import { SiteNavigationItem } from './site-navigation-item';
 
 /**
@@ -37,12 +39,16 @@ const links: Record<
     path: string;
   }
 > = {
-  /*
+  Pricing: {
+    label: 'marketing.pricing',
+    path: '/pricing',
+  },
+  ...(siteConfig.faq.length > 0 && {
     FAQ: {
       label: 'marketing.faq',
       path: '/faq',
     },
-     */
+  }),
 };
 
 export function SiteNavigation() {

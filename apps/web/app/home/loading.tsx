@@ -1,22 +1,15 @@
 import { PageBody } from '@kit/ui/page';
+import { Skeleton } from '@kit/ui/skeleton';
 
-import {
-  ChartCardsSkeleton,
-  PageHeaderSkeleton,
-} from '~/components/skeletons/page-skeletons';
+import { PageHeaderSkeleton } from '~/components/skeletons/page-skeletons';
 
-/**
- * The dashboard shape is fixed: a page header, then a grid of chart cards.
- * Reproducing it means the real content drops into space already reserved
- * rather than pushing the page around when it arrives.
- */
 export default function HomeLoading() {
   return (
     <>
       <PageHeaderSkeleton />
 
       <PageBody>
-        <ChartCardsSkeleton />
+        <Skeleton className={'h-40 w-full rounded-lg lg:max-w-2xl'} />
       </PageBody>
     </>
   );

@@ -1,8 +1,13 @@
 import studioConfig from '~/config/studio.config';
 
+import { pageMetadata } from '~/lib/page-metadata';
+
 import { SitePageHeader } from '../../_components/site-page-header';
 
-export const metadata = { title: 'Impressum' };
+export const metadata = pageMetadata({
+  path: '/impressum',
+  title: 'Impressum',
+});
 
 function ImpressumPage() {
   const { legal } = studioConfig;

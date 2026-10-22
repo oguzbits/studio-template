@@ -8,13 +8,15 @@ import { Heading } from '@kit/ui/heading';
 import { Trans } from '@kit/ui/trans';
 
 import pathsConfig from '~/config/paths.config';
+import { pageMetadata } from '~/lib/page-metadata';
 
 export const generateMetadata = async () => {
   const t = await getTranslations();
 
-  return {
+  return pageMetadata({
+    path: '/auth/password-reset',
     title: t('auth.passwordResetLabel'),
-  };
+  });
 };
 
 const { callback, passwordUpdate, signIn } = pathsConfig.auth;

@@ -12,21 +12,25 @@ import {
 } from '@kit/ui/marketing';
 
 import appConfig from '~/config/app.config';
+import siteConfig from '~/config/site.config';
+import { pageMetadata } from '~/lib/page-metadata';
 
 import { WaitlistForm } from './_components/waitlist-form';
+
+export const metadata = pageMetadata({ path: '/' });
 
 function Home() {
   return (
     <div className={'mt-4 flex flex-col space-y-24 py-14'}>
       <div className={'container mx-auto'}>
         <Hero
-          title={<span>{appConfig.name}</span>}
-          subtitle={<span>{appConfig.description}</span>}
+          title={<span>{siteConfig.hero.title}</span>}
+          subtitle={<span>{siteConfig.hero.subtitle}</span>}
           cta={
             <CtaButton className="h-10 text-sm">
-              <Link href={'/pricing'}>
+              <Link href={siteConfig.hero.cta.href}>
                 <span className={'flex items-center space-x-0.5'}>
-                  <span>See pricing</span>
+                  <span>{siteConfig.hero.cta.label}</span>
                   <ArrowRightIcon className={'h-4'} />
                 </span>
               </Link>
@@ -48,21 +52,14 @@ function Home() {
           }
         >
           <FeatureGrid>
-            <FeatureCard
-              className={'relative col-span-1 overflow-hidden'}
-              label={'Feature one'}
-              description={`Placeholder copy describing what ${appConfig.name} does.`}
-            />
-            <FeatureCard
-              className={'relative col-span-1 overflow-hidden'}
-              label={'Feature two'}
-              description={`Placeholder copy describing what ${appConfig.name} does.`}
-            />
-            <FeatureCard
-              className={'relative col-span-1 overflow-hidden'}
-              label={'Feature three'}
-              description={`Placeholder copy describing what ${appConfig.name} does.`}
-            />
+            {siteConfig.features.map((feature) => (
+              <FeatureCard
+                key={feature.title}
+                className={'relative col-span-1 overflow-hidden'}
+                label={feature.title}
+                description={feature.description}
+              />
+            ))}
           </FeatureGrid>
         </FeatureShowcase>
       </div>

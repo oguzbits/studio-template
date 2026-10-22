@@ -8,9 +8,11 @@ import pathsConfig from '~/config/paths.config';
 import studioConfig, { type ProductKey } from '~/config/studio.config';
 import { createCheckout } from '~/lib/billing/checkout-actions';
 
+import { pageMetadata } from '~/lib/page-metadata';
+
 import { SitePageHeader } from '../_components/site-page-header';
 
-export const metadata = { title: 'Pricing' };
+export const metadata = pageMetadata({ path: '/pricing', title: 'Pricing' });
 
 function PricingPage() {
   return (

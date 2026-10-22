@@ -9,13 +9,12 @@ import { Trans } from '@kit/ui/trans';
 
 import authConfig from '~/config/auth.config';
 import pathsConfig from '~/config/paths.config';
+import { pageMetadata } from '~/lib/page-metadata';
 
 export const generateMetadata = async () => {
   const t = await getTranslations();
 
-  return {
-    title: t('auth.signIn'),
-  };
+  return pageMetadata({ path: '/auth/sign-in', title: t('auth.signIn') });
 };
 
 const paths = {

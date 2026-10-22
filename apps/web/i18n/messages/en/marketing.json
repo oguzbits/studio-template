@@ -4,7 +4,7 @@
   "documentation": "Documentation",
   "documentationSubtitle": "Tutorials and guide to get started with the platform",
   "faq": "FAQ",
-  "faqSubtitle": "Frequently asked questions about the platform",
+  "faqSubtitle": "Answers to the most common questions",
   "pricing": "Pricing",
   "pricingSubtitle": "Pricing plans and payment options",
   "backToBlog": "Back to blog",
@@ -28,6 +28,5 @@
   "contactError": "An error occurred while sending your message",
   "contactSuccessDescription": "We have received your message and will get back to you as soon as possible",
   "contactErrorDescription": "An error occurred while sending your message. Please try again later",
-  "footerDescription": "Here you can add a description about your company or product",
   "copyright": "© Copyright {year} {product}. All Rights Reserved."
 }

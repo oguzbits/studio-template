@@ -58,7 +58,6 @@ const config = {
      * through the TS CLI instead. */
     useTypeScriptCli: true,
     optimizePackageImports: [
-      'recharts',
       'lucide-react',
       '@base-ui/react',
       'date-fns',

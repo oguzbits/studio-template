@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import siteConfig from './site.config';
+
 const production = process.env.NODE_ENV === 'production';
 
 const AppConfigSchema = z
@@ -9,14 +11,8 @@ const AppConfigSchema = z
         error: `Please provide the variable NEXT_PUBLIC_PRODUCT_NAME`,
       })
       .min(1),
-    title: z
-      .string({
-        error: `Please provide the variable NEXT_PUBLIC_SITE_TITLE`,
-      })
-      .min(1),
-    description: z.string({
-      error: `Please provide the variable NEXT_PUBLIC_SITE_DESCRIPTION`,
-    }),
+    title: z.string().min(1),
+    description: z.string(),
     url: z
       .string({
         error: `Please provide the variable NEXT_PUBLIC_SITE_URL`,
@@ -61,8 +57,9 @@ const AppConfigSchema = z
 
 const appConfig = AppConfigSchema.parse({
   name: process.env.NEXT_PUBLIC_PRODUCT_NAME,
-  title: process.env.NEXT_PUBLIC_SITE_TITLE,
-  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION,
+  // copy lives in site.config.ts, not in env
+  title: `${process.env.NEXT_PUBLIC_PRODUCT_NAME} – ${siteConfig.tagline}`,
+  description: siteConfig.description,
   url: process.env.NEXT_PUBLIC_SITE_URL,
   locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE,
   theme: process.env.NEXT_PUBLIC_DEFAULT_THEME_MODE,

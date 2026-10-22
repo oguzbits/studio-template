@@ -5,8 +5,6 @@ packages:
 catalog:
   '@dotenvx/dotenvx': 2.33.0
   '@hookform/resolvers': ^5.9.1
-  '@makerkit/data-loader-supabase-core': ^0.0.10
-  '@makerkit/data-loader-supabase-nextjs': ^1.2.5
   '@manypkg/cli': ^0.25.1
   '@marsidev/react-turnstile': ^1.6.2
   '@next/bundle-analyzer': 16.4.2

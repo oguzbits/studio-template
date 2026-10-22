@@ -13,11 +13,13 @@ import appConfig from '~/config/app.config';
  */
 export const generateRootMetadata = (): Metadata => {
   return {
-    title: appConfig.title,
+    title: { default: appConfig.title, template: `%s | ${appConfig.name}` },
     description: appConfig.description,
     metadataBase: new URL(appConfig.url),
     applicationName: appConfig.name,
+    alternates: { canonical: '/' },
     openGraph: {
+      type: 'website',
       url: appConfig.url,
       siteName: appConfig.name,
       title: appConfig.title,
@@ -27,10 +29,6 @@ export const generateRootMetadata = (): Metadata => {
       card: 'summary_large_image',
       title: appConfig.title,
       description: appConfig.description,
-    },
-    icons: {
-      icon: '/images/favicon/favicon.ico',
-      apple: '/images/favicon/apple-touch-icon.png',
     },
   };
 };

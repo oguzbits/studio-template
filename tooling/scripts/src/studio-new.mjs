@@ -436,7 +436,7 @@ async function configureSupabase() {
     auth[`mailer_templates_${key}_content`] = readFileSync(
       resolve(web, 'supabase/templates', `${file}.html`),
       'utf8',
-    ).replaceAll('Makerkit', name);
+    ).replaceAll('Studio', name); // Platzhalter-Produktname in den Templates
   }
   if (env.RESEND_API_KEY) {
     // ohne verifizierte Domain kann Resend nur von onboarding@resend.dev senden

@@ -6,9 +6,14 @@ import { AuthGate } from '~/components/auth-gate';
 import pathsConfig from '~/config/paths.config';
 import { openPortal } from '~/lib/billing/checkout-actions';
 
+import { pageMetadata } from '~/lib/page-metadata';
+
 import { SitePageHeader } from '../../_components/site-page-header';
 
-export const metadata = { title: 'Verträge kündigen' };
+export const metadata = pageMetadata({
+  path: '/kuendigen',
+  title: 'Verträge kündigen',
+});
 
 function CancelPage() {
   return (

@@ -5,6 +5,7 @@ import { Trans } from '@kit/ui/trans';
 
 import { AppLogo } from '~/components/app-logo';
 import appConfig from '~/config/app.config';
+import siteConfig from '~/config/site.config';
 
 /**
  * The copyright year is an unstable value, and `<Suspense>` does not fix those,
@@ -27,7 +28,7 @@ export async function SiteFooter() {
   return (
     <Footer
       logo={<AppLogo className="w-[85px] md:w-[95px]" />}
-      description={<Trans i18nKey="marketing.footerDescription" />}
+      description={siteConfig.tagline}
       copyright={
         <Trans
           i18nKey="marketing.copyright"

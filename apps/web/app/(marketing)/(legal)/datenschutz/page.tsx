@@ -1,8 +1,13 @@
 import studioConfig from '~/config/studio.config';
 
+import { pageMetadata } from '~/lib/page-metadata';
+
 import { SitePageHeader } from '../../_components/site-page-header';
 
-export const metadata = { title: 'Datenschutzerklärung' };
+export const metadata = pageMetadata({
+  path: '/datenschutz',
+  title: 'Datenschutzerklärung',
+});
 
 /**
  * Template, not legal advice: have it reviewed for your actual setup before launch.
