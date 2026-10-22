@@ -47,6 +47,8 @@ for (const key of [
   'SUPABASE_ACCESS_TOKEN',
   'SUPABASE_ORG_ID',
   'VERCEL_TOKEN',
+  // ohne Key bricht erst der erste Vercel-Build ab (env-check), nach Supabase- und Vercel-Anlage
+  'RESEND_API_KEY',
 ]) {
   if (!env[key])
     fail(
@@ -455,10 +457,15 @@ async function verifySiteUrl() {
       `  Vercel hat ${actual} vergeben (geraten war ${state.siteUrl}): Env aktualisieren, neu deployen.`,
     );
     state.siteUrl = actual;
+    // Merker überlebt einen Abbruch: sonst sähe der nächste Lauf actual === siteUrl und überspränge das Update
+    state.siteUrlStale = true;
     save();
+  }
+  if (state.siteUrlStale) {
     if (state.stripeConfigured) await updateStripeUrls();
     await setVercelEnv();
     await deploy();
+    state.siteUrlStale = false;
   }
   state.siteUrlVerified = true;
   save();
@@ -603,6 +610,9 @@ async function configureStripe() {
   state.stripeConfigured = true;
   // Nachträglich (Key erst nach einem früheren Lauf ergänzt): Env neu setzen und neu deployen
   if (state.envSet) {
+    console.log(
+      '  Stripe nachträglich eingerichtet: Env wird neu gesetzt und neu deployt.',
+    );
     state.envSet = false;
     state.localEnv = false;
     state.deployed = false;
@@ -624,9 +634,15 @@ async function updateStripeUrls() {
 
 function stripeSdkApiVersion() {
   const file = resolve(ROOT, 'apps/web/node_modules/stripe/esm/apiVersion.js');
-  return existsSync(file)
+  const version = existsSync(file)
     ? readFileSync(file, 'utf8').match(/ApiVersion = '([^']+)'/)?.[1]
     : undefined;
+  // ohne Version nähme Stripe den Konto-Default, und die Payloads passten nicht mehr zur SDK
+  if (!version)
+    throw new Error(
+      `Stripe-API-Version nicht gefunden (${file}); im Template pnpm install ausführen.`,
+    );
+  return version;
 }
 
 function portalUrls() {

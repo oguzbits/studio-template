@@ -30,10 +30,15 @@ Das Skript kopiert `HEAD` nach `../mein-projekt` (eigene lokale Ports), legt ein
 setzt Supabase Auth-URLs, SMTP und die Vault-Secrets für pg_cron, schreibt `apps/web/.env.local`, deployt
 und wartet auf `/api/health`. Bricht ein Schritt ab, setzt ein erneuter Aufruf dort fort
 (Zustand in `.studio/state.json`, nicht committet). Mit `STRIPE_SECRET_KEY` (Test) legt es auch Produkte und
-Preise aus `apps/web/config/billing.json`, den Webhook und das Kundenportal an. Am Ende laufen ein Schnell-Audit und
+Preise aus `apps/web/config/billing.json`, den Webhook und das Kundenportal an – nur im Testmodus; für echte
+Zahlungen Live-Key setzen und Produkte, Preise, Webhook und Portal im Live-Modus anlegen. Am Ende laufen ein Schnell-Audit und
 die Checkliste der verbleibenden manuellen Schritte (Resend-Domain/DNS, Domain) in `docs/launch-checklist.md`.
 
 Fehler-Monitoring: Sentry ist nur aktiv, wenn `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN` gesetzt sind. Empfohlen ist die EU-Region (de.sentry.io).
+
+Security-Header: Blockiert die CSP etwas (Konsole: „violates the following Content Security Policy“), neuen Host in
+`apps/web/config/security-headers.ts` eintragen. Zum Eingrenzen mit `CSP_REPORT_ONLY=true` deployen: Verstöße
+werden dann nur gemeldet.
 
 Env-Variablen: siehe `.env.example`. Lokale Supabase des Templates: Ports 55320–55326.
 

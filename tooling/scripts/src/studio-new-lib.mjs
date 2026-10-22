@@ -41,7 +41,7 @@ export function buildChecklist({
   ];
   const steps = [
     ...(stripeConfigured ? [] : stripeSteps),
-    'Resend: Domain hinzufügen, DNS-Einträge (SPF, DKIM, ggf. DMARC) setzen, verifizieren; EMAIL_FROM auf eine Adresse dieser Domain setzen und den Absender in Supabase → Auth → SMTP anpassen.',
+    'Resend: Domain hinzufügen, DNS-Einträge (SPF, DKIM, ggf. DMARC) setzen, verifizieren; EMAIL_FROM auf eine Adresse dieser Domain setzen und den Absender in Supabase → Auth → SMTP anpassen. Bis dahin stellt Resend (Absender onboarding@resend.dev) nur an die Adresse des Resend-Kontos zu: Bestätigungsmails an andere Nutzer kommen nicht an.',
     smtpConfigured
       ? 'Supabase-SMTP ist auf Resend gesetzt (Absender vorläufig); nach Domain-Verifizierung Absender ändern.'
       : 'Supabase-SMTP ist NICHT gesetzt (kein RESEND_API_KEY) – ohne eigenes SMTP sendet Supabase nur wenige Auth-Mails pro Stunde.',

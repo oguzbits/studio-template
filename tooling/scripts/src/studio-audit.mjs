@@ -108,6 +108,11 @@ if (!args.includes('--no-lighthouse')) {
         );
       }
     }
+  } catch (error) {
+    console.error(
+      'Lighthouse fehlgeschlagen (braucht Chrome). Ohne Lighthouse: pnpm studio:audit <url> --no-lighthouse',
+    );
+    throw error;
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
