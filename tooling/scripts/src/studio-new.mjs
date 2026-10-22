@@ -291,9 +291,25 @@ async function waitForSupabase() {
   throw new Error('Supabase-Projekt ist nach 10 Minuten nicht bereit.');
 }
 
+// ACTIVE_HEALTHY kommt vor den Storage-Tabellen; die erste Migration legt einen Bucket an
+async function waitForStorage() {
+  const deadline = Date.now() + 15 * 60_000;
+  while (Date.now() < deadline) {
+    const [row] = await supabaseApi(
+      'POST',
+      `/v1/projects/${state.supabaseRef}/database/query`,
+      { query: "select to_regclass('storage.buckets') is not null as ready" },
+    );
+    if (row?.ready) return;
+    await sleep(15_000);
+  }
+  throw new Error('Supabase Storage ist nach 15 Minuten nicht bereit.');
+}
+
 async function pushMigrations() {
   // Passwort per Env statt Argument (nicht in `ps` sichtbar)
   const dbEnv = { SUPABASE_DB_PASSWORD: state.dbPassword };
+  await waitForStorage();
   supabase(['link', '--project-ref', state.supabaseRef], dbEnv);
   supabase(['db', 'push', '--linked', '--include-all'], dbEnv, 'y\n');
   const keys = await supabaseApi(
@@ -561,7 +577,7 @@ function supabase(supabaseArgs, extraEnv = {}, input) {
   return run('pnpm', ['exec', 'supabase', ...supabaseArgs], {
     cwd: web,
     env: { SUPABASE_ACCESS_TOKEN: env.SUPABASE_ACCESS_TOKEN, ...extraEnv },
-    capture: true,
+    // stdout nicht abfangen: dort stehen die Fehlermeldungen der CLI
     input,
   });
 }
