@@ -3,22 +3,18 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-import { Button } from '@kit/ui/button';
+import { buttonVariants } from '@kit/ui/button';
 import { If } from '@kit/ui/if';
 import { Trans } from '@kit/ui/trans';
+import { cn } from '@kit/ui/utils';
 
 import { useSessionCookie } from '~/components/use-session-cookie';
 import featuresFlagConfig from '~/config/feature-flags.config';
 import pathsConfig from '~/config/paths.config';
 
-const ModeToggle = dynamic(
-  () =>
-    import('@kit/ui/mode-toggle').then((mod) => ({
-      default: mod.ModeToggle,
-    })),
-  {
-    ssr: false,
-  },
+const ThemeToggle = dynamic(
+  () => import('./theme-toggle').then((mod) => ({ default: mod.ThemeToggle })),
+  { ssr: false, loading: () => <span className={'size-10'} /> },
 );
 
 const features = {
@@ -56,29 +52,29 @@ export function SiteHeaderAccountSection() {
 
 function AuthButtons() {
   return (
-    <div className={'flex space-x-2'}>
-      <div className={'hidden space-x-0.5 md:flex'}>
-        <If condition={features.enableThemeToggle}>
-          <ModeToggle />
-        </If>
+    <div className={'flex items-center gap-1'}>
+      <If condition={features.enableThemeToggle}>
+        <ThemeToggle />
+      </If>
 
-        <Button
-          nativeButton={false}
-          render={<Link href={pathsConfig.auth.signIn} />}
-          variant={'ghost'}
-        >
-          <Trans i18nKey={'auth.signIn'} />
-        </Button>
-      </div>
+      <Link
+        href={pathsConfig.auth.signIn}
+        prefetch={false}
+        className={cn(
+          buttonVariants({ variant: 'ghost' }),
+          'hidden h-10 px-4 md:inline-flex',
+        )}
+      >
+        <Trans i18nKey={'auth.signIn'} />
+      </Link>
 
-      <Button
-        nativeButton={false}
-        render={<Link href={pathsConfig.auth.signUp} />}
-        className="group"
-        variant={'default'}
+      <Link
+        href={pathsConfig.auth.signUp}
+        prefetch={false}
+        className={cn(buttonVariants(), 'h-10 px-4')}
       >
         <Trans i18nKey={'auth.signUp'} />
-      </Button>
+      </Link>
     </div>
   );
 }

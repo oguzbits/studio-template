@@ -12,7 +12,7 @@ function SiteLayout(props: React.PropsWithChildren) {
     <div className={'flex min-h-[100vh] flex-col'}>
       <SiteHeader />
 
-      {props.children}
+      <main className={'flex-1'}>{props.children}</main>
 
       <SiteFooter />
     </div>
