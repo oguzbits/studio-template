@@ -25,7 +25,14 @@ Checkliste (Stripe-Konto, Produkt, Webhook, Kundenportal: geschätzt 10–15 min
 - pg_cron: `studio-worker` jede Minute, Läufe `succeeded`, Worker antwortet 200; `studio-daily-digest` 06:00 UTC.
   Vault: `worker_url`, `cron_secret`.
 - Impressum zeigt die Platzhalter (`LEGAL_*` nicht in `.env.shared` gesetzt) – gewolltes Verhalten.
-- Noch offen: Registrierung mit Bestätigungsmail (Resend-SMTP), Stripe-Testzahlung (Stripe-Konto fehlt).
+- Registrierung: Bestätigungsmail kam über Resend-SMTP an, Adresse bestätigt; der Link endete aber auf
+  „could not authenticate you“ (Supabase-Default-Template mit PKCE-Link, im anderen Browser geöffnet). Login per
+  Passwort funktionierte. Fix: Skript lädt die Kit-Templates (`/auth/confirm?token_hash=…`) hoch (`5ac67f7`).
+- Stripe-Testzahlung 9 €/Monat: Kunde angelegt, 2 Webhook-Events verarbeitet, `entitlements.pro` = `active`
+  bis 2026-11-22; Job `welcome-email` erledigt (1 Versuch).
+
+**Definition of Done erfüllt:** live mit Login, Stripe-Testzahlung, E-Mail-Versand und täglichem Job.
+Offen bleibt nur der lokale E2E-Smoke `E2E_BILLING=true` (braucht Stripe-Testkeys lokal und `stripe listen`).
 
 ## Verlauf
 
