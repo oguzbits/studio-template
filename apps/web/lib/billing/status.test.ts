@@ -74,6 +74,15 @@ describe('accessDecision', () => {
     ).toBe('pricing');
   });
 
+  it.each(['active', 'trialing'] as const)(
+    '%s after the period ended -> allow (renewal webhook may lag)',
+    (status) => {
+      expect(accessDecision({ status, current_period_end: past }, now)).toBe(
+        'allow',
+      );
+    },
+  );
+
   it('active one-time purchase without period end -> allow', () => {
     expect(
       accessDecision({ status: 'active', current_period_end: null }, now),

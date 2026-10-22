@@ -53,12 +53,18 @@ export function accessDecision(
     return 'pricing';
   }
 
-  if (ACCESS_STATUSES.includes(e.status)) {
-    // guards against a lost subscription.deleted webhook
-    const periodOpen =
-      e.current_period_end === null || new Date(e.current_period_end) > now;
+  // guards against a lost subscription.deleted webhook; active/trialing are not
+  // cut off because the renewal webhook can arrive hours after the period end
+  if (
+    e.status === 'canceling' &&
+    e.current_period_end !== null &&
+    new Date(e.current_period_end) <= now
+  ) {
+    return 'pricing';
+  }
 
-    return periodOpen ? 'allow' : 'pricing';
+  if (ACCESS_STATUSES.includes(e.status)) {
+    return 'allow';
   }
 
   return BILLING_STATUSES.includes(e.status) ? 'billing' : 'pricing';
