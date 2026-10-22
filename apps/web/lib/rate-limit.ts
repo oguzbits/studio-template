@@ -7,6 +7,7 @@ import { headers } from 'next/headers';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
 // x-real-ip is set by the platform; the first x-forwarded-for entry can be forged by the client
+// shortcut: trusts x-real-ip as set by Vercel; behind another proxy configure it to overwrite x-real-ip, else clients can rotate it
 export function rateLimitKey(scope: string, headers: Headers) {
   const ip =
     headers.get('x-real-ip') ??

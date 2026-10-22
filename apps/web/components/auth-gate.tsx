@@ -1,17 +1,13 @@
 'use client';
 
-import type { ReactNode } from 'react';
-
-import dynamic from 'next/dynamic';
+import { type ReactNode, Suspense, lazy } from 'react';
 
 import { useSessionCookie } from '~/components/use-session-cookie';
 
-const AuthGateSession = dynamic(
-  () =>
-    import('~/components/auth-gate-session').then((mod) => ({
-      default: mod.AuthGateSession,
-    })),
-  { ssr: false },
+const AuthGateSession = lazy(() =>
+  import('~/components/auth-gate-session').then((mod) => ({
+    default: mod.AuthGateSession,
+  })),
 );
 
 /**
@@ -24,5 +20,10 @@ export function AuthGate(props: { signedIn: ReactNode; signedOut: ReactNode }) {
     return props.signedOut;
   }
 
-  return <AuthGateSession {...props} />;
+  // useSessionCookie is false on the server, so the lazy chunk only loads on the client
+  return (
+    <Suspense fallback={props.signedOut}>
+      <AuthGateSession {...props} />
+    </Suspense>
+  );
 }

@@ -42,7 +42,7 @@ Lokale Ports: 55320–55326 (API 55321, DB 55322, Studio 55323, Mailpit 55324). 
 | Migrationen + Tests | `supabase/migrations/`, `supabase/tests/database/` | pgTAP, `00-rls.test.sql` prüft RLS auf allen Tabellen |
 
 Tabellen (alle mit RLS): `entitlements`, `processed_events`, `billing_customers`, `jobs`, `ai_calls`,
-`ai_cache`, `waitlist`, `digest_sends`. Nutzer dürfen nur ihre eigenen `entitlements` und
+`ai_cache`, `waitlist`, `digest_sends`, `rate_limits`. Nutzer dürfen nur ihre eigenen `entitlements` und
 `billing_customers` lesen; alles andere läuft über den Admin-Client auf dem Server.
 
 `/admin`: nur bestätigte E-Mail-Adressen aus `ADMIN_EMAILS` (frisch aus `auth.users` gelesen), sonst 404.
