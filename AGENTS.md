@@ -16,6 +16,7 @@ Lies diese Datei ganz, dann kannst du ein Feature ohne Rückfrage bauen.
 | DB-Typen neu erzeugen | `pnpm --filter web supabase:typegen` (nach jeder Migration) |
 | E2E (nicht Teil von check) | `pnpm test:e2e` |
 | Format/Lint fixen | `pnpm format:fix`, `pnpm lint:fix` |
+| Secrets einrichten / prüfen | `pnpm studio:setup` (fragt fehlende Werte ab, prüft live) / `pnpm studio:doctor [url]` (lokal + Live-Projekt) |
 | Neues Projekt | `pnpm studio:new <name>` (siehe README) |
 
 Lokale Ports: 55320–55326 (API 55321, DB 55322, Studio 55323, Mailpit 55324). App: 3000.
