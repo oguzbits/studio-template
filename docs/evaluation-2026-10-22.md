@@ -68,3 +68,20 @@ Skala 0–5 (5 = besser als jedes untersuchte Kit). Ziel = Premium-Niveau.
    Security, Solo-Gründer beim Setup, Endkunde, Red Team) → Ledger-Eintrag mit Messwerten vorher/nachher.
 3. **Abbruch:** alle harten Ziele erfüllt und zwei Reviews in Folge ohne Befund „hoch“ oder „mittel“.
 4. **Höhe:** am Ende ein echter Test mit einem neuen Produkt: Idee → live mit Zahlung, Zeit gestoppt.
+
+## Entscheidungen (2026-10-22)
+
+- Stripe: **ein Konto für alle Produkte**; `studio:new` legt Produkte/Preise/Webhook pro Projekt an, mit Projektname
+  als Metadatum. Voraussetzung: Stripe-Secret-Key (Test) in `.env.shared`.
+- Reihenfolge: **P0 zuerst**, dann UI (Ansatz A: shadcn direkt, Kit-Auth-Logik bleibt).
+- Schleife: **Runde für Runde** mit Bericht (Messwerte vorher/nachher); nächste Runde nach Freigabe.
+- Extras für die UI-Runde: Onboarding-Schritt, Kontaktformular, Admin-Nutzerliste.
+
+## Backlog
+
+- **`pnpm studio:launch <projekt> <domain>`** – vor dem ersten echten Launch: Domain an Vercel, Resend-Domain
+  anlegen, DNS automatisch (Vercel DNS) oder als Liste (externer Registrar), Verifizierung prüfen, `EMAIL_FROM` und
+  Site-URL (Supabase Auth, Stripe-Webhook, Vault) umstellen. Aktuell keine Domains vorhanden.
+- Lokaler E2E-Billing-Smoke (`E2E_BILLING=true`).
+- Schlankerer Supabase-Token mit Ablaufdatum ([dummy-run.md](dummy-run.md)).
+- `braces` < 3.0.4 (via next-sitemap, nur Build) – sobald ein Fix erscheint.
