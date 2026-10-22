@@ -7,7 +7,7 @@ import { cn } from '@kit/ui/utils';
 import { Analytics } from '~/components/analytics';
 import { RootProviders } from '~/components/root-providers';
 import appConfig from '~/config/app.config';
-import { heading, sans } from '~/lib/fonts';
+import { display, heading, sans } from '~/lib/fonts';
 import { generateRootMetadata } from '~/lib/root-metdata';
 
 import '../styles/globals.css';
@@ -54,14 +54,13 @@ export default async function RootLayout({
 }
 
 function getClassName() {
-  const font = [sans.variable, heading.variable].reduce<string[]>(
-    (acc, curr) => {
-      if (acc.includes(curr)) return acc;
+  const font = [sans.variable, heading.variable, display.variable].reduce<
+    string[]
+  >((acc, curr) => {
+    if (acc.includes(curr)) return acc;
 
-      return [...acc, curr];
-    },
-    [],
-  );
+    return [...acc, curr];
+  }, []);
 
   return cn('bg-background min-h-screen antialiased', ...font);
 }

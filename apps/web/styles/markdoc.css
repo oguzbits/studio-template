@@ -94,7 +94,7 @@
 }
 
 .markdoc a {
-  @apply border-b-black border-b hover:border-b-2 pb-0.5 text-secondary-foreground font-semibold dark:border-yellow-300;
+  @apply underline underline-offset-4 hover:decoration-2 text-foreground font-semibold;
 }
 
 .markdoc hr {

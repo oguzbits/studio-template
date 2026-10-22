@@ -33,9 +33,6 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
-  --color-accent-brand: var(--accent-brand);
-  --color-accent-brand-foreground: var(--accent-brand-foreground);
-
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -54,6 +51,8 @@
 
   --font-sans: -apple-system, var(--font-sans);
   --font-heading: var(--font-heading);
+  /* serif for marketing, auth and error headlines only; the app keeps the sans */
+  --font-display: var(--font-display-face), Georgia, serif;
 
   --color-sidebar: var(--sidebar-background);
   --color-sidebar-foreground: var(--sidebar-foreground);

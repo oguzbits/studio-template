@@ -1,4 +1,4 @@
-import { Geist as SansFont } from 'next/font/google';
+import { Newsreader as DisplayFont, Geist as SansFont } from 'next/font/google';
 
 /**
  * @sans
@@ -20,5 +20,18 @@ const sans = SansFont({
  */
 const heading = sans;
 
+/**
+ * @display
+ * @description Serif for H1/H2 on marketing, auth and error pages (`font-display`).
+ * Preloaded because the hero H1 is the LCP element.
+ */
+const display = DisplayFont({
+  subsets: ['latin'],
+  variable: '--font-display-face',
+  fallback: ['Georgia', 'Times New Roman', 'serif'],
+  preload: true,
+  display: 'swap',
+});
+
 // we export these fonts into the root layout
-export { sans, heading };
+export { sans, heading, display };
