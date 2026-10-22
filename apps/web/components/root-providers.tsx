@@ -10,7 +10,6 @@ import { I18nClientProvider } from '@kit/i18n/provider';
 import { If } from '@kit/ui/if';
 import { VersionUpdater } from '@kit/ui/version-updater';
 
-import { AuthProvider } from '~/components/auth-provider';
 import appConfig from '~/config/app.config';
 import authConfig from '~/config/auth.config';
 import featuresFlagConfig from '~/config/feature-flags.config';
@@ -49,17 +48,15 @@ export function RootProviders({
         <CaptchaProvider>
           <CaptchaTokenSetter siteKey={captchaSiteKey} />
 
-          <AuthProvider>
-            <ThemeProvider
-              attribute="class"
-              enableSystem
-              disableTransitionOnChange
-              defaultTheme={theme}
-              enableColorScheme={false}
-            >
-              {children}
-            </ThemeProvider>
-          </AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            enableSystem
+            disableTransitionOnChange
+            defaultTheme={theme}
+            enableColorScheme={false}
+          >
+            {children}
+          </ThemeProvider>
         </CaptchaProvider>
 
         <If condition={featuresFlagConfig.enableVersionUpdater}>

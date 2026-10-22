@@ -3,13 +3,11 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-import { PersonalAccountDropdown } from '@kit/accounts/personal-account-dropdown';
-import { useSignOut } from '@kit/supabase/hooks/use-sign-out';
-import { useUser } from '@kit/supabase/hooks/use-user';
 import { Button } from '@kit/ui/button';
 import { If } from '@kit/ui/if';
 import { Trans } from '@kit/ui/trans';
 
+import { useSessionCookie } from '~/components/use-session-cookie';
 import featuresFlagConfig from '~/config/feature-flags.config';
 import pathsConfig from '~/config/paths.config';
 
@@ -23,13 +21,20 @@ const ModeToggle = dynamic(
   },
 );
 
-const paths = {
-  home: pathsConfig.app.home,
-};
-
 const features = {
   enableThemeToggle: featuresFlagConfig.enableThemeToggle,
 };
+
+const SiteHeaderUserMenu = dynamic(
+  () =>
+    import('./site-header-user-menu').then((mod) => ({
+      default: mod.SiteHeaderUserMenu,
+    })),
+  {
+    ssr: false,
+    loading: () => <AuthButtons />,
+  },
+);
 
 /**
  * The session is read on the client, never on the server. Reading it in the
@@ -37,26 +42,16 @@ const features = {
  * had to be kept out of shared caches. The server response is now identical for
  * every visitor, so marketing pages are safe on any CDN.
  *
- * The trade-off is that a signed-in visitor briefly sees the signed-out actions
- * until the session resolves on the client.
+ * Without a session cookie the user menu and the Supabase client are not loaded
+ * at all. A signed-in visitor briefly sees the signed-out actions until the
+ * session resolves.
  */
 export function SiteHeaderAccountSection() {
-  const signOut = useSignOut();
-  const { data: user } = useUser();
-
-  if (!user) {
+  if (!useSessionCookie()) {
     return <AuthButtons />;
   }
 
-  return (
-    <PersonalAccountDropdown
-      showProfileName={false}
-      paths={paths}
-      features={features}
-      user={user}
-      signOutRequested={() => signOut.mutateAsync()}
-    />
-  );
+  return <SiteHeaderUserMenu fallback={<AuthButtons />} />;
 }
 
 function AuthButtons() {

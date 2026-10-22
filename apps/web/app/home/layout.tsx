@@ -2,6 +2,7 @@ import { Page, PageMobileNavigation, PageNavigation } from '@kit/ui/page';
 import { SidebarProvider } from '@kit/ui/sidebar';
 
 import { AppLogo } from '~/components/app-logo';
+import { AuthProvider } from '~/components/auth-provider';
 import { navigationConfig } from '~/config/navigation.config';
 
 // home imports
@@ -19,11 +20,15 @@ import { HomeSidebar } from './_components/home-sidebar';
  * The session moved down into HomeSidebar, behind a Suspense boundary.
  */
 function HomeLayout({ children }: React.PropsWithChildren) {
-  if (navigationConfig.style === 'sidebar') {
-    return <SidebarLayout>{children}</SidebarLayout>;
-  }
-
-  return <HeaderLayout>{children}</HeaderLayout>;
+  return (
+    <AuthProvider>
+      {navigationConfig.style === 'sidebar' ? (
+        <SidebarLayout>{children}</SidebarLayout>
+      ) : (
+        <HeaderLayout>{children}</HeaderLayout>
+      )}
+    </AuthProvider>
+  );
 }
 
 export default HomeLayout;
