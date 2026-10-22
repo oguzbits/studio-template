@@ -26,7 +26,7 @@ function SignInPage() {
   return (
     <>
       <div className={'flex flex-col items-center'}>
-        <Heading level={2} className={'tracking-tighter'}>
+        <Heading level={2} className={'text-2xl tracking-tight lg:text-2xl'}>
           <Trans
             i18nKey={'auth.signInHeading'}
             values={{ productName: process.env.NEXT_PUBLIC_PRODUCT_NAME }}
@@ -41,6 +41,7 @@ function SignInPage() {
           nativeButton={false}
           variant={'link'}
           size={'sm'}
+          className={'underline'}
           render={
             <Link href={pathsConfig.auth.signUp}>
               <Trans i18nKey={'auth.doNotHaveAccountYet'} />

@@ -26,7 +26,7 @@ function SignUpPage() {
   return (
     <>
       <div className={'flex flex-col items-center'}>
-        <Heading level={2} className={'tracking-tighter'}>
+        <Heading level={2} className={'text-2xl tracking-tight lg:text-2xl'}>
           <Trans i18nKey={'auth.signUpHeading'} />
         </Heading>
       </div>
@@ -42,6 +42,7 @@ function SignUpPage() {
           nativeButton={false}
           variant={'link'}
           size={'sm'}
+          className={'underline'}
           render={
             <Link href={pathsConfig.auth.signIn}>
               <Trans i18nKey={'auth.alreadyHaveAnAccount'} />

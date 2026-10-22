@@ -3,9 +3,8 @@
 import type { Provider } from '@supabase/supabase-js';
 
 import { isBrowser } from '@kit/shared/utils';
-import { If } from '@kit/ui/if';
-import { Separator } from '@kit/ui/separator';
 
+import { AuthMethods } from './auth-methods';
 import { MagicLinkAuthContainer } from './magic-link-auth-container';
 import { OauthProviders } from './oauth-providers';
 import { EmailPasswordSignUpContainer } from './password-sign-up-container';
@@ -28,37 +27,39 @@ export function SignUpMethodsContainer(props: {
   const defaultValues = getDefaultValues();
 
   return (
-    <>
-      <If condition={props.providers.password}>
-        <EmailPasswordSignUpContainer
-          emailRedirectTo={redirectUrl}
-          defaultValues={defaultValues}
-          displayTermsCheckbox={props.displayTermsCheckbox}
-        />
-      </If>
-
-      <If condition={props.providers.magicLink}>
-        <MagicLinkAuthContainer
-          redirectUrl={redirectUrl}
-          shouldCreateUser={true}
-          defaultValues={defaultValues}
-          displayTermsCheckbox={props.displayTermsCheckbox}
-        />
-      </If>
-
-      <If condition={props.providers.oAuth.length}>
-        <Separator />
-
-        <OauthProviders
-          enabledProviders={props.providers.oAuth}
-          shouldCreateUser={true}
-          paths={{
-            callback: props.paths.callback,
-            returnPath: props.paths.appHome,
-          }}
-        />
-      </If>
-    </>
+    <AuthMethods
+      password={
+        props.providers.password ? (
+          <EmailPasswordSignUpContainer
+            emailRedirectTo={redirectUrl}
+            defaultValues={defaultValues}
+            displayTermsCheckbox={props.displayTermsCheckbox}
+          />
+        ) : null
+      }
+      magicLink={
+        props.providers.magicLink ? (
+          <MagicLinkAuthContainer
+            redirectUrl={redirectUrl}
+            shouldCreateUser={true}
+            defaultValues={defaultValues}
+            displayTermsCheckbox={props.displayTermsCheckbox}
+          />
+        ) : null
+      }
+      oauth={
+        props.providers.oAuth.length ? (
+          <OauthProviders
+            enabledProviders={props.providers.oAuth}
+            shouldCreateUser={true}
+            paths={{
+              callback: props.paths.callback,
+              returnPath: props.paths.appHome,
+            }}
+          />
+        ) : null
+      }
+    />
   );
 }
 

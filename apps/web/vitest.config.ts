@@ -18,7 +18,11 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ['{app,lib,config,components}/**/*.test.{ts,tsx}'],
+    include: [
+      '{app,lib,config,components}/**/*.test.{ts,tsx}',
+      // the auth package has no vitest setup of its own; its component tests run here
+      '../../packages/features/auth/src/**/*.test.tsx',
+    ],
     environment: 'node',
   },
 });

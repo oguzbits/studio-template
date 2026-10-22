@@ -12,7 +12,7 @@ export function AuthProviderButton({
 }>) {
   return (
     <Button
-      className={'flex w-full space-x-2 text-center'}
+      className={'flex h-10 w-full space-x-2 text-center'}
       data-provider={providerId}
       data-test={'auth-provider-button'}
       variant={'outline'}

@@ -69,6 +69,7 @@ export function PasswordSignUpForm({
 
               <FormControl>
                 <Input
+                  className={'h-10'}
                   data-test={'email-input'}
                   required
                   type="email"
@@ -93,6 +94,7 @@ export function PasswordSignUpForm({
 
               <FormControl>
                 <Input
+                  className={'h-10'}
                   required
                   data-test={'password-input'}
                   type="password"
@@ -117,6 +119,7 @@ export function PasswordSignUpForm({
 
               <FormControl>
                 <Input
+                  className={'h-10'}
                   required
                   data-test={'repeat-password-input'}
                   type="password"
@@ -140,7 +143,7 @@ export function PasswordSignUpForm({
 
         <Button
           data-test={'auth-submit-button'}
-          className={'w-full'}
+          className={'h-10 w-full'}
           type="submit"
           disabled={loading}
         >
@@ -149,12 +152,7 @@ export function PasswordSignUpForm({
             fallback={
               <>
                 <Trans i18nKey={'auth.signUpWithEmail'} />
-
-                <ArrowRight
-                  className={
-                    'zoom-in animate-in slide-in-from-left-2 fill-mode-both h-4 delay-500 duration-500'
-                  }
-                />
+                <ArrowRight className={'h-4'} />
               </>
             }
           >

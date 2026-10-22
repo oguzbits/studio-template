@@ -57,6 +57,7 @@ export function PasswordSignInForm({
 
               <FormControl>
                 <Input
+                  className={'h-10'}
                   data-test={'email-input'}
                   required
                   type="email"
@@ -81,6 +82,7 @@ export function PasswordSignInForm({
 
               <FormControl>
                 <Input
+                  className={'h-10'}
                   required
                   data-test={'password-input'}
                   type="password"
@@ -97,7 +99,7 @@ export function PasswordSignInForm({
                   render={<Link href={'/auth/password-reset'} />}
                   size={'sm'}
                   variant={'link'}
-                  className={'text-xs'}
+                  className={'px-0 text-xs underline'}
                 >
                   <Trans i18nKey={'auth.passwordForgottenQuestion'} />
                 </Button>
@@ -108,7 +110,7 @@ export function PasswordSignInForm({
 
         <Button
           data-test="auth-submit-button"
-          className={'group w-full'}
+          className={'group h-10 w-full'}
           type="submit"
           disabled={loading}
         >
@@ -117,12 +119,7 @@ export function PasswordSignInForm({
             fallback={
               <>
                 <Trans i18nKey={'auth.signInWithEmail'} />
-
-                <ArrowRight
-                  className={
-                    'zoom-in animate-in slide-in-from-left-2 fill-mode-both h-4 delay-500 duration-500'
-                  }
-                />
+                <ArrowRight className={'h-4'} />
               </>
             }
           >

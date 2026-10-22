@@ -89,6 +89,7 @@ export function PasswordResetRequestContainer(params: {
 
                     <FormControl>
                       <Input
+                        className={'h-10'}
                         required
                         type="email"
                         placeholder={t('emailPlaceholder')}
@@ -101,7 +102,11 @@ export function PasswordResetRequestContainer(params: {
                 )}
               />
 
-              <Button disabled={resetPasswordMutation.isPending} type="submit">
+              <Button
+                className={'h-10'}
+                disabled={resetPasswordMutation.isPending}
+                type="submit"
+              >
                 <Trans i18nKey={'auth.passwordResetLabel'} />
               </Button>
             </div>
