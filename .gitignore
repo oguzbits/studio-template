@@ -50,3 +50,6 @@ yarn-error.log*
 
 # dotenvx private keys
 .env.keys
+
+# studio:audit-Ergebnisse
+.studio

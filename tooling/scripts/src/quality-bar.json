@@ -1,0 +1,23 @@
+{
+  "lighthousePages": ["/", "/pricing", "/auth/sign-in"],
+  "lighthouse": {
+    "mobile": {
+      "performance": 90,
+      "accessibility": 100,
+      "best-practices": 95,
+      "seo": 100,
+      "lcpMs": 2500,
+      "scriptKb": 350
+    },
+    "desktop": {
+      "performance": 98,
+      "accessibility": 100,
+      "best-practices": 95,
+      "seo": 100,
+      "lcpMs": 1200,
+      "scriptKb": 350
+    }
+  },
+  "seoPages": ["/", "/pricing", "/faq", "/auth/sign-in"],
+  "brandingPages": ["/", "/pricing", "/faq", "/auth/sign-in", "/auth/sign-up"]
+}
