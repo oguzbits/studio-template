@@ -11,29 +11,18 @@ export function SitePageHeader({
   container?: boolean;
   className?: string;
 }) {
-  const containerClass = container ? 'container' : '';
-
   return (
-    <div className={cn('border-b py-8 xl:py-10 2xl:py-12', className)}>
-      <div
-        className={cn('flex flex-col space-y-2 lg:space-y-4', containerClass)}
-      >
-        <h1
-          className={
-            'font-heading text-3xl font-medium tracking-tighter xl:text-5xl dark:text-white'
-          }
-        >
-          {title}
-        </h1>
-
-        <h2
-          className={
-            'text-muted-foreground text-lg tracking-tight 2xl:text-2xl'
-          }
-        >
-          {subtitle}
-        </h2>
-      </div>
+    <div
+      className={cn(
+        'flex flex-col gap-5 pt-16 pb-12 md:pt-28 md:pb-20',
+        container && 'container',
+        className,
+      )}
+    >
+      <h1 className={'page-title'}>{title}</h1>
+      <p className={'max-w-[40ch] text-xl leading-snug md:text-2xl'}>
+        {subtitle}
+      </p>
     </div>
   );
 }

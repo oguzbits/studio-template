@@ -1,7 +1,5 @@
 import Link from 'next/link';
 
-import { Check } from 'lucide-react';
-
 import { Button, buttonVariants } from '@kit/ui/button';
 import { cn } from '@kit/ui/utils';
 
@@ -13,12 +11,15 @@ import { createCheckout } from '~/lib/billing/checkout-actions';
 
 type Product = (typeof studioConfig.products)[ProductKey];
 
+/** One plan as a plain column: no card chrome, the price carries it. */
 export function PricingCard(props: {
   productKey: ProductKey;
   highlighted: boolean;
+  // plain-text label, only when there is more than one plan to choose from
+  popular: boolean;
   product: Product;
 }) {
-  const { productKey: key, highlighted, product } = props;
+  const { productKey: key, highlighted, popular, product } = props;
   const price =
     product.mode === 'subscription'
       ? product.priceMonthlyEur
@@ -26,54 +27,43 @@ export function PricingCard(props: {
   const variant = highlighted ? 'default' : 'outline';
 
   return (
-    <div
-      className={cn(
-        'bg-card flex flex-col gap-5 rounded-xl border p-6',
-        highlighted && 'border-accent-brand',
-      )}
-    >
-      <div className={'flex items-center justify-between'}>
-        <h2 className={'text-xl font-medium'}>{product.name}</h2>
-        {highlighted && (
-          <span
-            className={
-              'bg-accent-brand text-accent-brand-foreground rounded-full px-2.5 py-0.5 text-xs font-medium'
-            }
-          >
-            Popular
-          </span>
-        )}
+    <div className={cn('flex flex-col', highlighted && 'bg-muted p-8 md:p-12')}>
+      <div className={'flex items-baseline justify-between gap-4'}>
+        <h2 className={'text-2xl font-medium tracking-tight'}>
+          {product.name}
+        </h2>
+        {popular && <p className={'text-muted-foreground'}>Popular</p>}
       </div>
 
-      <p className={'text-4xl font-semibold tracking-tight'}>
-        {price} EUR
-        <span className={'text-muted-foreground text-base font-normal'}>
-          {product.mode === 'subscription' ? ' / month' : ' one-time'}
+      <p className={'mt-6 flex items-baseline gap-3'}>
+        <span
+          className={
+            'font-display text-[clamp(5rem,3rem+6vw,9rem)] leading-none tracking-[-0.035em] tabular-nums'
+          }
+        >
+          €{price}
+        </span>
+        <span className={'text-muted-foreground text-lg'}>
+          {product.mode === 'subscription' ? 'per month' : 'one-time'}
         </span>
       </p>
 
       {product.features && product.features.length > 0 && (
-        <ul className={'flex flex-col gap-2 text-sm'}>
+        <ul className={'mt-10 flex flex-col gap-3 text-lg'}>
           {product.features.map((f) => (
-            <li key={f} className={'flex items-start gap-2'}>
-              <Check
-                className={'text-accent-brand mt-0.5 size-4 shrink-0'}
-                aria-hidden
-              />
-              {f}
-            </li>
+            <li key={f}>{f}</li>
           ))}
         </ul>
       )}
 
-      <div className={'mt-auto'}>
+      <div className={'mt-auto pt-10'}>
         <AuthGate
           signedIn={
             <form action={createCheckout.bind(null, key)}>
               <Button
                 type={'submit'}
                 variant={variant}
-                className={'h-10 w-full'}
+                className={'h-12 w-full text-base'}
                 data-test={`checkout-${key}`}
               >
                 Subscribe
@@ -84,7 +74,10 @@ export function PricingCard(props: {
             <Link
               href={`${pathsConfig.auth.signUp}?next=${encodeURIComponent('/pricing')}`}
               prefetch={false}
-              className={cn(buttonVariants({ variant }), 'h-10 w-full')}
+              className={cn(
+                buttonVariants({ variant }),
+                'h-12 w-full text-base',
+              )}
             >
               Sign up to subscribe
             </Link>
