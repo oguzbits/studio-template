@@ -35,3 +35,4 @@
 | Externer Review | Subagent sonnet | ~1.5 min | 85k | 1 hoch, 6 mittel, Rest niedrig |
 | Review-Fixes | Hauptsession | ~10 min | – | alle hoch/mittel behoben; offen: Umami-connect-src ungeprüft, studio:new-Wiederaufnahme ohne Test |
 | Stripe live (test-dummy, Testmodus) | studio:new Wiederaufnahme | 0.9 min | – | Produkt, Preis 9 €/Monat, Webhook (API 2026-09-30.endive, 5 Events), Portal angelegt; Redeploy, Schnell-Audit 39/39 |
+| Live-Test durch Nutzer | Hauptsession | ~15 min | – | 2 echte Fehler: Supabase-Mail-Limit 2/h trotz Resend-SMTP (studio:new setzt jetzt 30/h); Portal-Kündigung via `cancel_at` blieb `active` (Webhook behoben, 2 Tests). Ohne Resend-Domain keine Fremd-Registrierung (P1: Hinweis in UI und studio:new) |
