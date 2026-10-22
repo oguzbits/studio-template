@@ -71,9 +71,9 @@ Messung lokal (Lighthouse 12, `next start`): mobil Perf 92/93/87 (`/`, `/pricing
 
 ### Offen / nächste Schritte
 
-1. E2E (`pnpm test:e2e`, Auth/Account) laufen lassen; 4 Specs waren schon vor 2b rot (Profilname, Passwort ändern, Konto löschen, Passwort-Reset) – Ursache klären.
+1. [x] E2E (Auth/Account, Produktions-Build): vorher 4 von 8 grün (4 rot), nachher 8 von 8 grün (zweimal hintereinander). Ursachen: (a) Profilname, E-Mail, Passwort: `Button` (Base UI) ist standardmäßig `type="button"`, die Formulare schickten nie ab – echter App-Fehler, `type="submit"` jetzt auch bei Magic-Link-Senden, MFA-Code und „Resend link“. (b) Passwort ändern: Formular nur bei `amr=password`, nach Bestätigungslink ist `amr=otp`; jetzt Prüfung auf `app_metadata.providers` mit `email`. (c) Konto löschen: Next 15+ antwortet auf Server-Action-Redirect mit 200 + `x-action-redirect` statt 303; Test prüft jetzt den Header und die Weiterleitung auf `/`. (d) Passwort-Reset: Mailpit-Löschen im Helper nutzte die falsche URL (405), die alte Bestätigungsmail blieb liegen und wurde statt der Reset-Mail geöffnet; zusätzlich Linktext „Back to home“ (2b-Text).
 2. Zeile `NEXT_PUBLIC_DEFAULT_THEME_MODE` in `apps/web/.env` auf `system` stellen (Agenten dürfen die Datei nicht anfassen).
-3. Pricing bei 1440 px ansehen (Agent meldete leere Titelspalte); OAuth-Reihenfolge nur per Unit-Test geprüft.
+3. [x] Pricing bei 1440 px hell/dunkel und 390 px angesehen: Titelspalte unter dem Untertitel war leer (Inspector: `hero-void` WARN, `empty-screens` FAIL). Jetzt Titel und Plan-Feld bündig, bei einem Plan stehen die Features ab `lg` unter dem Titel; Inspector 0 FAIL / 0 WARN (mit den drei erlaubten Regeln). OAuth-Reihenfolge weiterhin nur per Unit-Test geprüft.
 4. Push, dann Deploy auf test-dummy (durch den Nutzer) und `pnpm studio:audit`; Design-Review durch frischen Agenten, auch auf Fremd-Branding in Bildern/Logos (Text-Grep findet SVG-Pfade nicht).
 5. App-Shell (`/home/*`) nach Referenz „platform.claude.com/settings/keys“ (Screenshot vom Nutzer nötig), mit Taste-Skill `references/app-screens.md`.
 6. Taste-Skill pro Produkt in `AGENTS.md`/`studio:new` eintragen.
