@@ -53,6 +53,9 @@ export function checkEnv(env: Env, productKeys: string[]) {
       require(`STRIPE_PRICE_${key.toUpperCase()}`, (v) =>
         v.startsWith('price_'), `Stripe price ID price_… for product "${key}"`);
     }
+    if (/^(sk|rk)_test_/.test(env.STRIPE_SECRET_KEY)) {
+      warnings.push('STRIPE_SECRET_KEY is a test key: payments are not real');
+    }
   } else {
     warnings.push('STRIPE_SECRET_KEY is not set: checkout and portal are off');
   }

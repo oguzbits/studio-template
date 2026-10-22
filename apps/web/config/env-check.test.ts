@@ -10,7 +10,7 @@ const valid = {
   CRON_SECRET: 'c'.repeat(64),
   RESEND_API_KEY: 're_secretvalue',
   EMAIL_FROM: 'Acme <onboarding@resend.dev>',
-  STRIPE_SECRET_KEY: 'sk_test_secretvalue',
+  STRIPE_SECRET_KEY: 'sk_live_secretvalue',
   STRIPE_WEBHOOK_SECRET: 'whsec_secretvalue',
   STRIPE_PRICE_PRO: 'price_123',
   ADMIN_EMAILS: 'a@b.de',
@@ -67,6 +67,13 @@ describe('checkEnv', () => {
 
     expect(result.errors).toEqual([]);
     expect(result.warnings.join('\n')).toMatch(/STRIPE_SECRET_KEY/);
+  });
+
+  it('warns that a test key takes no real payments', () => {
+    const { errors, warnings } = check({ STRIPE_SECRET_KEY: 'sk_test_x' });
+
+    expect(errors).toEqual([]);
+    expect(warnings.join('\n')).toMatch(/test key/);
   });
 
   it('requires the analytics settings of the chosen provider', () => {

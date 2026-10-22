@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { SitePageHeader } from '~/(marketing)/_components/site-page-header';
 import siteConfig from '~/config/site.config';
+import { jsonLd } from '~/lib/json-ld';
 import { pageMetadata } from '~/lib/page-metadata';
 
 export const generateMetadata = async () => {
@@ -41,10 +42,7 @@ async function FAQPage() {
       <script
         key={'ld:json'}
         type="application/ld+json"
-        // escape `<` so copy can never close the script tag
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData).replaceAll('<', '\\u003c'),
-        }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }}
       />
 
       <div className={'flex flex-col space-y-4 xl:space-y-8'}>
