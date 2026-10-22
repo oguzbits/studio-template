@@ -52,3 +52,29 @@
 | Fix-Welle | Subagent sonnet | 1.2 min | 64k | Rest (EOF vor erster Frage) selbst behoben |
 | Nachentscheidung | Hauptsession | – | – | LEGAL_*/ADMIN_EMAILS/ANTHROPIC_API_KEY: `'warn'` statt Pflicht (wie env-check.ts) |
 | **Summe Subagenten** | | ~14 min | ~0,6 Mio. | ohne Hauptsession |
+
+## Runde 2b (UI-Look) – 2026-10-23
+
+Spec/Plan: [spec](superpowers/specs/2026-10-23-runde-2b-ui-design.md), [plan](superpowers/plans/2026-10-23-runde-2b-ui.md). Nach Nutzerfeedback („wirkt wie AI-Slop“) Richtung gewechselt: ruhige editoriale Basis statt Dunkel-SaaS-Muster (Taste-Skill-Hausregeln + Inspector; voller Skill-Ablauf pro Produkt, nicht für die Vorlage).
+
+| Task | Ausführung | Dauer | Tokens | Notiz |
+| --- | --- | --- | --- | --- |
+| Spec + Plan | Hauptsession | – | – | |
+| T1+2 Theme, Configs ohne zod | Subagent sonnet | 4,8 min | 107k | Zod-Chunk auf `/` nicht gefunden |
+| T3+4 Header, Landing, Pricing | Subagent sonnet | 4,3 min | 114k | später ersetzt (Slop-Muster) |
+| T5+6 Auth, Shell, Fehlerseiten, Logo | Subagent sonnet | 16,5 min | 144k | E2E: 4 von 8 rot, identisch vor der Änderung |
+| T7 a11y + Perf | Subagent sonnet | 19,5 min | 168k | Zod-Importer: `instrumentation-client.ts`; a11y 100; Script 222/337 KB |
+| Redesign editorial | Subagent opus | 31,5 min | 180k | Newsreader + Geist, warmes Neutral, ein grüner Akzent; Inspector 0 FAIL |
+| **Summe Subagenten** | | ~77 min | ~0,71 Mio. | ohne Hauptsession |
+
+Messung lokal (Lighthouse 12, `next start`): mobil Perf 92/93/87 (`/`, `/pricing`, `/auth/sign-in`), LCP 3,2–4,1 s (Ziel < 2,5 s offen; Supabase ~68 KB und zod ~46 KB auf Sign-in), a11y 100, Script 222/222/327 KB.
+
+### Offen / nächste Schritte
+
+1. E2E (`pnpm test:e2e`, Auth/Account) laufen lassen; 4 Specs waren schon vor 2b rot (Profilname, Passwort ändern, Konto löschen, Passwort-Reset) – Ursache klären.
+2. Zeile `NEXT_PUBLIC_DEFAULT_THEME_MODE` in `apps/web/.env` auf `system` stellen (Agenten dürfen die Datei nicht anfassen).
+3. Pricing bei 1440 px ansehen (Agent meldete leere Titelspalte); OAuth-Reihenfolge nur per Unit-Test geprüft.
+4. Push, dann Deploy auf test-dummy (durch den Nutzer) und `pnpm studio:audit`; Design-Review durch frischen Agenten, auch auf Fremd-Branding in Bildern/Logos (Text-Grep findet SVG-Pfade nicht).
+5. App-Shell (`/home/*`) nach Referenz „platform.claude.com/settings/keys“ (Screenshot vom Nutzer nötig), mit Taste-Skill `references/app-screens.md`.
+6. Taste-Skill pro Produkt in `AGENTS.md`/`studio:new` eintragen.
+7. Danach Runde 2c (Onboarding, Kontaktformular mit `rateLimit`, Admin-Nutzerliste); Backlog: Jahres-Toggle, leichterer Supabase-Client für Mobil-LCP.
