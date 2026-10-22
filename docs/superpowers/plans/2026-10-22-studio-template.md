@@ -228,7 +228,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 **Ablauf des Smoke-Tests:** Anmelden per Magic Link (Mailpit-Helper aus dem Kit) → `/home/pro` leitet auf `/pricing` → Checkout → auf der gehosteten Stripe-Seite Karte `4242 4242 4242 4242` eingeben → zurück → den Zustand pollen, bis `/home/pro` den Inhalt zeigt (Webhook per `stripe listen --forward-to localhost:3000/api/billing/webhook`).
 
 - [ ] Smoke grün; danach `pnpm studio:new test-dummy` ausführen, gemessene Zeiten pro Schritt in `docs/dummy-run.md` notieren.
-- [ ] Gesamt-Review des Zweigs (stärkstes Modell), Ledger-Summe melden.
+- [x] Gesamt-Review des Zweigs (stärkstes Modell), Ledger-Summe melden.
 - [ ] Commit `test(e2e): checkout smoke` (erledigt 443bcda, Lauf offen); `docs: dummy run` offen
 
 ## Ausführung
