@@ -34,3 +34,4 @@
 | T6 Deploy, CSP-Probe, Audit | Hauptsession | – | – | Zod-Eval-Probe gefunden und behoben; Audit 60/75 |
 | Externer Review | Subagent sonnet | ~1.5 min | 85k | 1 hoch, 6 mittel, Rest niedrig |
 | Review-Fixes | Hauptsession | ~10 min | – | alle hoch/mittel behoben; offen: Umami-connect-src ungeprüft, studio:new-Wiederaufnahme ohne Test |
+| Stripe live (test-dummy, Testmodus) | studio:new Wiederaufnahme | 0.9 min | – | Produkt, Preis 9 €/Monat, Webhook (API 2026-09-30.endive, 5 Events), Portal angelegt; Redeploy, Schnell-Audit 39/39 |
