@@ -509,6 +509,8 @@ async function configureSupabase() {
       smtp_pass: env.RESEND_API_KEY,
       smtp_admin_email: sender,
       smtp_sender_name: name,
+      // bleibt sonst auf 2 Mails/Stunde (Built-in-Wert), auch mit eigenem SMTP; Resend Free: 100/Tag
+      rate_limit_email_sent: 30,
     });
   }
   if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
