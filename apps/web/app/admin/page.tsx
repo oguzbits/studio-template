@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
 
+import { Alert, AlertDescription } from '@kit/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@kit/ui/card';
 
+import { usesResendTestSender } from '~/lib/email/resend-test-sender';
 import { loadAdminMetrics } from '~/lib/admin/load-metrics';
 
 export const metadata = { title: 'Admin', robots: { index: false } };
@@ -30,6 +32,14 @@ async function Metrics() {
   return (
     <>
       <h1 className="text-2xl font-semibold">Admin</h1>
+      {usesResendTestSender(process.env.EMAIL_FROM) && (
+        <Alert>
+          <AlertDescription>
+            Sign-up emails only reach your own Resend address until a domain is
+            verified (EMAIL_FROM still uses resend.dev).
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="grid grid-cols-2 gap-4">
         {stats.map(([label, value]) => (
           <Card key={label}>

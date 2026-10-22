@@ -74,6 +74,28 @@ describe('sqlLiteral', () => {
   });
 });
 
+describe('buildChecklist: Resend-Domain', () => {
+  const base = {
+    name: 'demo',
+    siteUrl: 'https://demo.vercel.app',
+    supabaseRef: 'abcd',
+    smtpConfigured: true,
+  };
+  const warning = '⚠ Keine verifizierte Resend-Domain';
+  it('warnt in der ersten Zeile, wenn keine Domain verifiziert ist', () => {
+    const list = buildChecklist({ ...base, resendVerified: false });
+    expect(list.split('\n')[0]).toContain(warning);
+  });
+  it('warnt nicht bei verifizierter oder unbekannter Domain', () => {
+    expect(buildChecklist({ ...base, resendVerified: true })).not.toContain(
+      warning,
+    );
+    expect(
+      buildChecklist({ ...base, resendVerified: undefined }),
+    ).not.toContain(warning);
+  });
+});
+
 describe('buildChecklist', () => {
   const list = buildChecklist({
     name: 'demo',

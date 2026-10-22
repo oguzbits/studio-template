@@ -24,7 +24,11 @@ import {
   sqlLiteral,
   validateName,
 } from './studio-new-lib.mjs';
-import { loadSharedSecrets, sharedSecretsPath } from './studio-tokens.mjs';
+import {
+  checkKey,
+  loadSharedSecrets,
+  sharedSecretsPath,
+} from './studio-tokens.mjs';
 
 const VERCEL_CLI = 'vercel@62.7.0';
 const REGION = 'eu-central-1';
@@ -132,12 +136,20 @@ try {
   process.exit(1);
 }
 
+// undefined = Domain-Status unbekannt (eingeschränkter Key, Netzwerkfehler): keine Warnung
+const { verifiedDomains } = await checkKey(
+  'RESEND_API_KEY',
+  env.RESEND_API_KEY,
+  env,
+);
 const checklist = buildChecklist({
   name,
   siteUrl: state.siteUrl,
   supabaseRef: state.supabaseRef,
   smtpConfigured: Boolean(env.RESEND_API_KEY),
   stripeConfigured: Boolean(state.stripeConfigured),
+  resendVerified:
+    verifiedDomains === undefined ? undefined : verifiedDomains > 0,
 });
 mkdirSync(resolve(target, 'docs'), { recursive: true });
 writeFileSync(

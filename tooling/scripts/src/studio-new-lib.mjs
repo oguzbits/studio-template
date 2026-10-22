@@ -32,6 +32,7 @@ export function buildChecklist({
   supabaseRef,
   smtpConfigured,
   stripeConfigured = false,
+  resendVerified,
 }) {
   const stripeSteps = [
     `Stripe-Konto für „${name}“ anlegen (Testmodus), Produkt + Preis für \`pro\` erstellen; STRIPE_SECRET_KEY und STRIPE_PRICE_PRO in Vercel (Production) und apps/web/.env.local setzen.`,
@@ -50,6 +51,11 @@ export function buildChecklist({
     'Rechtliches: LEGAL_*-Werte prüfen (Impressum/Datenschutz), AGB und Widerrufsbelehrung ergänzen, Kündigungsbutton (§ 312k BGB) rechtlich prüfen.',
   ];
   return [
+    ...(resendVerified === false
+      ? [
+          '⚠ Keine verifizierte Resend-Domain: Bestätigungsmails erreichen nur die Adresse des Resend-Kontos – Fremde können sich nicht registrieren.',
+        ]
+      : []),
     'Manuelle Schritte:',
     ...steps.map((step, i) => `  ${i + 1}. ${step}`),
   ].join('\n');
