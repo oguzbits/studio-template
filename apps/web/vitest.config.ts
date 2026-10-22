@@ -4,6 +4,8 @@ import { defineConfig } from 'vitest/config';
 const dir = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
 export default defineConfig({
+  // tsconfig keeps JSX for Next; tests need it compiled
+  oxc: { jsx: { runtime: 'automatic' } },
   resolve: {
     // mirrors tsconfig paths; order matters (specific before generic)
     alias: [

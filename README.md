@@ -285,6 +285,16 @@ pnpm --filter web supabase db push
 
 This command will push the migration to the Supabase project. You can now apply the migration to the Supabase database.
 
+### Auth-Mails über Resend SMTP
+
+Supabase verschickt Bestätigungs-, Magic-Link- und Passwort-Reset-Mails selbst. Der Standard-SMTP von Supabase ist auf wenige Mails pro Stunde begrenzt, für Produktion ist daher ein eigener SMTP-Server nötig:
+
+1. Supabase Dashboard → Authentication → SMTP Settings → Custom SMTP aktivieren.
+2. Host `smtp.resend.com`, Port `465`, User `resend`, Passwort = Resend-API-Key.
+3. Absender = Adresse einer in Resend verifizierten Domain (passend zu `EMAIL_FROM`).
+
+`pnpm studio:new` setzt das automatisch über die Management API, sobald `RESEND_API_KEY` vorhanden ist (kommt mit M8).
+
 ## Going to Production
 
 #### 1. Create a Supabase project
