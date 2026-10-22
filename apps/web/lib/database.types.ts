@@ -285,7 +285,18 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      apply_billing_event: {
+        Args: {
+          p_event_id: string;
+          p_period_end: string;
+          p_product_key: string;
+          p_provider_ref: string;
+          p_status: Database['public']['Enums']['entitlement_status'];
+          p_trial_end: string;
+          p_user_id: string;
+        };
+        Returns: boolean;
+      };
     };
     Enums: {
       entitlement_status:
