@@ -25,6 +25,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@kit/shared": "workspace:*",
     "@kit/tsconfig": "workspace:*",
     "@supabase/ssr": "catalog:",
     "@supabase/supabase-js": "catalog:",

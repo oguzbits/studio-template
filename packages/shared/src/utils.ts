@@ -19,3 +19,14 @@ export function formatCurrency(params: {
     currency: params.currencyCode,
   }).format(Number(params.value));
 }
+
+/**
+ * @name isInternalPath
+ * @description True for same-origin paths ("/home"), false for absolute,
+ * protocol-relative ("//x", "/\x") or scheme URLs. Use for any `next` redirect.
+ */
+export function isInternalPath(
+  path: string | null | undefined,
+): path is string {
+  return !!path && path.startsWith('/') && !/^\/[/\\]/.test(path);
+}

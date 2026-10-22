@@ -589,6 +589,9 @@ importers:
 
   packages/supabase:
     devDependencies:
+      '@kit/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@kit/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript

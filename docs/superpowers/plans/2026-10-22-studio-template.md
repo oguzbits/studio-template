@@ -85,8 +85,8 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 **Tests:** `scripts/agent/guards.test.mjs` (aus notar-agent übernommen, läuft in `pnpm test`).
 **Muss rot werden:** Wird die `--no-verify`-Regel in `guards.mjs` entfernt, schlägt der Guard-Test fehl.
 
-- [ ] Snapshot kopieren, `pnpm install`, `pnpm check` grün (mit leerem Vitest-Lauf `--passWithNoTests` in M0).
-- [ ] Commit `chore: import makerkit lite 9ff430d + NOTICE, dotenvx, pnpm check, agent hooks`
+- [x] Snapshot kopieren, `pnpm install`, `pnpm check` grün (mit leerem Vitest-Lauf `--passWithNoTests` in M0).
+- [x] Commit `chore: import makerkit lite 9ff430d + NOTICE, dotenvx, pnpm check, agent hooks`
 
 ### M1: Datenbank-Fundament
 
@@ -102,7 +102,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 **Tests (pgTAP):** pro Tabelle „RLS ist aktiv“; als `authenticated` sieht Nutzer A die Entitlements von B nicht; `anon` kann in `waitlist` weder lesen noch schreiben.
 **Muss rot werden:** Fehlt die Bedingung `user_id = auth.uid()` in der Entitlements-Policy, wird der Test „A sieht B nicht“ rot.
 
-- [ ] Migration + Tests, `pnpm check`, Commit `feat(db): core tables with RLS`
+- [x] Migration + Tests, `pnpm check`, Commit `feat(db): core tables with RLS`
 
 ### M2: Billing (Stripe)
 
@@ -123,7 +123,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 
 **Muss rot werden:** Entfernt man das `on conflict … return false`, wird der Idempotenz-Test rot. Entfernt man den Periodenende-Check, wird der `canceling`-Test rot. Entfernt man `revoke execute`, wird der Rechte-Test rot.
 
-- [ ] TDD je Interface, `pnpm check`, Commit `feat(billing): stripe checkout, portal, idempotent webhook, entitlements`
+- [x] TDD je Interface, `pnpm check`, Commit `feat(billing): stripe checkout, portal, idempotent webhook, entitlements`
 
 ### M3: E-Mail
 
@@ -136,7 +136,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 
 **Tests:** Der Digest rendert jede URL als Link; leere Liste → kein Versand (Entscheidung liegt beim Job, Test in M4); `sendEmail` ohne Key ruft Resend nicht auf.
 
-- [ ] Commit `feat(email): resend wrapper, welcome + digest templates`
+- [x] Commit `feat(email): resend wrapper, welcome + digest templates`
 
 ### M4: Hintergrund-Jobs (höchstes Risiko neben M2)
 
@@ -157,7 +157,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 
 **Muss rot werden:** Ohne `skip locked` hängt bzw. scheitert der dblink-Test (Timeout per `lock_timeout`). Ohne die Grenze `attempts >= 5` wird der Failed-Test rot. Ohne `on conflict` wird der Digest-Doppeltest rot. Ohne die Secret-Prüfung wird der 401-Test rot.
 
-- [ ] Commit `feat(jobs): queue with skip-locked claim, backoff, pg_cron trigger, daily-digest`
+- [x] Commit `feat(jobs): queue with skip-locked claim, backoff, pg_cron trigger, daily-digest`
 
 ### M5: KI-Schicht
 
@@ -173,7 +173,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 **Tests (Provider gemockt):** Kostenberechnung; Cache-Treffer → kein Provider-Aufruf und eine Log-Zeile mit `cache_hit`; Schema-Fehler, dann Erfolg → 2 Aufrufe, 2 Logs; zweimal Fehler → `AiSchemaError`, kein Cache-Eintrag; unbekanntes Modell → `cost_eur null`.
 **Muss rot werden:** Ohne Cache-Lookup wird der Test „kein Provider-Aufruf“ rot. Ohne Retry-Grenze wird der Test „AiSchemaError nach 2 Aufrufen“ rot.
 
-- [ ] Commit `feat(ai): generateStructured with cache, cost logging, schema retry`
+- [x] Commit `feat(ai): generateStructured with cache, cost logging, schema retry`
 
 ### M6: Marketing und Recht
 
@@ -186,7 +186,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 
 **Tests:** Waitlist-Action mit ungültiger Mail → Fehler, ohne DB-Aufruf; Analytics-Komponente rendert bei `off` nichts.
 
-- [ ] Commit `feat(marketing): pricing, waitlist, legal pages from env, og image, analytics switch`
+- [x] Commit `feat(marketing): pricing, waitlist, legal pages from env, og image, analytics switch`
 
 ### M7: Betrieb
 
@@ -200,7 +200,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 **Tests:** `isAdmin(email, list)` (Groß/Klein, Leerzeichen, leere Liste → niemand); `computeMrr`.
 **Muss rot werden:** Behandelt `isAdmin` eine leere Liste als „alle“, wird der Test rot.
 
-- [ ] Commit `feat(ops): sentry, health endpoint, admin dashboard`
+- [x] Commit `feat(ops): sentry, health endpoint, admin dashboard`
 
 ### M8: Bootstrap `pnpm studio:new <name>`, AGENTS.md, Skills
 
@@ -219,7 +219,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 
 **Tests:** `validateName` und die Funktion, die die Checkliste erzeugt. Die CLI-Aufrufe testet der Dummy-Durchlauf in M9.
 
-- [ ] Commit `feat(bootstrap): studio:new script, AGENTS.md, skills`
+- [x] Commit `feat(bootstrap): studio:new script, AGENTS.md, skills`
 
 ### M9: E2E-Smoke und Dummy-Durchlauf
 
@@ -229,7 +229,7 @@ Für Abos an Verbraucher in DE verlangt § 312k BGB einen Kündigungsbutton. Pla
 
 - [ ] Smoke grün; danach `pnpm studio:new test-dummy` ausführen, gemessene Zeiten pro Schritt in `docs/dummy-run.md` notieren.
 - [ ] Gesamt-Review des Zweigs (stärkstes Modell), Ledger-Summe melden.
-- [ ] Commit `test(e2e): checkout smoke; docs: dummy run`
+- [ ] Commit `test(e2e): checkout smoke` (erledigt 443bcda, Lauf offen); `docs: dummy run` offen
 
 ## Ausführung
 

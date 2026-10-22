@@ -6,6 +6,8 @@ import {
   SupabaseClient,
 } from '@supabase/supabase-js';
 
+import { isInternalPath } from '@kit/shared/utils';
+
 /**
  * @name createAuthCallbackService
  * @description Creates an instance of the AuthCallbackService
@@ -136,7 +138,10 @@ class AuthCallbackService {
     const nextUrlPathFromParams = searchParams.get('next');
     const errorPath = params.errorPath ?? '/auth/callback/error';
 
-    const nextUrl = nextUrlPathFromParams ?? params.redirectPath;
+    // only same-origin paths: `next` is attacker-controlled (open redirect otherwise)
+    const nextUrl = isInternalPath(nextUrlPathFromParams)
+      ? nextUrlPathFromParams
+      : params.redirectPath;
 
     if (authCode) {
       try {

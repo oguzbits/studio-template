@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import type { Provider } from '@supabase/supabase-js';
 
-import { isBrowser } from '@kit/shared/utils';
+import { isBrowser, isInternalPath } from '@kit/shared/utils';
 import { If } from '@kit/ui/if';
 import { Separator } from '@kit/ui/separator';
 
@@ -25,7 +25,9 @@ export function SignInMethodsContainer(props: {
   };
 }) {
   const router = useRouter();
-  const nextPath = useSearchParams().get('next') ?? props.paths.home;
+  const next = useSearchParams().get('next');
+  // `next` comes from the URL: never navigate off-site
+  const nextPath = isInternalPath(next) ? next : props.paths.home;
 
   const redirectUrl = isBrowser()
     ? new URL(props.paths.callback, window?.location.origin).toString()
