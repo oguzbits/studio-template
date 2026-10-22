@@ -22,11 +22,22 @@ export function formatCurrency(params: {
 
 /**
  * @name isInternalPath
- * @description True for same-origin paths ("/home"), false for absolute,
- * protocol-relative ("//x", "/\x") or scheme URLs. Use for any `next` redirect.
+ * @description True only for same-origin paths ("/home"). Resolves like a
+ * browser does (tabs/newlines stripped, "\\" treated as "/"), so "//x",
+ * "/\\x" and "/\t/x" are rejected. Use for any `next` redirect.
  */
 export function isInternalPath(
   path: string | null | undefined,
 ): path is string {
-  return !!path && path.startsWith('/') && !/^\/[/\\]/.test(path);
+  if (!path?.startsWith('/')) {
+    return false;
+  }
+
+  const base = 'http://internal.invalid';
+
+  try {
+    return new URL(path, base).origin === base;
+  } catch {
+    return false;
+  }
 }

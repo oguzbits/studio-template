@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 create extension if not exists dblink with schema extensions;
 
-select plan(21);
+select plan(23);
 
 -- SKIP LOCKED ----------------------------------------------
 -- Session B sees only committed rows, so it commits the two fixture jobs itself,
@@ -194,8 +194,13 @@ delete from public.jobs where type = 'daily-digest';
 insert into auth.users (id, phone) values
   ('00000000-0000-0000-0000-0000000000f4', '+491700000000');
 
+-- the Vercel fallback (/api/jobs/worker?daily=1) calls it as service_role
+set local role service_role;
+select lives_ok('select public.enqueue_daily_digests()', 'service_role can enqueue daily digests');
 select public.enqueue_daily_digests();
-select public.enqueue_daily_digests();
+set local role authenticated;
+select throws_ok('select public.enqueue_daily_digests()', '42501', null, 'authenticated cannot enqueue daily digests');
+reset role;
 
 select is(
   (select count(*) from public.jobs where type = 'daily-digest'),
