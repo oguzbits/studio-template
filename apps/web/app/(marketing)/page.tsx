@@ -23,7 +23,9 @@ function Home() {
   return (
     <div className={'mt-4 flex flex-col space-y-24 py-14'}>
       <div className={'container mx-auto'}>
+        {/* no fade-in: the hero title is the LCP element and must paint at first render */}
         <Hero
+          animate={false}
           title={<span>{siteConfig.hero.title}</span>}
           subtitle={<span>{siteConfig.hero.subtitle}</span>}
           cta={

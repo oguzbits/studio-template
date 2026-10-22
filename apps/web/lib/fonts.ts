@@ -10,7 +10,7 @@ const sans = SansFont({
   variable: '--font-sans',
   fallback: ['system-ui', 'Helvetica Neue', 'Helvetica', 'Arial'],
   preload: true,
-  weight: ['300', '400', '500', '600', '700'],
+  // no `weight`: Inter is a variable font, one file covers every weight
 });
 
 /**
