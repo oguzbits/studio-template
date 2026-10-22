@@ -21,6 +21,7 @@ async function Metrics() {
     ['Sign-ups (total)', String(m.signups_total)],
     ['Sign-ups (30 days)', String(m.signups_30d)],
     ['Active subscriptions', String(m.activeSubscriptions)],
+    ['Trials', String(m.trialing_total)],
     ['MRR', `${m.mrr.toFixed(2)} EUR`],
     ['AI costs (30 days)', `${Number(m.ai_cost_eur_30d).toFixed(4)} EUR`],
     ['AI calls unpriced (30 days)', String(m.ai_unpriced_30d)],

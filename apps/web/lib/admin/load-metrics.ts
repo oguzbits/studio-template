@@ -11,9 +11,18 @@ import { computeMrr, isAdmin } from './metrics';
 
 /** Guard for /admin: call in the layout AND the page/data loader. */
 export async function requireAdmin() {
-  const user = await requireUserInServerComponent();
+  const { id } = await requireUserInServerComponent();
 
-  if (!isAdmin(user.email, process.env.ADMIN_EMAILS)) {
+  // JWT claims may carry an unconfirmed or stale (pre-change) email: read the auth record
+  const { data, error } =
+    await getSupabaseServerAdminClient().auth.admin.getUserById(id);
+  const user = data?.user;
+
+  if (
+    error ||
+    !user?.email_confirmed_at ||
+    !isAdmin(user.email, process.env.ADMIN_EMAILS)
+  ) {
     notFound();
   }
 
@@ -33,6 +42,7 @@ type Metrics = {
   signups_total: number;
   signups_30d: number;
   active_by_product: Record<string, number>;
+  trialing_total: number;
   ai_cost_eur_30d: number;
   ai_unpriced_30d: number;
   failed_jobs: FailedJob[];

@@ -13,3 +13,6 @@
 | M5 KI-Schicht | Subagent sonnet | ~2 min | 118k | claude-haiku-5-5 Default; gpt-4o-mini-Preis ungeprüft |
 | M4 Review-Fixes | Subagent opus (fortgesetzt) | ~4 min | 161k (kumulierter Kontext) | 7 Fixes, pgTAP 41, Vitest 93; leere Digest-Liste schreibt keinen Marker |
 | M8 Bootstrap, AGENTS.md, Skills | Hauptsession | ~25 min | – | studio:new nur Dry-Run geprüft; echte Läufe in M9 |
+| M7 Betrieb | Subagent sonnet | ~5 min | 84k | Sentry 10.76.1 ohne withSentryConfig; @sentry/cli-Build aus |
+| M7 Review | Subagent sonnet | ~1 min | 59k | 1 wichtig (unbestätigte Admin-Mail), 6 minor |
+| M7 Review-Fixes + E2E-Spec | Hauptsession | ~10 min | – | requireAdmin liest auth.users frisch; Trials nicht in MRR |

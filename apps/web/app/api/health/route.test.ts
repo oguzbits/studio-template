@@ -26,6 +26,8 @@ describe('/api/health', () => {
     const response = await GET();
 
     expect(response.status).toBe(200);
+    expect(response.headers.get('cache-control')).toContain('no-store');
+    expect(select).toHaveBeenCalledWith(expect.any(AbortSignal));
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
       db: 'ok',

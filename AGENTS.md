@@ -40,6 +40,9 @@ Tabellen (alle mit RLS): `entitlements`, `processed_events`, `billing_customers`
 `ai_cache`, `waitlist`, `digest_sends`. Nutzer dürfen nur ihre eigenen `entitlements` und
 `billing_customers` lesen; alles andere läuft über den Admin-Client auf dem Server.
 
+`/admin`: nur bestätigte E-Mail-Adressen aus `ADMIN_EMAILS` (frisch aus `auth.users` gelesen), sonst 404.
+E-Mail-Bestätigung muss im gehosteten Supabase-Projekt an bleiben (Default), sonst greift die Allowlist ins Leere.
+
 Zugang: `active`, `trialing`, `canceling` → Zugriff; `past_due`, `unpaid`, `incomplete`, `paused` →
 `/home/billing`; keine Berechtigung → `/pricing`.
 
