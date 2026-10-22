@@ -297,6 +297,34 @@ export type Database = {
         };
         Returns: boolean;
       };
+      claim_jobs: {
+        Args: { p_limit: number };
+        Returns: {
+          attempts: number;
+          created_at: string;
+          id: string;
+          last_error: string | null;
+          payload: NonNullable<Json>;
+          run_at: string;
+          status: Database['public']['Enums']['job_status'];
+          type: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'jobs';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      complete_job: { Args: { p_id: string }; Returns: undefined };
+      enqueue_daily_digests: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      fail_job: {
+        Args: { p_error: string; p_id: string; p_retry_at: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       entitlement_status:

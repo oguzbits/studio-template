@@ -295,6 +295,15 @@ Supabase verschickt Bestätigungs-, Magic-Link- und Passwort-Reset-Mails selbst.
 
 `pnpm studio:new` setzt das automatisch über die Management API, sobald `RESEND_API_KEY` vorhanden ist (kommt mit M8).
 
+### Hintergrund-Jobs
+
+Jobs liegen in `public.jobs` und werden von `/api/jobs/worker` abgearbeitet (max. 5 Versuche mit exponentiellem Backoff, Handler in `apps/web/lib/jobs/handlers/`).
+
+- Primärer Auslöser: pg_cron ruft den Worker jede Minute per pg_net auf. Dafür braucht die Datenbank die Vault-Secrets `worker_url` und `cron_secret` (setzt später `pnpm studio:new`). Fehlen sie, passiert nichts.
+- Fallback: Vercel Cron ruft `/api/jobs/worker?daily=1` einmal täglich auf (Limit im Hobby-Plan) und legt dabei auch die Daily-Digest-Jobs an.
+- Beide zusammen sind unbedenklich: Jobs werden mit `FOR UPDATE SKIP LOCKED` geclaimt, und der Digest ist pro Nutzer und Tag idempotent.
+- Lokal den Worker von Hand aufrufen: `curl -H "Authorization: Bearer $CRON_SECRET" localhost:3000/api/jobs/worker`
+
 ## Going to Production
 
 #### 1. Create a Supabase project
