@@ -58,7 +58,6 @@ const ask = (question, secret) =>
 
 const outcomes = {};
 for (const entry of SHARED_KEYS) {
-  if (closed) break;
   const { key, secret, hint, tokenUrl, required } = entry;
   const current = secrets[key];
   const result = current ? await checkKey(key, current, secrets) : undefined;
@@ -67,6 +66,8 @@ for (const entry of SHARED_KEYS) {
     if (result.warning) console.log(`! ${key}: ${result.warning}`);
     continue;
   }
+  // erst abbrechen, wenn eine Eingabe nötig wäre: gültige Keys werden auch nach EOF noch geprüft
+  if (closed) break;
 
   console.log(
     `\n${key}${SUFFIX[required]}: ${hint}${result ? `\n  Aktueller Wert ungültig: ${result.error}` : ''}`,
