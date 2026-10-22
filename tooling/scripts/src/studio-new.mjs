@@ -262,13 +262,14 @@ async function createSupabaseProject() {
   save();
   const project =
     existing ??
+    // organization_id/region sind deprecated; mit Org-Tokens scheitert organization_id (500)
     (await supabaseApi('POST', '/v1/projects', {
       name,
-      organization_id: env.SUPABASE_ORG_ID,
-      region: REGION,
+      organization_slug: env.SUPABASE_ORG_ID,
+      region_selection: { type: 'specific', code: REGION },
       db_pass: state.dbPassword,
     }));
-  state.supabaseRef = project.id ?? project.ref;
+  state.supabaseRef = project.ref ?? project.id;
   if (!state.supabaseRef) throw new Error('Supabase-Antwort ohne Projekt-Ref.');
   save();
 }
