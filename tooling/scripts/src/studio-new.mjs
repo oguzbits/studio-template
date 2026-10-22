@@ -24,6 +24,7 @@ import {
   sqlLiteral,
   validateName,
 } from './studio-new-lib.mjs';
+import { loadSharedSecrets, sharedSecretsPath } from './studio-tokens.mjs';
 
 const VERCEL_CLI = 'vercel@62.7.0';
 const REGION = 'eu-central-1';
@@ -760,36 +761,6 @@ async function step(label, fn, done) {
   console.log(`▶ ${label}`);
   await fn();
   timings.push([label, Date.now() - t0]);
-}
-
-// gleiche Auflösung wie `with-env` in apps/web/package.json (relativ ab apps/web)
-function sharedSecretsPath() {
-  return resolve(
-    ROOT,
-    'apps/web',
-    process.env.STUDIO_SECRETS_DIR ?? '../../../studio-secrets',
-    process.env.STUDIO_SECRETS_FILE ?? '.env.shared',
-  );
-}
-
-function loadSharedSecrets() {
-  const file = sharedSecretsPath();
-  if (!existsSync(file)) return {};
-  // Werte nur im Speicher halten, nie ausgeben
-  const out = execFileSync(
-    'pnpm',
-    ['--filter', 'web', 'exec', 'dotenvx', 'get', '-f', file],
-    {
-      cwd: ROOT,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'inherit'],
-    },
-  );
-  return Object.fromEntries(
-    Object.entries(JSON.parse(out)).filter(
-      ([key]) => !key.startsWith('DOTENV_'),
-    ),
-  );
 }
 
 function supabase(supabaseArgs, extraEnv = {}, input) {
