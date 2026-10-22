@@ -38,7 +38,11 @@ function PricingPage() {
             <AuthGate
               signedIn={
                 <form action={createCheckout.bind(null, key as ProductKey)}>
-                  <Button type={'submit'} className={'w-full'}>
+                  <Button
+                    type={'submit'}
+                    className={'w-full'}
+                    data-test={`checkout-${key}`}
+                  >
                     Subscribe
                   </Button>
                 </form>

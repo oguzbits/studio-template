@@ -33,6 +33,11 @@ Fehler-Monitoring: Sentry ist nur aktiv, wenn `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_D
 
 Env-Variablen: siehe `.env.example`. Lokale Supabase des Templates: Ports 55320–55326.
 
+E2E-Smoke (Login → Stripe-Testcheckout → geschützte Seite), nicht Teil von `pnpm check`:
+`STRIPE_SECRET_KEY` (sk_test_…), `STRIPE_PRICE_PRO` und `STRIPE_WEBHOOK_SECRET` (aus
+`stripe listen --print-secret`) in `apps/web/.env.local`, dann parallel `pnpm dev`,
+`stripe listen --forward-to localhost:3000/api/billing/webhook` und `E2E_BILLING=true pnpm test:e2e`.
+
 ---
 
 ![Makerkit - Next.js Supabase SaaS Starter Kit \[Lite version\]](apps/web/public/images/makerkit.webp)
