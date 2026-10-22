@@ -56,6 +56,8 @@ export class Mailbox {
 
     const messageId = json.messages[0]?.ID;
     const messageUrl = `http://127.0.0.1:55324/api/v1/message/${messageId}`;
+    // Mailpit deletes via the collection endpoint, not the single-message URL
+    const deleteUrl = 'http://127.0.0.1:55324/api/v1/messages';
 
     const messageResponse = await fetch(messageUrl);
 
@@ -63,12 +65,17 @@ export class Mailbox {
       throw new Error(`Failed to fetch email: ${messageResponse.statusText}`);
     }
 
+    // The body must be read before the message is deleted
+    const message = await messageResponse.json();
+
     // delete message
     if (params.deleteAfter) {
       console.log(`Deleting email ${messageId} ...`);
 
-      const res = await fetch(messageUrl, {
+      const res = await fetch(deleteUrl, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ IDs: [messageId] }),
       });
 
       if (!res.ok) {
@@ -76,6 +83,6 @@ export class Mailbox {
       }
     }
 
-    return await messageResponse.json();
+    return message;
   }
 }

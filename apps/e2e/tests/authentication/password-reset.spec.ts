@@ -35,11 +35,7 @@ test.describe('Password Reset Flow', () => {
 
     await auth.updatePassword(newPassword);
 
-    await page
-      .locator('a', {
-        hasText: 'Back to Home Page',
-      })
-      .click();
+    await page.getByRole('link', { name: 'Back to home' }).click();
 
     await page.waitForURL('/home');
 

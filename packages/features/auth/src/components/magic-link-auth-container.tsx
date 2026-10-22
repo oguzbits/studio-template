@@ -119,6 +119,7 @@ export function MagicLinkAuthContainer({
           </If>
 
           <Button
+            type={'submit'}
             className={'h-11 text-base'}
             disabled={signInWithOtpMutation.isPending}
           >

@@ -24,10 +24,10 @@ export function UpdatePasswordFormContainer(
     return null;
   }
 
-  // `amr` widened to `string[] | AMREntry[]`, so handle both shapes
-  const canUpdatePassword = user.amr?.some((item) =>
-    typeof item === 'string' ? item === 'password' : item.method === 'password',
-  );
+  // The email provider is linked from sign-up on. `amr` only lists how this
+  // session was started, so after a confirmation link it has `otp`, not `password`.
+  const canUpdatePassword =
+    user.app_metadata?.providers?.includes('email') ?? false;
 
   if (!canUpdatePassword) {
     return <WarnCannotUpdatePasswordAlert />;

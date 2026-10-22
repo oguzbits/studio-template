@@ -64,9 +64,12 @@ test.describe('Account Deletion', () => {
         );
       })
       .then((response) => {
-        expect(response.status()).toBe(303);
+        expect(response.status()).toBe(200);
+        expect(response.headers()['x-action-redirect']).toMatch(/^\/;/);
       });
 
     await Promise.all([request, response]);
+
+    await page.waitForURL('/');
   });
 });

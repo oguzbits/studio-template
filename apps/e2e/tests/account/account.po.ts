@@ -79,7 +79,10 @@ export class AccountPageObject {
           );
         })
         .then((response) => {
-          expect(response.status()).toBe(303);
+          // Next 15+ answers a client-side Server Action redirect with 200 and
+          // this header; a failed action has no redirect header
+          expect(response.status()).toBe(200);
+          expect(response.headers()['x-action-redirect']).toMatch(/^\/;/);
         });
 
       await Promise.all([click, response]);
