@@ -1,16 +1,17 @@
-import { Inter as SansFont } from 'next/font/google';
+import { Geist as SansFont } from 'next/font/google';
 
 /**
  * @sans
  * @description Define here the sans font.
- * By default, it uses the Inter font from Google Fonts.
+ * By default, it uses the Geist font from Google Fonts.
  */
 const sans = SansFont({
   subsets: ['latin'],
   variable: '--font-sans',
   fallback: ['system-ui', 'Helvetica Neue', 'Helvetica', 'Arial'],
   preload: true,
-  // no `weight`: Inter is a variable font, one file covers every weight
+  display: 'swap',
+  // no `weight`: Geist is a variable font, one file covers every weight
 });
 
 /**

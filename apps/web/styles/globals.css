@@ -44,6 +44,23 @@
     border-color: var(--border, currentColor);
   }
 
+  h1 {
+    @apply font-semibold tracking-[-0.035em];
+  }
+
+  h2 {
+    @apply font-semibold tracking-[-0.03em];
+  }
+
+  :focus-visible {
+    @apply outline-ring outline-2 outline-offset-2;
+  }
+
+  button,
+  a {
+    @apply transition-colors duration-150;
+  }
+
   input::placeholder,
   textarea::placeholder {
     color: theme(--color-muted-foreground);

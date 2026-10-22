@@ -13,33 +13,36 @@
       sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     --font-heading: var(--font-sans);
 
-    --background: var(--color-white);
-    --foreground: var(--color-neutral-950);
+    --background: oklch(0.985 0.002 260);
+    --foreground: oklch(0.17 0.01 260);
 
-    --card: var(--color-white);
-    --card-foreground: var(--color-neutral-950);
+    --card: oklch(1 0 0);
+    --card-foreground: var(--foreground);
 
-    --popover: var(--color-white);
-    --popover-foreground: var(--color-neutral-950);
+    --popover: oklch(1 0 0);
+    --popover-foreground: var(--foreground);
 
-    --primary: var(--color-neutral-950);
-    --primary-foreground: var(--color-white);
+    --primary: var(--foreground);
+    --primary-foreground: var(--background);
 
-    --secondary: oklch(96.76% 0.0013 286.38);
-    --secondary-foreground: oklch(21.03% 0.0318 264.65);
+    --secondary: var(--muted);
+    --secondary-foreground: var(--foreground);
 
-    --muted: oklch(96.71% 0.0029 264.54);
-    --muted-foreground: oklch(55.13% 0.0233 264.36);
+    --muted: oklch(0.96 0.004 260);
+    --muted-foreground: oklch(0.5 0.015 260);
 
-    --accent: oklch(96.76% 0.0013 286.38);
-    --accent-foreground: oklch(21.03% 0.0318 264.65);
+    --accent: var(--muted);
+    --accent-foreground: var(--foreground);
 
-    --destructive: var(--color-red-500);
-    --destructive-foreground: var(--color-white);
+    --destructive: oklch(0.58 0.2 25);
+    --destructive-foreground: oklch(0.985 0.002 260);
 
-    --border: var(--color-gray-100);
-    --input: var(--color-gray-200);
-    --ring: var(--color-neutral-800);
+    --border: oklch(0.92 0.004 260);
+    --input: oklch(0.9 0.005 260);
+    --ring: oklch(0.56 0.11 190 / 0.5);
+
+    --accent-brand: oklch(0.53 0.11 190);
+    --accent-brand-foreground: oklch(0.985 0.002 260);
 
     --radius: 0.5rem;
 
@@ -60,33 +63,36 @@
   }
 
   .dark {
-    --background: var(--color-neutral-900);
-    --foreground: var(--color-white);
+    --background: oklch(0.145 0.005 260);
+    --foreground: oklch(0.97 0.003 260);
 
-    --card: var(--color-neutral-900);
-    --card-foreground: var(--color-white);
+    --card: oklch(0.185 0.006 260);
+    --card-foreground: var(--foreground);
 
-    --popover: var(--color-neutral-900);
-    --popover-foreground: var(--color-white);
+    --popover: oklch(0.185 0.006 260);
+    --popover-foreground: var(--foreground);
 
-    --primary: var(--color-white);
-    --primary-foreground: var(--color-neutral-900);
+    --primary: var(--foreground);
+    --primary-foreground: var(--background);
 
-    --secondary: var(--color-neutral-800);
-    --secondary-foreground: oklch(98.43% 0.0017 247.84);
+    --secondary: var(--muted);
+    --secondary-foreground: var(--foreground);
 
-    --muted: var(--color-neutral-800);
-    --muted-foreground: oklch(71.19% 0.0129 286.07);
+    --muted: oklch(0.22 0.006 260);
+    --muted-foreground: oklch(0.7 0.012 260);
 
-    --accent: var(--color-neutral-800);
-    --accent-foreground: oklch(98.48% 0 0);
+    --accent: var(--muted);
+    --accent-foreground: var(--foreground);
 
-    --destructive: var(--color-red-700);
-    --destructive-foreground: var(--color-white);
+    --destructive: oklch(0.7 0.19 22);
+    --destructive-foreground: oklch(0.16 0.01 260);
 
-    --border: var(--color-neutral-800);
-    --input: var(--color-neutral-700);
-    --ring: oklch(87.09% 0.0055 286.29);
+    --border: oklch(1 0 0 / 0.09);
+    --input: oklch(1 0 0 / 0.13);
+    --ring: oklch(0.76 0.12 188 / 0.5);
+
+    --accent-brand: oklch(0.76 0.12 188);
+    --accent-brand-foreground: oklch(0.16 0.01 260);
 
     --chart-1: var(--color-blue-600);
     --chart-2: var(--color-emerald-400);
@@ -96,7 +102,7 @@
 
     --sidebar-background: var(--color-neutral-900);
     --sidebar-foreground: var(--color-white);
-    --sidebar-primary: var(--color-blue-500);
+    --sidebar-primary: var(--accent-brand);
     --sidebar-primary-foreground: var(--color-white);
     --sidebar-accent: var(--color-neutral-800);
     --sidebar-accent-foreground: var(--color-white);
