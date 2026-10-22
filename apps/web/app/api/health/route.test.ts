@@ -20,6 +20,18 @@ beforeEach(() => {
 });
 
 describe('/api/health', () => {
+  // Vercel sets VERCEL_GIT_COMMIT_SHA="" for CLI deploys
+  it('falls back to the deployment id when the commit sha is empty', async () => {
+    select.mockResolvedValue({ error: null });
+    vi.stubEnv('VERCEL_GIT_COMMIT_SHA', '');
+    vi.stubEnv('VERCEL_DEPLOYMENT_ID', 'dpl_abc123xyz');
+
+    const body = await (await GET()).json();
+
+    expect(body.version).toBe('dpl_abc123xyz');
+    vi.unstubAllEnvs();
+  });
+
   it('returns 200 when the db answers', async () => {
     select.mockResolvedValue({ error: null });
 

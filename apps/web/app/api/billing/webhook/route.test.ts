@@ -236,3 +236,18 @@ describe('POST /api/billing/webhook', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// studio:new subscribes the Stripe endpoint to exactly these events
+describe('billing.json webhookEvents', () => {
+  it('matches the events the route handles', async () => {
+    const { readFileSync } = await import('node:fs');
+    const billing = (await import('~/config/billing.json')).default;
+    const source = readFileSync(new URL('./route.ts', import.meta.url), 'utf8');
+
+    const handled = [...source.matchAll(/case '([a-z_.]+)':/g)].map(
+      (m) => m[1],
+    );
+
+    expect([...billing.webhookEvents].sort()).toEqual(handled.sort());
+  });
+});

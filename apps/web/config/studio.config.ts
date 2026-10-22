@@ -2,15 +2,26 @@ import { z } from 'zod';
 
 import { getLogger } from '@kit/shared/logger';
 
+import billing from './billing.json';
 import { resolveLegal } from './legal';
 
-const ProductSchema = z.object({
-  name: z.string().min(1),
-  mode: z.enum(['subscription', 'payment']),
-  // empty until the STRIPE_PRICE_* variable is set; checkout then fails with a clear error
-  priceId: z.string(),
-  priceMonthlyEur: z.number().positive().optional(),
-});
+const ProductSchema = z
+  .object({
+    name: z.string().min(1),
+    mode: z.enum(['subscription', 'payment']),
+    // empty until the STRIPE_PRICE_* variable is set; checkout then fails with a clear error
+    priceId: z.string(),
+    priceMonthlyEur: z.number().positive().optional(),
+    priceEur: z.number().positive().optional(),
+  })
+  // `studio:new` creates the Stripe price from these amounts
+  .refine(
+    (p) =>
+      p.mode === 'subscription'
+        ? p.priceMonthlyEur != null
+        : p.priceEur != null,
+    { message: 'subscription needs priceMonthlyEur, payment needs priceEur' },
+  );
 
 const AiSchema = z.object({
   provider: z.enum(['anthropic', 'openai-compatible']),
@@ -34,14 +45,16 @@ if (missing.length > 0) {
   );
 }
 
-const products = {
-  pro: {
-    name: 'Pro',
-    mode: 'subscription',
-    priceId: process.env.STRIPE_PRICE_PRO ?? '',
-    priceMonthlyEur: 9,
-  },
-} satisfies Record<string, z.input<typeof ProductSchema>>;
+// Products live in billing.json so `studio:new` can create them in Stripe.
+const products = Object.fromEntries(
+  Object.entries(billing.products).map(([key, product]) => [
+    key,
+    {
+      ...product,
+      priceId: process.env[`STRIPE_PRICE_${key.toUpperCase()}`] ?? '',
+    },
+  ]),
+) as Record<keyof typeof billing.products, z.input<typeof ProductSchema>>;
 
 // Source: claude-api skill model table (Anthropic list prices, USD/MTok, prompts <=100K for Haiku 5.5), 2026-10-22;
 // OpenAI: developers.openai.com/api/docs/models/gpt-4o-mini ($0.15/$0.60), 2026-10-22. FX assumption 1 USD = 0.92 EUR, update when prices or rate change.

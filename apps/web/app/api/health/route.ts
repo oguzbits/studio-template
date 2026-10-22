@@ -32,7 +32,10 @@ export async function GET() {
   await connection();
 
   const db = (await dbIsUp()) ? 'ok' : 'down';
-  const version = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'dev';
+  const version =
+    process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+    process.env.VERCEL_DEPLOYMENT_ID ||
+    'dev';
 
   return Response.json(
     { ok: db === 'ok', db, version },

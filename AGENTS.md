@@ -26,6 +26,8 @@ Lokale Ports: 55320–55326 (API 55321, DB 55322, Studio 55323, Mailpit 55324). 
 | --- | --- | --- |
 | Produkte, Preise, KI-Modelle | `config/studio.config.ts` | `studioConfig.products.<key>`, `ProductKey` |
 | Marketing-Texte (Hero, Features, FAQ, Tagline) | `config/site.config.ts` | leere `faq` → `/faq` 404; Metadaten pro Seite mit `pageMetadata()` aus `lib/page-metadata.ts` |
+| Security-Header (CSP usw.) | `config/security-headers.ts` | via `headers()` in `next.config.ts`; neuer externer Host → dort eintragen, sonst blockiert die CSP |
+| Env-Prüfung | `config/env-check.ts` | läuft bei jedem Produktions-Build (nicht `build:test`); neue Pflicht-Variable → dort + in `turbo.json` `build.env` |
 | Rechtsangaben | `config/legal.ts` (aus `LEGAL_*`-Env) | `(marketing)/(legal)/impressum`, `datenschutz`, `kuendigen` |
 | Billing | `lib/billing/` | `requireEntitlement(productKey)`, `createCheckout`, `openPortal`, `accessDecision` |
 | Stripe-Webhook | `app/api/billing/webhook/route.ts` | idempotent über `processed_events`, schreibt via `apply_billing_event` |

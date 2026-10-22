@@ -14,7 +14,20 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": ["LEGAL_*"],
+      "env": [
+        "LEGAL_*",
+        "STRIPE_*",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "CRON_SECRET",
+        "RESEND_API_KEY",
+        "EMAIL_FROM",
+        "ADMIN_EMAILS",
+        "AI_PROVIDER",
+        "AI_BASE_URL",
+        "ANTHROPIC_API_KEY",
+        "OPENAI_API_KEY",
+        "CSP_REPORT_ONLY"
+      ],
       "outputs": [".next/**", "!.next/cache/**", "next-env.d.ts"]
     },
     "dev": {

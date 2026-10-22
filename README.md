@@ -11,8 +11,11 @@ Einmalig:
    OS-Schlüsselbund). Werte setzen mit
    `pnpm --filter web exec dotenvx set KEY wert -f ../../../studio-secrets/.env.shared --no-armor`:
    - Pflicht: `SUPABASE_ACCESS_TOKEN` (Supabase → Account → Access Tokens), `SUPABASE_ORG_ID`,
-     `VERCEL_TOKEN` (Vercel → Account → Tokens), bei Team-Accounts `VERCEL_SCOPE`.
-   - Optional: `RESEND_API_KEY` (setzt dann auch Supabase-SMTP), `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`,
+     `VERCEL_TOKEN` (Vercel → Account → Tokens), bei Team-Accounts `VERCEL_SCOPE`, `RESEND_API_KEY`
+     (setzt auch Supabase-SMTP; ohne bricht der Produktions-Build ab).
+   - Empfohlen: `STRIPE_SECRET_KEY` (Test, `sk_test_…`): `studio:new` legt dann Produkte, Preise, Webhook und
+     Kundenportal selbst an.
+   - Optional: `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`,
      `ANTHROPIC_API_KEY`, `ADMIN_EMAILS`, `LEGAL_*`.
 2. Docker läuft (für lokale Supabase und `pnpm check`).
 

@@ -1,4 +1,10 @@
+import type { NextConfig } from 'next';
+import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import createNextIntlPlugin from 'next-intl/plugin';
+
+import billing from './config/billing.json';
+import { checkEnv } from './config/env-check';
+import { securityHeaders } from './config/security-headers';
 
 // Create the next-intl plugin with the request config path
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
@@ -17,9 +23,28 @@ const INTERNAL_PACKAGES = [
   '@kit/next',
 ];
 
-/** @type {import('next').NextConfig} */
-const config = {
+type RemotePattern = NonNullable<
+  NonNullable<NextConfig['images']>['remotePatterns']
+>[number];
+
+const config: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: securityHeaders({
+          supabaseUrl: SUPABASE_URL,
+          sentryDsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+          analyticsSrc: getAnalyticsSrc(),
+          captcha: Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY),
+          isDev: !IS_PRODUCTION,
+          reportOnly: process.env.CSP_REPORT_ONLY === 'true',
+        }),
+      },
+    ];
+  },
   /** Enables hot reloading for local packages without a build step */
   transpilePackages: INTERNAL_PACKAGES,
   images: {
@@ -74,11 +99,48 @@ const config = {
   typescript: { ignoreBuildErrors: true },
 };
 
-export default withNextIntl(config);
+export default function nextConfig(phase: string) {
+  // `build:test` (NODE_ENV=test) runs with local demo keys and is exempt
+  if (phase === PHASE_PRODUCTION_BUILD && process.env.NODE_ENV !== 'test') {
+    assertProductionEnv();
+  }
 
-function getRemotePatterns() {
-  /** @type {import('next').NextConfig['remotePatterns']} */
-  const remotePatterns = [];
+  return withNextIntl(config);
+}
+
+function assertProductionEnv() {
+  const { errors, warnings } = checkEnv(
+    process.env,
+    Object.keys(billing.products),
+  );
+
+  for (const warning of warnings) console.warn(`⚠ env: ${warning}`);
+
+  if (errors.length > 0) {
+    throw new Error(
+      `Production env incomplete, see .env.example:\n- ${errors.join('\n- ')}`,
+    );
+  }
+}
+
+function getAnalyticsSrc() {
+  switch (process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER) {
+    case 'plausible':
+      return (
+        process.env.NEXT_PUBLIC_PLAUSIBLE_SRC ||
+        'https://plausible.io/js/script.js'
+      );
+    case 'umami':
+      return (
+        process.env.NEXT_PUBLIC_UMAMI_SRC || 'https://cloud.umami.is/script.js'
+      );
+    default:
+      return undefined;
+  }
+}
+
+function getRemotePatterns(): RemotePattern[] {
+  const remotePatterns: RemotePattern[] = [];
 
   if (SUPABASE_URL) {
     const hostname = new URL(SUPABASE_URL).hostname;
