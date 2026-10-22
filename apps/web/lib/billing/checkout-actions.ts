@@ -73,9 +73,12 @@ async function redirectToPortal(userId: string): Promise<never> {
     redirect(PRICING_PATH);
   }
 
+  const configuration = process.env.STRIPE_PORTAL_CONFIGURATION;
   const session = await getStripe().billingPortal.sessions.create({
     customer: customerId,
     return_url: new URL(pathsConfig.app.billing, appConfig.url).href,
+    // one Stripe account serves many products: each project has its own portal
+    ...(configuration && { configuration }),
   });
 
   redirect(session.url);

@@ -24,7 +24,8 @@ Lokale Ports: 55320–55326 (API 55321, DB 55322, Studio 55323, Mailpit 55324). 
 
 | Bereich | Ort | Einstieg |
 | --- | --- | --- |
-| Produkte, Preise, KI-Modelle | `config/studio.config.ts` | `studioConfig.products.<key>`, `ProductKey` |
+| Produkte, Preise | `config/billing.json` (gelesen von `studio.config.ts` und `studio:new`) | Webhook-Events dort = Events der Route (Test) |
+| KI-Modelle, Rechtsangaben-Zugriff | `config/studio.config.ts` | `studioConfig.products.<key>`, `ProductKey` |
 | Marketing-Texte (Hero, Features, FAQ, Tagline) | `config/site.config.ts` | leere `faq` → `/faq` 404; Metadaten pro Seite mit `pageMetadata()` aus `lib/page-metadata.ts` |
 | Security-Header (CSP usw.) | `config/security-headers.ts` | via `headers()` in `next.config.ts`; neuer externer Host → dort eintragen, sonst blockiert die CSP |
 | Env-Prüfung | `config/env-check.ts` | läuft bei jedem Produktions-Build (nicht `build:test`); neue Pflicht-Variable → dort + in `turbo.json` `build.env` |
@@ -76,9 +77,9 @@ Zugang: `active`, `trialing`, `canceling` → Zugriff; `past_due`, `unpaid`, `in
 
 ## So baust du ein bezahltes Feature
 
-1. Produkt in `config/studio.config.ts` unter `products` anlegen (`mode: 'subscription' | 'payment'`,
-   `priceId: process.env.STRIPE_PRICE_<KEY> ?? ''`, bei Abos `priceMonthlyEur`); `STRIPE_PRICE_<KEY>` in
-   `.env.example` eintragen.
+1. Produkt in `config/billing.json` unter `products` anlegen (`mode: 'subscription'` mit `priceMonthlyEur` oder
+   `'payment'` mit `priceEur`); `STRIPE_PRICE_<KEY>` in `.env.example` eintragen. `studio:new` legt Produkt und
+   Preis in Stripe an; bestehende Projekte: Preis im Stripe-Dashboard anlegen und `STRIPE_PRICE_<KEY>` setzen.
 2. Seite unter `app/home/<feature>/page.tsx`; im Server-Component `await requireEntitlement('<key>')`
    (leitet selbst um). Muster: `app/home/pro/page.tsx`.
 3. Kauf-Button: `<form action={createCheckout.bind(null, '<key>')}>` (Pricing- und Billing-Seite listen alle

@@ -94,3 +94,28 @@ describe('createCheckout', () => {
     );
   });
 });
+
+describe('openPortal', () => {
+  it('uses the project portal configuration when set', async () => {
+    vi.stubEnv('STRIPE_PORTAL_CONFIGURATION', 'bpc_project');
+    const { openPortal } = await import('./checkout-actions');
+
+    await expect(openPortal(new FormData())).rejects.toThrow('REDIRECT');
+    expect(stripe.billingPortal.sessions.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customer: 'cus_a',
+        configuration: 'bpc_project',
+      }),
+    );
+    vi.unstubAllEnvs();
+  });
+
+  it('falls back to the account default portal', async () => {
+    const { openPortal } = await import('./checkout-actions');
+
+    await expect(openPortal(new FormData())).rejects.toThrow('REDIRECT');
+    expect(
+      stripe.billingPortal.sessions.create.mock.calls[0]![0],
+    ).not.toHaveProperty('configuration');
+  });
+});

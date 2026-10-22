@@ -1,5 +1,5 @@
 // `pnpm studio:new <name> [--dry-run]`: neues Projekt aus diesem Template anlegen und live schalten.
-// Ablauf: Kopie → Supabase (EU) → Migrationen → Vercel-Projekt + Env → Deploy → echte URL prüfen → Auth/SMTP/Vault → Checkliste.
+// Ablauf: Kopie → Supabase (EU) → Migrationen → Vercel-Projekt → Stripe (Test) → Env → Deploy → echte URL prüfen → Auth/SMTP/Vault → Checkliste.
 // Wiederholbar: Der Zustand liegt in <ziel>/.studio/state.json; erledigte Schritte werden übersprungen.
 import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
@@ -13,9 +13,13 @@ import {
 } from 'node:fs';
 import { resolve } from 'node:path';
 
+import billing from '../../../apps/web/config/billing.json' with { type: 'json' };
 import {
   buildChecklist,
+  formEncode,
   portBase,
+  priceBody,
+  stripeKeyError,
   rewritePorts,
   sqlLiteral,
   validateName,
@@ -93,6 +97,11 @@ try {
     createVercelProject,
     () => state.siteUrl,
   );
+  await step(
+    'Stripe einrichten (Testmodus)',
+    configureStripe,
+    () => state.stripeConfigured,
+  );
   await step('Env-Variablen setzen', setVercelEnv, () => state.envSet);
   await step('.env.local schreiben', writeLocalEnv, () => state.localEnv);
   await step('Deploy (Produktion)', deploy, () => state.deployed);
@@ -120,6 +129,7 @@ const checklist = buildChecklist({
   siteUrl: state.siteUrl,
   supabaseRef: state.supabaseRef,
   smtpConfigured: Boolean(env.RESEND_API_KEY),
+  stripeConfigured: Boolean(state.stripeConfigured),
 });
 mkdirSync(resolve(target, 'docs'), { recursive: true });
 writeFileSync(
@@ -140,6 +150,28 @@ console.log(
   `  ${'Gesamt (live)'.padEnd(28)} ${((Date.now() - startedAt) / 60000).toFixed(1)} min`,
 );
 console.log(`\nLive: ${state.siteUrl}\nProjekt: ${target}`);
+if (!env.STRIPE_SECRET_KEY) {
+  console.log(
+    'Stripe übersprungen (kein STRIPE_SECRET_KEY in den Shared Secrets): Schritte stehen in der Checkliste.',
+  );
+}
+
+// Schnell-Audit (ohne Lighthouse) als Rückmeldung, nicht fatal; voll: pnpm studio:audit <url>
+try {
+  run(
+    'node',
+    [
+      resolve(ROOT, 'tooling/scripts/src/studio-audit.mjs'),
+      state.siteUrl,
+      '--no-lighthouse',
+    ],
+    {
+      cwd: target,
+    },
+  );
+} catch {
+  console.log('Audit meldet offene Punkte (siehe oben).');
+}
 
 // --- Schritte ---------------------------------------------------------------
 
@@ -168,7 +200,16 @@ async function preflight() {
       `VERCEL_TOKEN/VERCEL_SCOPE abgelehnt (${error.status}): ${error.message}`,
     );
   });
-  console.log('✓ Tokens geprüft (Supabase-Org und Vercel erreichbar)');
+  if (env.STRIPE_SECRET_KEY) {
+    const keyError = stripeKeyError(env.STRIPE_SECRET_KEY);
+    if (keyError) throw new Error(keyError);
+    await stripeApi('GET', '/v1/products?limit=1').catch((error) => {
+      throw new Error(`STRIPE_SECRET_KEY abgelehnt (${error.status}).`);
+    });
+  }
+  console.log(
+    `✓ Tokens geprüft (Supabase-Org, Vercel${env.STRIPE_SECRET_KEY ? ', Stripe' : ''} erreichbar)`,
+  );
 }
 
 async function copyTemplate() {
@@ -365,6 +406,10 @@ async function setVercelEnv() {
       Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
     ),
   };
+  if (state.stripeConfigured)
+    Object.assign(values, stripeEnv(), {
+      STRIPE_WEBHOOK_SECRET: state.stripeWebhookSecret,
+    });
   for (const key of Object.keys(env)) {
     if (
       /^(RESEND_API_KEY|EMAIL_FROM|ANTHROPIC_API_KEY|OPENAI_API_KEY|AI_PROVIDER|AI_MODEL|AI_BASE_URL|ADMIN_EMAILS|SENTRY_DSN|NEXT_PUBLIC_SENTRY_DSN|LEGAL_\w+|NEXT_PUBLIC_ANALYTICS_\w+|NEXT_PUBLIC_PLAUSIBLE_\w+|NEXT_PUBLIC_UMAMI_\w+)$/.test(
@@ -411,6 +456,7 @@ async function verifySiteUrl() {
     );
     state.siteUrl = actual;
     save();
+    if (state.stripeConfigured) await updateStripeUrls();
     await setVercelEnv();
     await deploy();
   }
@@ -483,6 +529,132 @@ async function configureSupabase() {
   save();
 }
 
+// Ein Stripe-Konto für alle Projekte: alles trägt `studio_project`, Produkt-IDs sind `<projekt>_<key>`.
+async function configureStripe() {
+  if (!env.STRIPE_SECRET_KEY) {
+    console.log('  übersprungen: kein STRIPE_SECRET_KEY in den Shared Secrets');
+    return;
+  }
+  for (const [key, product] of Object.entries(billing.products)) {
+    const id = `${name}_${key}`;
+    await stripeApi('GET', `/v1/products/${id}`).catch(async (error) => {
+      if (error.status !== 404) throw error;
+      await stripeApi('POST', '/v1/products', {
+        id,
+        name: `${name} ${product.name}`,
+        metadata: { studio_project: name, studio_product: key },
+      });
+    });
+    const body = priceBody(name, key, id, product);
+    const { data } = await stripeApi(
+      'GET',
+      `/v1/prices?active=true&lookup_keys[0]=${encodeURIComponent(body.lookup_key)}`,
+    );
+    const price = data[0] ?? (await stripeApi('POST', '/v1/prices', body));
+    state.stripePrices = { ...state.stripePrices, [key]: price.id };
+  }
+
+  // Das Signing-Secret gibt Stripe nur bei der Anlage zurück: ohne Secret im State neu anlegen.
+  if (!state.stripeWebhookSecret) {
+    const { data } = await stripeApi('GET', '/v1/webhook_endpoints?limit=100');
+    for (const endpoint of data.filter(
+      (e) => e.metadata?.studio_project === name,
+    )) {
+      await stripeApi('DELETE', `/v1/webhook_endpoints/${endpoint.id}`);
+    }
+    const endpoint = await stripeApi('POST', '/v1/webhook_endpoints', {
+      url: `${state.siteUrl}/api/billing/webhook`,
+      enabled_events: billing.webhookEvents,
+      // Payload-Version der App-SDK, nicht der Konto-Default
+      api_version: stripeSdkApiVersion(),
+      description: `studio:new ${name}`,
+      metadata: { studio_project: name },
+    });
+    state.stripeWebhookId = endpoint.id;
+    state.stripeWebhookSecret = endpoint.secret;
+    save();
+  }
+
+  if (!state.stripePortalConfig) {
+    const { data } = await stripeApi(
+      'GET',
+      '/v1/billing_portal/configurations?limit=100',
+    );
+    const existing = data.find((c) => c.metadata?.studio_project === name);
+    state.stripePortalConfig =
+      existing?.id ??
+      (
+        await stripeApi('POST', '/v1/billing_portal/configurations', {
+          ...portalUrls(),
+          features: {
+            customer_update: {
+              enabled: true,
+              allowed_updates: ['email', 'address'],
+            },
+            invoice_history: { enabled: true },
+            payment_method_update: { enabled: true },
+            subscription_cancel: { enabled: true, mode: 'at_period_end' },
+          },
+          metadata: { studio_project: name },
+        })
+      ).id;
+  }
+
+  state.stripeConfigured = true;
+  // Nachträglich (Key erst nach einem früheren Lauf ergänzt): Env neu setzen und neu deployen
+  if (state.envSet) {
+    state.envSet = false;
+    state.localEnv = false;
+    state.deployed = false;
+    state.live = false;
+  }
+  save();
+}
+
+async function updateStripeUrls() {
+  await stripeApi('POST', `/v1/webhook_endpoints/${state.stripeWebhookId}`, {
+    url: `${state.siteUrl}/api/billing/webhook`,
+  });
+  await stripeApi(
+    'POST',
+    `/v1/billing_portal/configurations/${state.stripePortalConfig}`,
+    portalUrls(),
+  );
+}
+
+function stripeSdkApiVersion() {
+  const file = resolve(ROOT, 'apps/web/node_modules/stripe/esm/apiVersion.js');
+  return existsSync(file)
+    ? readFileSync(file, 'utf8').match(/ApiVersion = '([^']+)'/)?.[1]
+    : undefined;
+}
+
+function portalUrls() {
+  return {
+    default_return_url: `${state.siteUrl}/home/billing`,
+    business_profile: { privacy_policy_url: `${state.siteUrl}/datenschutz` },
+  };
+}
+
+function priceEnvKeys() {
+  return Object.keys(billing.products).map(
+    (key) => `STRIPE_PRICE_${key.toUpperCase()}`,
+  );
+}
+
+function stripeEnv() {
+  return {
+    STRIPE_SECRET_KEY: env.STRIPE_SECRET_KEY,
+    STRIPE_PORTAL_CONFIGURATION: state.stripePortalConfig,
+    ...Object.fromEntries(
+      Object.entries(state.stripePrices).map(([key, id]) => [
+        `STRIPE_PRICE_${key.toUpperCase()}`,
+        id,
+      ]),
+    ),
+  };
+}
+
 async function writeLocalEnv() {
   // Lokale Entwicklung nutzt den lokalen Stack (.env.development); hier nur Projekt-Secrets.
   const file = resolve(web, '.env.local');
@@ -494,10 +666,15 @@ async function writeLocalEnv() {
       `CRON_SECRET=${state.cronSecret}`,
       `SUPABASE_PROJECT_REF=${state.supabaseRef}`,
       `SUPABASE_DB_PASSWORD=${state.dbPassword}`,
-      '# Stripe (Testmodus) – siehe docs/launch-checklist.md',
-      'STRIPE_SECRET_KEY=',
+      '# Stripe (Testmodus); Webhook-Secret lokal aus `stripe listen --print-secret`',
+      ...Object.entries(
+        state.stripeConfigured
+          ? stripeEnv()
+          : Object.fromEntries(
+              ['STRIPE_SECRET_KEY', ...priceEnvKeys()].map((k) => [k, '']),
+            ),
+      ).map(([k, v]) => `${k}=${v}`),
       'STRIPE_WEBHOOK_SECRET=',
-      'STRIPE_PRICE_PRO=',
       '',
     ].join('\n'),
   );
@@ -622,14 +799,33 @@ async function vercelApi(method, path, body) {
   );
 }
 
-async function api(url, method, token, body) {
+async function stripeApi(method, path, body) {
+  return api(
+    `https://api.stripe.com${path}`,
+    method,
+    env.STRIPE_SECRET_KEY,
+    body,
+    {
+      form: true,
+    },
+  );
+}
+
+async function api(url, method, token, body, { form = false } = {}) {
   const response = await fetch(url, {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      'Content-Type': form
+        ? 'application/x-www-form-urlencoded'
+        : 'application/json',
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body:
+      body === undefined
+        ? undefined
+        : form
+          ? formEncode(body)
+          : JSON.stringify(body),
   });
   const text = await response.text();
   if (!response.ok) {
@@ -640,6 +836,8 @@ async function api(url, method, token, body) {
       state?.serviceRoleKey,
       env.RESEND_API_KEY,
       env.GOOGLE_CLIENT_SECRET,
+      env.STRIPE_SECRET_KEY,
+      state?.stripeWebhookSecret,
       token,
     ].filter(Boolean);
     // erst schwärzen, dann kürzen (sonst bliebe ein abgeschnittenes Secret stehen)

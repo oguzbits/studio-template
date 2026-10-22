@@ -8,12 +8,15 @@ description: Use when adding a feature, page or product that only paying users (
 Alle Pfade relativ zu `apps/web`.
 
 1. **Produkt** (nur wenn ein neues Produkt nötig ist, sonst bestehenden Key nutzen) in
-   `config/studio.config.ts` → `products`:
-   ```ts
-   reports: { name: 'Reports', mode: 'payment', priceId: process.env.STRIPE_PRICE_REPORTS ?? '' },
+   `config/billing.json` → `products`:
+   ```json
+   "reports": { "name": "Reports", "mode": "payment", "priceEur": 29 }
    ```
-   Abos zusätzlich `priceMonthlyEur` (fließt in die MRR auf `/admin`). `STRIPE_PRICE_REPORTS` mit Kommentar
-   `[local]` in die Stripe-Sektion von `/.env.example`. Pricing- und Billing-Seite zeigen das Produkt automatisch.
+   Abos stattdessen `"mode": "subscription"` mit `priceMonthlyEur` (fließt in die MRR auf `/admin`). `priceId` kommt
+   automatisch aus `STRIPE_PRICE_REPORTS`; die Variable mit Kommentar `[local]` in die Stripe-Sektion von
+   `/.env.example`. Neue Projekte: `studio:new` legt Produkt und Preis in Stripe an. Bestehendes Projekt: Preis im
+   Stripe-Dashboard anlegen und `STRIPE_PRICE_REPORTS` in Vercel setzen (der Produktions-Build prüft das).
+   Pricing- und Billing-Seite zeigen das Produkt automatisch.
 2. **Seite** `app/home/<feature>/page.tsx` nach dem Muster `app/home/pro/page.tsx`: im async Server Component
    `const entitlement = await requireEntitlement('<key>');` – leitet selbst auf Login, `/home/billing` oder
    `/pricing` um. Nie im Client prüfen.
