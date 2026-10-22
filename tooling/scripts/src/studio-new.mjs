@@ -76,6 +76,11 @@ if (dryRun) {
   console.log(
     `Dry run: würde ${target} anlegen, Supabase-Projekt „${name}“ in ${REGION}, Vercel-Projekt „${name}“ (Root apps/web), Ports ab ${portBase(name)}.`,
   );
+  console.log(
+    env.STRIPE_SECRET_KEY
+      ? `Stripe: ${stripeKeyError(env.STRIPE_SECRET_KEY) ?? 'Testkey gefunden, Produkte/Preise/Webhook/Portal werden angelegt.'}`
+      : 'Stripe: kein STRIPE_SECRET_KEY in den Shared Secrets, Schritt wird übersprungen.',
+  );
   process.exit(0);
 }
 
