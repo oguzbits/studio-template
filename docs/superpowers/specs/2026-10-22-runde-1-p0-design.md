@@ -123,3 +123,13 @@ ab – Live-Umstellung gehört zu `studio:launch` (Backlog).
 
 `pnpm check` grün → Änderungen auf den Dummy (`../test-dummy`) übertragen und deployen → Audit vorher/nachher →
 externer Review (frischer Agent, anderes Modell, Rollen Security + Solo-Gründer) → Ledger → Bericht.
+
+## Abweichungen bei der Umsetzung
+
+- Seitentexte liegen in `config/site.config.ts` statt in einem `site`-Block von `studio.config.ts`: `app.config.ts`
+  wird auch im Browser importiert, `studio.config.ts` enthält Server-Env (Preis-IDs).
+- Produkte liegen in `config/billing.json` (von `studio.config.ts` und `studio-new.mjs` gemeinsam gelesen).
+- Header- und Env-Module sind TypeScript (`config/security-headers.ts`, `config/env-check.ts`, `next.config.ts`)
+  statt `.mjs`; Tests entsprechend `*.test.ts`.
+- Zod läuft im Browser `jitless` (`instrumentation-client.ts`), sonst meldet die CSP ohne `'unsafe-eval'` die
+  `new Function`-Probe von Zod als Verstoß.

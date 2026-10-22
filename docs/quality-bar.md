@@ -26,3 +26,4 @@ Abbruch der Schleife: alle harten Ziele erfüllt und zwei externe Reviews in Fol
 | Datum | Projekt | Bestanden | Notiz |
 | --- | --- | --- | --- |
 | 2026-10-22 | test-dummy (vor Runde 1) | 35/75 | Header fehlen, Makerkit-Meta, kein Canonical/Manifest, Mobil-LCP ~4 s, JS ~505–530 KB |
+| 2026-10-22 | test-dummy (nach Runde 1) | 60/75 | Header, SEO, Branding, Robustheit grün; CSP scharf ohne Verstöße. Offen: Mobil-Perf 85–87, Mobil-LCP 2,7–4,4 s, JS 508–534 KB, a11y 96 auf `/` und Sign-in |

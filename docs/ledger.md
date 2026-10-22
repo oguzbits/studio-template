@@ -21,3 +21,16 @@
 | Review-Fixes | Hauptsession | ~15 min | – | pgTAP 50, Vitest Callback 8 |
 | M9 Probelauf (6 Versuche) | Hauptsession | ~45 min Wanduhr | – | netto ~9 min; 4 Skript-Fixes, Next-Sicherheitsupdate, turbo `LEGAL_*` |
 | **Summe Subagenten** | | ~65 min | ~1,66 Mio. | ohne Hauptsession |
+
+## Runde 1 (P0) – 2026-10-22
+
+| Task | Ausführung | Dauer | Tokens | Notiz |
+| --- | --- | --- | --- | --- |
+| Spec + Plan | Hauptsession | – | – | 5 Bausteine; 4 und 5 selbst entschieden |
+| T1 Audit-Werkzeug | Hauptsession | – | – | Baseline 35/75 |
+| T2 Inhalt/Branding | Hauptsession | – | – | site.config.ts, pageMetadata, Icons/Manifest, Makerkit-Reste raus |
+| T3+T4 Header, Env-Check | Hauptsession | – | – | statische CSP (PPR), Build bricht bei fehlender Env |
+| T5 Stripe in studio:new | Hauptsession | – | – | nur Dry-Run; Live-Test braucht `STRIPE_SECRET_KEY` (Test) |
+| T6 Deploy, CSP-Probe, Audit | Hauptsession | – | – | Zod-Eval-Probe gefunden und behoben; Audit 60/75 |
+| Externer Review | Subagent sonnet | ~1.5 min | 85k | 1 hoch, 6 mittel, Rest niedrig |
+| Review-Fixes | Hauptsession | ~10 min | – | alle hoch/mittel behoben; offen: Umami-connect-src ungeprüft, studio:new-Wiederaufnahme ohne Test |
