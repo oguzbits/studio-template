@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 
-import { Button, buttonVariants } from '@kit/ui/button';
+import { buttonVariants } from '@kit/ui/button';
 import { Trans } from '@kit/ui/trans';
+import { cn } from '@kit/ui/utils';
 
 import { SiteHeader } from '~/(marketing)/_components/site-header';
 
@@ -17,32 +18,47 @@ const ErrorPage = ({
   console.error(error);
 
   return (
-    <div className={'flex min-h-screen flex-col'}>
+    <div className={'flex min-h-svh flex-col'}>
       <SiteHeader />
 
       <main
         className={
-          'flex flex-1 flex-col items-center justify-center gap-y-6 px-4 text-center'
+          'container flex flex-1 flex-col items-center justify-center gap-y-10 pb-20 text-center'
         }
       >
-        <div className={'flex max-w-md flex-col gap-y-2'}>
-          <h1 className={'font-heading text-3xl font-semibold tracking-tight'}>
+        <div className={'flex max-w-5xl flex-col items-center gap-y-6'}>
+          <h1
+            className={
+              'font-display text-[clamp(2.75rem,0.5rem+6.4vw,7rem)] leading-[0.98] font-normal tracking-[-0.03em] text-balance'
+            }
+          >
             <Trans i18nKey={'common.genericError'} />
           </h1>
 
-          <p className={'text-muted-foreground'}>
+          <p className={'text-muted-foreground text-xl'}>
             <Trans i18nKey={'common.genericErrorSubHeading'} />
           </p>
         </div>
 
-        <div className={'flex gap-x-3'}>
-          <Link href={'/'} className={buttonVariants()}>
+        <div
+          className={
+            'flex flex-wrap items-center justify-center gap-x-8 gap-y-4'
+          }
+        >
+          <Link
+            href={'/'}
+            className={cn(buttonVariants(), 'h-12 px-6 text-base')}
+          >
             <Trans i18nKey={'common.backToHomePage'} />
           </Link>
 
-          <Button variant={'outline'} onClick={reset}>
+          <button
+            type={'button'}
+            onClick={reset}
+            className={'quiet-link text-base'}
+          >
             <Trans i18nKey={'common.tryAgain'} />
-          </Button>
+          </button>
         </div>
       </main>
     </div>
