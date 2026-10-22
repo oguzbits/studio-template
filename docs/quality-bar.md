@@ -27,3 +27,4 @@ Abbruch der Schleife: alle harten Ziele erfüllt und zwei externe Reviews in Fol
 | --- | --- | --- | --- |
 | 2026-10-22 | test-dummy (vor Runde 1) | 35/75 | Header fehlen, Makerkit-Meta, kein Canonical/Manifest, Mobil-LCP ~4 s, JS ~505–530 KB |
 | 2026-10-22 | test-dummy (nach Runde 1) | 60/75 | Header, SEO, Branding, Robustheit grün; CSP scharf ohne Verstöße. Offen: Mobil-Perf 85–87, Mobil-LCP 2,7–4,4 s, JS 508–534 KB, a11y 96 auf `/` und Sign-in |
+| 2026-10-23 | test-dummy (nach Runde 2a) | 61/75 | Mobil-Perf 95/92/90 (vorher 83/87/87), Mobil-LCP 2,8/3,3/3,6 s (vorher 4,4/3,9/4,1), Script 438–463 KB (vorher 508–533); davon auf `/` 344 KB im HTML, 93 KB Next-Prefetch verlinkter Seiten (u. a. Supabase für `/auth`). Offen → 2b: LCP < 2,5 s, a11y 96 auf `/` und Sign-in. Ein Lighthouse-Lauf Sign-in mobil lieferte 0/Infinity (Ausreißer, Einzellauf 90/3,6 s) |

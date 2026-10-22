@@ -16,12 +16,12 @@ Skala 0–5 (5 = besser als jedes untersuchte Kit). Ziel = Premium-Niveau.
 | Bereich | Ist | Ziel | Beleg |
 | --- | --- | --- | --- |
 | Setup pro Projekt | 3 | 5 | 1 Befehl (~9 min), danach ~10 manuelle Stripe-Schritte und ~4 für die Resend-Domain. Kein untersuchtes Kit kommt mit einem Befehl live – hier können wir führen |
-| Erst-Setup (einmalig) | 2 | 4 | ~15 Schritte: Tokens in 3 Dashboards, ~12 einzelne `dotenvx set`-Befehle mit langem Pfad, keine Live-Prüfung der Tokens |
+| Erst-Setup (einmalig) | 4 | 4 | Runde 2a: `pnpm studio:setup` fragt jeden Wert ab, öffnet die Token-Seite, prüft live, schreibt verschlüsselt; `pnpm studio:doctor [url]` prüft lokal und live. Vorher ~15 Schritte mit ~12 `dotenvx set`-Befehlen |
 | Design/UI | 1 | 4 | Flaches Theme ohne Akzent, Text-Hero, Platzhalter-Features, Pricing als einzelne Karte, Auth mit zwei gestapelten E-Mail-Feldern |
 | Inhalt/Branding | 0 | 4 | Titel/Description/OG auf `/` und `/pricing` = Makerkit-Werbetext; `/faq` mit **falschen Versprechen** (14 Tage Test, PayPal, 50 % Rabatt) – abmahnfähig; Landing „Placeholder copy“; README-Hälfte ist Makerkit-Werbung; Favicons/Manifest Makerkit |
-| Performance | 3 | 5 | Desktop 100/100/100; Mobil 84–89, LCP 3,8–4,4 s (Ziel < 2,5 s), JS 505–530 KB je Seite, CLS 0 |
+| Performance | 4 | 5 | Runde 2a: Desktop 100; Mobil 95/92/90, LCP 2,8–3,6 s (Ziel < 2,5 s), Script 438–463 KB inkl. ~93 KB Prefetch; Rest (Base-UI-Menüs, zod in Configs) mit UI-Runde 2b |
 | Barrierefreiheit | 4 | 5 | Lighthouse 96–100; offen: 2× Touch-Ziel zu klein (`/`), 1× Passwortfeld ohne Label, fehlende `autocomplete`, 4× falsches `<label for>` |
-| Sicherheit | 3 | 5 | Stark: RLS überall + pgTAP, Webhook-Signatur (400), Worker-Token (401), Admin nur bestätigte Allowlist, Open-Redirect-Schutz. Schwach: nur HSTS – kein CSP/`frame-ancestors`, `nosniff`, Referrer-/Permissions-Policy; `access-control-allow-origin: *` auf Seiten; kein Rate-Limit für öffentliche Formulare |
+| Sicherheit | 3 | 5 | Stark: RLS überall + pgTAP, Webhook-Signatur (400), Worker-Token (401), Admin nur bestätigte Allowlist, Open-Redirect-Schutz. Schwach: nur HSTS – kein CSP/`frame-ancestors`, `nosniff`, Referrer-/Permissions-Policy; `access-control-allow-origin: *` auf Seiten; kein Rate-Limit für öffentliche Formulare. Runde 1: Header komplett; Runde 2a: DB-Rate-Limit pro IP für die Warteliste |
 | SEO | 2 | 5 | robots/sitemap korrekt; Makerkit-Meta, kein Canonical, kein Manifest, `og:url` von `/pricing` zeigt auf `/` |
 | Billing | 4 | 5 | Live-Testkauf end-to-end ok (Webhook idempotent, Entitlement aktiv); fehlt: Jahres-Toggle, mehrere Pläne im UI, automatisches Stripe-Setup |
 | E-Mail | 3 | 5 | Versand über Resend ok, Kit-Templates jetzt hochgeladen; ohne verifizierte Domain gehen Mails nur an die eigene Adresse |
@@ -78,6 +78,8 @@ Skala 0–5 (5 = besser als jedes untersuchte Kit). Ziel = Premium-Niveau.
 - Extras für die UI-Runde: Onboarding-Schritt, Kontaktformular, Admin-Nutzerliste.
 
 ## Backlog
+
+- **Runde 2b (UI):** LCP mobil < 2,5 s und JS-Budget mit dem Navigations-Umbau (Base-UI/floating-ui-Menüs ~40 KB, zod in Client-Configs ~30 KB); a11y 96 auf `/` und Sign-in; Kontaktformular mit `rateLimit`. Klären: soll `lh:script` Next-Prefetches verlinkter Seiten mitzählen (heute ja, ~93 KB auf `/`)?
 
 - **`pnpm studio:launch <projekt> <domain>`** – vor dem ersten echten Launch: Domain an Vercel, Resend-Domain
   anlegen, DNS automatisch (Vercel DNS) oder als Liste (externer Registrar), Verifizierung prüfen, `EMAIL_FROM` und

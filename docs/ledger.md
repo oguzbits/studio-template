@@ -36,3 +36,19 @@
 | Review-Fixes | Hauptsession | ~10 min | – | alle hoch/mittel behoben; offen: Umami-connect-src ungeprüft, studio:new-Wiederaufnahme ohne Test |
 | Stripe live (test-dummy, Testmodus) | studio:new Wiederaufnahme | 0.9 min | – | Produkt, Preis 9 €/Monat, Webhook (API 2026-09-30.endive, 5 Events), Portal angelegt; Redeploy, Schnell-Audit 39/39 |
 | Live-Test durch Nutzer | Hauptsession | ~15 min | – | 2 echte Fehler: Supabase-Mail-Limit 2/h trotz Resend-SMTP (studio:new setzt jetzt 30/h); Portal-Kündigung via `cancel_at` blieb `active` (Webhook behoben, 2 Tests). Ohne Resend-Domain keine Fremd-Registrierung (P1: Hinweis in UI und studio:new) |
+
+## Runde 2a (P1) – 2026-10-22/23
+
+| Task | Ausführung | Dauer | Tokens | Notiz |
+| --- | --- | --- | --- | --- |
+| Spec + Plan | Hauptsession | – | – | 2a/2b-Schnitt; Resend-Domain-Automatik → studio:launch |
+| T1–4 Setup, Doctor, Resend-Hinweis, Rate-Limit | Subagent sonnet | 4.5 min | 101k | gebündelt, ein Kaltstart |
+| T1–4 Fixes | Subagent sonnet (fortgesetzt) | 1 min | ~111k (kumuliert) | nach T5 nachgezogen |
+| T1–4 Review | Subagent sonnet | – | 77k | |
+| T5 Mobile-Performance | Subagent opus | 2.2 min | 70k | AuthProvider aus Root, Sentry dynamisch, Hero ohne Fade |
+| T5 Review | Subagent sonnet | 36 s | 61k | |
+| T6 Deploy + Audit | Hauptsession, Deploy durch Nutzer | – | – | Audit 61/75 (vorher 60/75); `/` mobil 83→95 |
+| Gesamt-Review | Subagent opus | 4.4 min | 129k | Fix-Welle: AuthGate-Suspense, Admin-AuthProvider, Setup-EOF |
+| Fix-Welle | Subagent sonnet | 1.2 min | 64k | Rest (EOF vor erster Frage) selbst behoben |
+| Nachentscheidung | Hauptsession | – | – | LEGAL_*/ADMIN_EMAILS/ANTHROPIC_API_KEY: `'warn'` statt Pflicht (wie env-check.ts) |
+| **Summe Subagenten** | | ~14 min | ~0,6 Mio. | ohne Hauptsession |
