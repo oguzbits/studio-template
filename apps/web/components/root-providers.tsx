@@ -8,7 +8,6 @@ import { ThemeProvider } from 'next-themes';
 import { CaptchaProvider } from '@kit/auth/captcha/client';
 import { I18nClientProvider } from '@kit/i18n/provider';
 import { If } from '@kit/ui/if';
-import { VersionUpdater } from '@kit/ui/version-updater';
 
 import appConfig from '~/config/app.config';
 import authConfig from '~/config/auth.config';
@@ -17,6 +16,13 @@ import featuresFlagConfig from '~/config/feature-flags.config';
 import { ReactQueryProvider } from './react-query-provider';
 
 const captchaSiteKey = authConfig.captchaTokenSiteKey;
+
+// dynamic: its AlertDialog pulls Base UI popup code into every page's first load
+const VersionUpdater = dynamic(() =>
+  import('@kit/ui/version-updater').then((mod) => ({
+    default: mod.VersionUpdater,
+  })),
+);
 
 const CaptchaTokenSetter = dynamic(async () => {
   if (!captchaSiteKey) {

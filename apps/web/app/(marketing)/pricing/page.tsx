@@ -1,20 +1,24 @@
-import Link from 'next/link';
-
-import { Button } from '@kit/ui/button';
-
-import { AuthGate } from '~/components/auth-gate';
 import appConfig from '~/config/app.config';
-import pathsConfig from '~/config/paths.config';
+import siteConfig from '~/config/site.config';
 import studioConfig, { type ProductKey } from '~/config/studio.config';
-import { createCheckout } from '~/lib/billing/checkout-actions';
-
+import { highlightedProduct } from '~/lib/billing/highlighted-product';
 import { pageMetadata } from '~/lib/page-metadata';
 
+import { FaqList } from '../_components/faq-list';
+import { PricingCard } from '../_components/pricing-card';
 import { SitePageHeader } from '../_components/site-page-header';
 
 export const metadata = pageMetadata({ path: '/pricing', title: 'Pricing' });
 
+const maxWidth = ['max-w-md', 'max-w-3xl', 'max-w-5xl'];
+
 function PricingPage() {
+  const products = Object.entries(studioConfig.products) as [
+    ProductKey,
+    (typeof studioConfig.products)[ProductKey],
+  ][];
+  const highlighted = highlightedProduct(studioConfig.products);
+
   return (
     <div>
       <SitePageHeader
@@ -22,50 +26,27 @@ function PricingPage() {
         subtitle={`Choose your ${appConfig.name} plan`}
       />
 
-      <div className={'container mx-auto grid gap-6 py-12 md:grid-cols-3'}>
-        {Object.entries(studioConfig.products).map(([key, product]) => (
-          <div
+      <div
+        className={`mx-auto grid w-full gap-6 px-4 py-12 md:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] ${maxWidth[Math.min(products.length, 3) - 1]}`}
+      >
+        {products.map(([key, product]) => (
+          <PricingCard
             key={key}
-            className={'flex flex-col gap-4 rounded-lg border p-6'}
-          >
-            <h3 className={'text-xl font-medium'}>{product.name}</h3>
-
-            <p className={'text-3xl font-semibold'}>
-              {product.priceMonthlyEur ? `${product.priceMonthlyEur} EUR` : ''}
-              <span className={'text-muted-foreground text-base font-normal'}>
-                {product.mode === 'subscription' ? ' / month' : ' one-time'}
-              </span>
-            </p>
-
-            <AuthGate
-              signedIn={
-                <form action={createCheckout.bind(null, key as ProductKey)}>
-                  <Button
-                    type={'submit'}
-                    className={'w-full'}
-                    data-test={`checkout-${key}`}
-                  >
-                    Subscribe
-                  </Button>
-                </form>
-              }
-              signedOut={
-                <Button
-                  nativeButton={false}
-                  className={'w-full'}
-                  render={
-                    <Link
-                      href={`${pathsConfig.auth.signUp}?next=${encodeURIComponent('/pricing')}`}
-                    />
-                  }
-                >
-                  Sign up to subscribe
-                </Button>
-              }
-            />
-          </div>
+            productKey={key}
+            product={product}
+            highlighted={key === highlighted}
+          />
         ))}
       </div>
+
+      {siteConfig.faq.length > 0 && (
+        <section className={'container mx-auto pb-20'}>
+          <h2 className={'mb-8 text-center text-2xl font-semibold'}>
+            Frequently asked questions
+          </h2>
+          <FaqList items={siteConfig.faq} />
+        </section>
+      )}
     </div>
   );
 }

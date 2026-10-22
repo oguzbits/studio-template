@@ -36,19 +36,24 @@ const siteConfig = {
     subtitle:
       'Sign up in seconds, pay securely with Stripe and cancel anytime. Hosted in the EU.',
     cta: { label: 'Get started', href: '/auth/sign-up' },
+    announcement: { label: 'Hosted in the EU', href: '/pricing' },
+    highlight: 'get it done',
   },
   features: [
     {
       title: 'Hosted in the EU',
+      icon: 'globe',
       description:
         'Your data is stored in Frankfurt and protected by row-level security.',
     },
     {
       title: 'Secure payments',
+      icon: 'credit-card',
       description: 'Checkout runs on Stripe. We never see your card details.',
     },
     {
       title: 'Cancel anytime',
+      icon: 'clock',
       description:
         'Manage or cancel your subscription yourself in the customer portal.',
     },

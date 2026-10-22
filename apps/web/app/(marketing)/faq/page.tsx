@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 
-import { ChevronDown } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
+import { FaqList } from '~/(marketing)/_components/faq-list';
 import { SitePageHeader } from '~/(marketing)/_components/site-page-header';
 import siteConfig from '~/config/site.config';
 import { jsonLd } from '~/lib/json-ld';
@@ -52,11 +52,7 @@ async function FAQPage() {
         />
 
         <div className={'container flex flex-col space-y-8 pb-16'}>
-          <div className="flex w-full max-w-xl flex-col">
-            {faqItems.map((item, index) => {
-              return <FaqItem key={index} item={item} />;
-            })}
-          </div>
+          <FaqList items={faqItems} />
         </div>
       </div>
     </>
@@ -64,40 +60,3 @@ async function FAQPage() {
 }
 
 export default FAQPage;
-
-function FaqItem({
-  item,
-}: React.PropsWithChildren<{
-  item: {
-    question: string;
-    answer: string;
-  };
-}>) {
-  return (
-    <details className={'group border-b px-2 py-4 last:border-b-transparent'}>
-      <summary
-        className={
-          'flex items-center justify-between hover:cursor-pointer hover:underline'
-        }
-      >
-        <h2
-          className={
-            'hover:underline-none cursor-pointer font-sans font-medium'
-          }
-        >
-          {item.question}
-        </h2>
-
-        <div>
-          <ChevronDown
-            className={'h-5 transition duration-300 group-open:-rotate-180'}
-          />
-        </div>
-      </summary>
-
-      <div className={'text-muted-foreground flex flex-col space-y-2 py-1'}>
-        {item.answer}
-      </div>
-    </details>
-  );
-}
