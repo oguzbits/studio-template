@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { nextAction, summarize } from './studio-setup-lib.mjs';
+import { nextAction, setSecret, summarize } from './studio-setup-lib.mjs';
 
 const req = { key: 'A', required: true };
 const opt = { key: 'B', required: false };
@@ -26,5 +26,23 @@ describe('summarize', () => {
     );
     expect(missingRequired).toEqual(['A', 'C']);
     expect(lines).toHaveLength(4);
+  });
+});
+
+describe('setSecret', () => {
+  it('Fehler von dotenvx enthält Key und Status, nie den Wert', () => {
+    const exec = () => {
+      throw Object.assign(new Error('Command failed: pnpm … geheim-wert-123'), {
+        status: 3,
+      });
+    };
+    expect(() => setSecret('K', 'geheim-wert-123', '/f', exec)).toThrow(
+      'dotenvx set für K fehlgeschlagen (Exit 3)',
+    );
+    try {
+      setSecret('K', 'geheim-wert-123', '/f', exec);
+    } catch (error) {
+      expect(error.message).not.toContain('geheim-wert-123');
+    }
   });
 });

@@ -1,7 +1,9 @@
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
-import { SHARED_KEYS, checkKey } from './studio-tokens.mjs';
+import { SHARED_KEYS, checkKey, loadSharedSecrets } from './studio-tokens.mjs';
 
 const json = (status, body) => ({
   ok: status >= 200 && status < 300,
@@ -109,5 +111,41 @@ describe('checkKey', () => {
     expect((await checkKey('LEGAL_NAME', '', {}, fetchFn)).ok).toBe(false);
     expect((await checkKey('LEGAL_NAME', 'Foo', {}, fetchFn)).ok).toBe(true);
     expect(fetchFn).not.toHaveBeenCalled();
+  });
+});
+
+describe('loadSharedSecrets', () => {
+  // sharedSecretsPath liest STUDIO_SECRETS_DIR/FILE zur Aufrufzeit: absoluter Pfad auf eine Dummy-Datei
+  const dir = mkdtempSync(join(tmpdir(), 'secrets-'));
+  writeFileSync(join(dir, 'f'), '');
+  const withDummy = (fn) => {
+    vi.stubEnv('STUDIO_SECRETS_DIR', dir);
+    vi.stubEnv('STUDIO_SECRETS_FILE', 'f');
+    try {
+      fn();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  };
+  it('kaputtes JSON: feste Meldung ohne Inhalt', () =>
+    withDummy(() => {
+      const exec = () => 'KEY=geheim-456 {nicht json';
+      expect(() => loadSharedSecrets(exec)).toThrow(
+        /^dotenvx get lieferte kein lesbares JSON$/,
+      );
+    }));
+  it('exec-Fehler: feste Meldung ohne Inhalt', () =>
+    withDummy(() => {
+      const exec = () => {
+        throw new Error('Command failed geheim-456');
+      };
+      expect(() => loadSharedSecrets(exec)).toThrow(
+        /^dotenvx get lieferte kein lesbares JSON$/,
+      );
+    }));
+  it('LEGAL_PHONE ist Pflicht', () => {
+    expect(SHARED_KEYS.find((e) => e.key === 'LEGAL_PHONE').required).toBe(
+      true,
+    );
   });
 });

@@ -74,7 +74,7 @@ export const SHARED_KEYS = [
   entry('LEGAL_STREET', true, false, 'Impressum: Straße und Hausnummer'),
   entry('LEGAL_ZIP_CITY', true, false, 'Impressum: PLZ und Ort'),
   entry('LEGAL_EMAIL', true, false, 'Impressum: Kontakt-E-Mail'),
-  entry('LEGAL_PHONE', false, false, 'Impressum: Telefon'),
+  entry('LEGAL_PHONE', true, false, 'Impressum: Telefon'),
   entry('LEGAL_VAT_ID', false, false, 'Impressum: USt-IdNr.'),
   entry(
     'LEGAL_RESPONSIBLE',
@@ -187,22 +187,23 @@ export function sharedSecretsPath() {
   );
 }
 
-export function loadSharedSecrets() {
+export function loadSharedSecrets(exec = execFileSync) {
   const file = sharedSecretsPath();
   if (!existsSync(file)) return {};
-  // Werte nur im Speicher halten, nie ausgeben
-  const out = execFileSync(
-    'pnpm',
-    ['--filter', 'web', 'exec', 'dotenvx', 'get', '-f', file],
-    {
-      cwd: ROOT,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'inherit'],
-    },
-  );
+  // Werte nur im Speicher halten, nie ausgeben: Fehlertexte von exec/JSON.parse können Inhalt enthalten
+  let parsed;
+  try {
+    parsed = JSON.parse(
+      exec('pnpm', ['--filter', 'web', 'exec', 'dotenvx', 'get', '-f', file], {
+        cwd: ROOT,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }),
+    );
+  } catch {
+    throw new Error('dotenvx get lieferte kein lesbares JSON');
+  }
   return Object.fromEntries(
-    Object.entries(JSON.parse(out)).filter(
-      ([key]) => !key.startsWith('DOTENV_'),
-    ),
+    Object.entries(parsed).filter(([key]) => !key.startsWith('DOTENV_')),
   );
 }

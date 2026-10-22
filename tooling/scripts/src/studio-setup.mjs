@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 import { createInterface } from 'node:readline';
 import { resolve } from 'node:path';
 
-import { nextAction, summarize } from './studio-setup-lib.mjs';
+import { nextAction, setSecret, summarize } from './studio-setup-lib.mjs';
 import {
   SHARED_KEYS,
   checkKey,
@@ -78,22 +78,13 @@ for (const entry of SHARED_KEYS) {
       continue;
     }
     // erst nach erfolgreichem Check schreiben, damit nie ein ungültiger Wert in der Datei landet
-    execFileSync(
-      'pnpm',
-      [
-        '--filter',
-        'web',
-        'exec',
-        'dotenvx',
-        'set',
-        key,
-        value,
-        '-f',
-        file,
-        '--no-armor',
-      ],
-      { stdio: ['ignore', 'ignore', 'inherit'] },
-    );
+    try {
+      setSecret(key, value, file);
+    } catch (error) {
+      console.log(`  ✗ ${error.message}`);
+      outcomes[key] = 'failed';
+      break;
+    }
     secrets[key] = value;
     outcomes[key] = 'set';
     if (check.warning) console.log(`  ! ${check.warning}`);
