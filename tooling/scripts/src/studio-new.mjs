@@ -360,6 +360,10 @@ async function setVercelEnv() {
     EMAIL_FROM: `${name} <onboarding@resend.dev>`,
     // pnpm-Version aus packageManager verwenden
     ENABLE_EXPERIMENTAL_COREPACK: '1',
+    // Google-Button nur, wenn der Provider in Supabase Auth aktiviert wird (configureSupabase)
+    NEXT_PUBLIC_AUTH_GOOGLE: String(
+      Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    ),
   };
   for (const key of Object.keys(env)) {
     if (
@@ -419,6 +423,21 @@ async function configureSupabase() {
     site_url: state.siteUrl,
     uri_allow_list: `${state.siteUrl}/**`,
   };
+  // Kit-Templates verlinken /auth/confirm (token_hash, jeder Browser); die Supabase-Defaults brauchen den PKCE-Cookie des Sign-up-Browsers
+  const templates = {
+    confirmation: ['confirm-email', 'Confirm your email'],
+    magic_link: ['magic-link', `Sign in to ${name}`],
+    recovery: ['reset-password', 'Reset your password'],
+    email_change: ['change-email-address', 'Confirm your email change'],
+    invite: ['invite-user', `You are invited to ${name}`],
+  };
+  for (const [key, [file, subject]] of Object.entries(templates)) {
+    auth[`mailer_subjects_${key}`] = subject;
+    auth[`mailer_templates_${key}_content`] = readFileSync(
+      resolve(web, 'supabase/templates', `${file}.html`),
+      'utf8',
+    ).replaceAll('Makerkit', name);
+  }
   if (env.RESEND_API_KEY) {
     // ohne verifizierte Domain kann Resend nur von onboarding@resend.dev senden
     const sender =
