@@ -74,3 +74,19 @@ export async function loadAdminMetrics() {
     mrr: computeMrr(subs, products),
   };
 }
+
+export async function loadContactMessages(limit: number) {
+  await requireAdmin();
+
+  const { data, error } = await getSupabaseServerAdminClient()
+    .from('contact_messages')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error('contact_messages query failed');
+  }
+
+  return data;
+}

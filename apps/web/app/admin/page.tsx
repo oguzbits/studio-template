@@ -4,7 +4,12 @@ import { Alert, AlertDescription } from '@kit/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@kit/ui/card';
 
 import { usesResendTestSender } from '~/lib/email/resend-test-sender';
-import { loadAdminMetrics } from '~/lib/admin/load-metrics';
+import Link from 'next/link';
+
+import {
+  loadAdminMetrics,
+  loadContactMessages,
+} from '~/lib/admin/load-metrics';
 
 export const metadata = { title: 'Admin', robots: { index: false } };
 
@@ -17,7 +22,10 @@ export default function AdminPage() {
 }
 
 async function Metrics() {
-  const m = await loadAdminMetrics();
+  const [m, messages] = await Promise.all([
+    loadAdminMetrics(),
+    loadContactMessages(20),
+  ]);
 
   const stats: [string, string][] = [
     ['Sign-ups (total)', String(m.signups_total)],
@@ -32,6 +40,11 @@ async function Metrics() {
   return (
     <>
       <h1 className="text-2xl font-semibold">Admin</h1>
+      <p>
+        <Link href="/admin/users" className="underline">
+          Users
+        </Link>
+      </p>
       {usesResendTestSender(process.env.EMAIL_FROM) && (
         <Alert>
           <AlertDescription>
@@ -70,6 +83,38 @@ async function Metrics() {
                 <td>{j.attempts}</td>
                 <td className="max-w-xs truncate">{j.last_error}</td>
                 <td>{new Date(j.created_at).toISOString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <h2 className="text-lg font-semibold">Messages (last 20)</h2>
+      {messages.length === 0 ? (
+        <p>None.</p>
+      ) : (
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr>
+              <th>From</th>
+              <th>Received</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {messages.map((msg) => (
+              <tr key={msg.id} className="align-top">
+                <td>{msg.name ? `${msg.name} <${msg.email}>` : msg.email}</td>
+                <td>{new Date(msg.created_at).toISOString()}</td>
+                <td>
+                  <details>
+                    <summary className="cursor-pointer">
+                      {msg.message.length > 120
+                        ? `${msg.message.slice(0, 120)}…`
+                        : msg.message}
+                    </summary>
+                    <p className="mt-2 whitespace-pre-wrap">{msg.message}</p>
+                  </details>
+                </td>
               </tr>
             ))}
           </tbody>

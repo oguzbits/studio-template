@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getUserById, rpc } = vi.hoisted(() => ({
+const { getUserById, rpc, from } = vi.hoisted(() => ({
   getUserById: vi.fn(),
   rpc: vi.fn(),
+  from: vi.fn(),
 }));
 
 vi.mock('next/navigation', () => ({
@@ -20,10 +21,12 @@ vi.mock('@kit/supabase/server-admin-client', () => ({
   getSupabaseServerAdminClient: () => ({
     auth: { admin: { getUserById } },
     rpc,
+    from,
   }),
 }));
 
-const { loadAdminMetrics, requireAdmin } = await import('./load-metrics');
+const { loadAdminMetrics, loadContactMessages, requireAdmin } =
+  await import('./load-metrics');
 
 const authUser = (fields: Record<string, unknown>) => ({
   data: { user: { id: 'u1', ...fields } },
@@ -84,5 +87,36 @@ describe('loadAdminMetrics', () => {
 
     await expect(loadAdminMetrics()).rejects.toThrow('NOT_FOUND');
     expect(rpc).not.toHaveBeenCalled();
+  });
+});
+
+describe('loadContactMessages', () => {
+  it('never queries messages for a non-admin', async () => {
+    getUserById.mockResolvedValue(
+      authUser({ email: 'user@example.com', email_confirmed_at: '2026-10-01' }),
+    );
+
+    await expect(loadContactMessages(20)).rejects.toThrow('NOT_FOUND');
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it('returns the newest messages up to the limit for an admin', async () => {
+    getUserById.mockResolvedValue(
+      authUser({
+        email: 'admin@example.com',
+        email_confirmed_at: '2026-10-01',
+      }),
+    );
+    const limit = vi
+      .fn()
+      .mockResolvedValue({ data: [{ id: 'm1' }], error: null });
+    const order = vi.fn(() => ({ limit }));
+
+    from.mockReturnValue({ select: () => ({ order }) });
+
+    await expect(loadContactMessages(20)).resolves.toEqual([{ id: 'm1' }]);
+    expect(from).toHaveBeenCalledWith('contact_messages');
+    expect(order).toHaveBeenCalledWith('created_at', { ascending: false });
+    expect(limit).toHaveBeenCalledWith(20);
   });
 });
