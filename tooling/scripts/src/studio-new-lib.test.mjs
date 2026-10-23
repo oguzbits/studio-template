@@ -74,6 +74,18 @@ describe('sqlLiteral', () => {
   });
 });
 
+describe('buildChecklist: Design', () => {
+  it('verweist auf den Taste-Skill pro Produkt', () => {
+    const list = buildChecklist({
+      name: 'demo',
+      siteUrl: 'https://demo.vercel.app',
+      supabaseRef: 'abcd',
+      smtpConfigured: true,
+    });
+    expect(list).toContain('taste-skill:design-taste-frontend');
+  });
+});
+
 describe('buildChecklist: Resend-Domain', () => {
   const base = {
     name: 'demo',

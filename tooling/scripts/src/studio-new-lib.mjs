@@ -48,6 +48,7 @@ export function buildChecklist({
       : 'Supabase-SMTP ist NICHT gesetzt (kein RESEND_API_KEY) – ohne eigenes SMTP sendet Supabase nur wenige Auth-Mails pro Stunde.',
     `Google-Login: in der Google Cloud Console die Redirect-URI https://${supabaseRef}.supabase.co/auth/v1/callback eintragen und Client-ID/Secret in Supabase → Auth → Providers → Google setzen.`,
     `Domain verbinden: Vercel → Project „${name}“ → Domains; danach NEXT_PUBLIC_SITE_URL in Vercel, Supabase Auth (Site URL, Redirect URLs) und das Vault-Secret worker_url auf die neue Domain ändern und neu deployen.`,
+    'Design: Die Vorlage ist bewusst neutral. Für dieses Produkt den Skill taste-skill:design-taste-frontend mit vollem Ablauf nutzen (Direction, Idee aus dem Produkt, Inspector) und das Ergebnis in config/site.config.ts, styles/shadcn-ui.css und lib/fonts.ts festhalten (siehe AGENTS.md, „Design pro Produkt“).',
     'Rechtliches: LEGAL_*-Werte prüfen (Impressum/Datenschutz), AGB und Widerrufsbelehrung ergänzen, Kündigungsbutton (§ 312k BGB) rechtlich prüfen.',
   ];
   return [
