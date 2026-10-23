@@ -10,6 +10,7 @@ import { Wordmark } from '~/components/wordmark';
 import { ZodJitless } from '~/components/zod-jitless';
 import { AuthFormSkeleton } from '~/components/skeletons/page-skeletons';
 import pathsConfig from '~/config/paths.config';
+import { safeRedirect } from '~/lib/safe-redirect';
 import { requireUserInServerComponent } from '~/lib/server/require-user-in-server-component';
 
 export const generateMetadata = async () => {
@@ -50,7 +51,7 @@ async function UpdatePassword(props: UpdatePasswordPageProps) {
   await requireUserInServerComponent();
 
   const { callback } = await props.searchParams;
-  const redirectTo = callback ?? pathsConfig.app.home;
+  const redirectTo = safeRedirect(callback, pathsConfig.app.home);
 
   return (
     <AuthCard>
