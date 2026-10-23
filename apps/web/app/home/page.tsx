@@ -1,5 +1,9 @@
-import Link from 'next/link';
+import { Suspense } from 'react';
 
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+
+import { getSupabaseServerClient } from '@kit/supabase/server-client';
 import { buttonVariants } from '@kit/ui/button';
 import {
   Card,
@@ -12,6 +16,9 @@ import { PageBody, PageHeader } from '@kit/ui/page';
 
 import appConfig from '~/config/app.config';
 import pathsConfig from '~/config/paths.config';
+import { requireUserInServerComponent } from '~/lib/server/require-user-in-server-component';
+
+import { needsOnboarding } from './welcome/needs-onboarding';
 
 export const metadata = {
   title: 'Home',
@@ -20,6 +27,10 @@ export const metadata = {
 export default function HomePage() {
   return (
     <>
+      <Suspense>
+        <OnboardingGate />
+      </Suspense>
+
       <PageHeader title={'Home'} description={`Welcome to ${appConfig.name}`} />
 
       <PageBody>
@@ -47,4 +58,19 @@ export default function HomePage() {
       </PageBody>
     </>
   );
+}
+
+// Only this index page sends people to /home/welcome (no other route, so buyers going
+// straight to billing are not held up). The JWT claims can be stale right after the
+// flag is set, so the fresh user record is read.
+async function OnboardingGate() {
+  await requireUserInServerComponent();
+
+  const { data } = await getSupabaseServerClient().auth.getUser();
+
+  if (data.user && needsOnboarding(data.user)) {
+    redirect('/home/welcome');
+  }
+
+  return null;
 }
