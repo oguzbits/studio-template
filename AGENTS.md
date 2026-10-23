@@ -38,11 +38,14 @@ Lokale Ports: 55320–55326 (API 55321, DB 55322, Studio 55323, Mailpit 55324). 
 | Worker | `app/api/jobs/worker/route.ts` | pg_cron jede Minute (Bearer `CRON_SECRET`), Vercel-Cron als Fallback |
 | KI | `lib/ai/generate-structured.ts` | `generateStructured({ schema, prompt, model?, system? })` |
 | Geschützte App-Seiten | `app/home/*` | Beispiel bezahlte Seite: `app/home/pro/page.tsx` |
-| Marketing | `app/(marketing)/*` | Landing, Pricing, Waitlist |
+| Marketing | `app/(marketing)/*` | Landing, Pricing, Waitlist, Kontakt (`/contact`, Rate-Limit 3/Stunde/IP) |
+| Kontakt | `app/(marketing)/contact/` | `submitContact` → `contact_messages`, Job `contact-notification` mailt an `ADMIN_EMAILS[0]` (`lib/jobs/handlers/contact-notification.ts`) |
+| Admin | `app/admin/` | `/admin` (Metriken + letzte 20 Nachrichten), `/admin/users` (50/Seite, nur lesend); Loader in `lib/admin/` prüfen `requireAdmin()` selbst |
+| Onboarding | `app/home/welcome/` | einmalig, überspringbar; Flag `user_metadata.onboarded` (UX, kein Schutz); Redirect nur von `app/home/page.tsx` |
 | Migrationen + Tests | `supabase/migrations/`, `supabase/tests/database/` | pgTAP, `00-rls.test.sql` prüft RLS auf allen Tabellen |
 
 Tabellen (alle mit RLS): `entitlements`, `processed_events`, `billing_customers`, `jobs`, `ai_calls`,
-`ai_cache`, `waitlist`, `digest_sends`, `rate_limits`. Nutzer dürfen nur ihre eigenen `entitlements` und
+`ai_cache`, `waitlist`, `digest_sends`, `rate_limits`, `contact_messages`. Nutzer dürfen nur ihre eigenen `entitlements` und
 `billing_customers` lesen; alles andere läuft über den Admin-Client auf dem Server.
 
 `/admin`: nur bestätigte E-Mail-Adressen aus `ADMIN_EMAILS` (frisch aus `auth.users` gelesen), sonst 404.
@@ -66,6 +69,12 @@ Zugang: `active`, `trialing`, `canceling` → Zugriff; `past_due`, `unpaid`, `in
 - Tests liegen neben dem Code (`*.test.ts`), Vitest. Externe Dienste (Stripe, Resend, KI) werden gemockt.
 - Jeder Test einer Schutzfunktion (Auth, Idempotenz, RLS, Secret-Check) muss rot werden, wenn der Schutz fehlt.
 - Kleine Commits im Conventional-Commit-Stil (`feat(billing): …`). Hooks nie mit `--no-verify` umgehen.
+- Absende-Buttons brauchen `type="submit"`: der `Button` aus `@kit/ui` (Base UI) ist standardmäßig `type="button"`,
+  das Formular schickt sonst nie ab (Unit-Tests merken das nicht, E2E schon). Für Links `buttonVariants` auf `Link`.
+- E2E lokal: `pnpm --filter web build:test`, `start:test`, dann `pnpm --filter web-e2e exec playwright test --retries=0`
+  (das `test`-Skript bricht mit `--max-failures=1` früh ab; der Dev-Server scheitert am Next-Overlay). Server
+  Actions antworten bei Client-Redirects mit 200 + `x-action-redirect`, nicht 303. Kontakt-E2E braucht den
+  lokalen Supabase-Container (`SUPABASE_DB_CONTAINER` oder `supabase_db_<project_id>`).
 - Bewusste Abkürzungen als Kommentar: `shortcut: <Grenze>, <wann ausbauen>`.
 
 ## Secrets
@@ -92,6 +101,14 @@ Zugang: `active`, `trialing`, `canceling` → Zugriff; `past_due`, `unpaid`, `in
 7. `pnpm check` grün → committen.
 
 Detaillierte Schritt-für-Schritt-Anleitungen: `.claude/skills/{add-paid-feature,add-cron-job,add-email-template,add-ai-task}/SKILL.md`.
+
+## Design pro Produkt
+
+Die Vorlage bleibt bewusst neutral (ruhige editoriale Basis aus Runde 2b: warmes Neutral, Newsreader + Geist, ein
+grüner Akzent). Für ein **neues Produkt** den Skill `taste-skill:design-taste-frontend` mit vollem Ablauf nutzen
+(Seiten: Direction ziehen, Idee aus dem Produkt, Inspector; App-Screens: `references/app-screens.md`) und das Ergebnis
+in `config/site.config.ts`, `styles/shadcn-ui.css` und `lib/fonts.ts` festhalten. Vor jedem Release Screenshots auf
+Fremd-Branding prüfen (Logo steckt als SVG-Pfad, Text-Grep findet es nicht).
 
 ## Nicht bauen (bewusst ausgelassen)
 

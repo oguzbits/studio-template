@@ -78,3 +78,17 @@ Messung lokal (Lighthouse 12, `next start`): mobil Perf 92/93/87 (`/`, `/pricing
 5. App-Shell (`/home/*`) nach Referenz „platform.claude.com/settings/keys“ (Screenshot vom Nutzer nötig), mit Taste-Skill `references/app-screens.md`.
 6. Taste-Skill pro Produkt in `AGENTS.md`/`studio:new` eintragen.
 7. Danach Runde 2c (Onboarding, Kontaktformular mit `rateLimit`, Admin-Nutzerliste); Backlog: Jahres-Toggle, leichterer Supabase-Client für Mobil-LCP.
+
+## Runde 2c (Kontakt, Admin-Nutzerliste, Onboarding) – 2026-10-23
+
+Spec/Plan: [spec](superpowers/specs/2026-10-23-runde-2c-extras-design.md), [plan](superpowers/plans/2026-10-23-runde-2c-extras.md). Zwischendurch Session-Limit: Bündel-B-Subagent gestoppt, Weiterarbeit in der Hauptsession (die Teilarbeit war weiter, als die Übergabe notierte).
+
+| Task | Ausführung | Dauer | Tokens | Notiz |
+| --- | --- | --- | --- | --- |
+| Spec + Plan | Hauptsession | – | – | |
+| T1+2 Tabelle, Kontaktformular, Job, Mail | Subagent sonnet | 10,2 min | 143k | |
+| T1+2 Review + Fix-Läufe | Subagent sonnet (3 Läufe) | 7,0 + 1,6 + 1,0 min | 118k + 85k + 126k (grob zugeordnet) | M1 failed≠invalid, M2 Duplikat bei Enqueue-Fehler, M3 NUL-Byte |
+| T3+4 Admin-Liste, Nachrichten, Onboarding | Subagent sonnet, bei Limit gestoppt | nicht erfasst | nicht erfasst | Rest, pgTAP und E2E-Spec Onboarding in der Hauptsession |
+| Gesamt-Review | Subagent opus | 1,3 min | 89k | 0 hoch, 2 mittel (IPv6-Rate-Limit → globale Kappe 30/h; Redirect im Suspense → Inhalt im Gate), 4 niedrig (Name-Fehler als Hinweis, Seitenobergrenze, 2 bewusst belassen) |
+
+Gates: `pnpm check` grün, pgTAP 67 Tests, E2E (Produktions-Build, `--retries=0`) 11 von 11 grün (Auth, Passwort-Reset, Konto, Kontakt, Onboarding).

@@ -81,6 +81,8 @@ Skala 0–5 (5 = besser als jedes untersuchte Kit). Ziel = Premium-Niveau.
 
 - **Runde 2b (UI):** LCP mobil < 2,5 s und JS-Budget mit dem Navigations-Umbau (Base-UI/floating-ui-Menüs ~40 KB, zod in Client-Configs ~30 KB); a11y 96 auf `/` und Sign-in; Kontaktformular mit `rateLimit`. Klären: soll `lh:script` Next-Prefetches verlinkter Seiten mitzählen (heute ja, ~93 KB auf `/`)?
 
+- **Runde 2c:** [x] Kontaktformular (DB + Mail, Rate-Limit), [x] Admin-Nutzerliste + Nachrichten, [x] Onboarding. Review-Reste: `contact_messages.handled` hat noch keine UI (mit „markieren“ zusammen bauen); ohne `ADMIN_EMAILS` endet der Mail-Job ohne Retry (bewusst, Nachricht bleibt in `/admin`); Rate-Limit gruppiert IPv6 nicht nach /64 (globale Kappe 30/Stunde fängt Fluten ab, sonst Turnstile). Offen (Backlog): Nachrichten markieren/löschen/beantworten, Nutzer sperren/Export, Kontaktformular-Komponententests (Fokus-/Failed-Zustand), CI-taugliches Kontakt-E2E (heute `docker exec psql`), Jahres-Toggle, leichterer Supabase-Client für Mobil-LCP, App-Shell-Redesign nach Referenz des Nutzers.
+
 - **`pnpm studio:launch <projekt> <domain>`** – vor dem ersten echten Launch: Domain an Vercel, Resend-Domain
   anlegen, DNS automatisch (Vercel DNS) oder als Liste (externer Registrar), Verifizierung prüfen, `EMAIL_FROM` und
   Site-URL (Supabase Auth, Stripe-Webhook, Vault) umstellen. Aktuell keine Domains vorhanden.
