@@ -39,10 +39,13 @@ export function ContactForm() {
 
         if (result.ok) return { status: 'done', values: empty };
 
-        return {
-          status: result.error === 'rate-limited' ? 'limited' : 'invalid',
-          values,
-        };
+        const status = {
+          'rate-limited': 'limited',
+          failed: 'failed',
+          invalid: 'invalid',
+        } as const;
+
+        return { status: status[result.error], values };
       } catch {
         return { status: 'failed', values };
       }
@@ -53,7 +56,13 @@ export function ContactForm() {
   if (state.status === 'done') {
     return (
       <AuthCard>
-        <p role={'status'} className={'text-lg'}>
+        {/* focus moves here so screen readers announce the result */}
+        <p
+          role={'status'}
+          tabIndex={-1}
+          ref={(el) => el?.focus()}
+          className={'text-lg outline-none'}
+        >
           Thanks, your message is on its way. We will answer by email.
         </p>
       </AuthCard>

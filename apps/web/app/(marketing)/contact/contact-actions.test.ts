@@ -86,6 +86,9 @@ describe('submitContact', () => {
     ['missing email', { email: '' }],
     ['2001 characters', { message: 'x'.repeat(2001) }],
     ['name over 100 characters', { name: 'n'.repeat(101) }],
+    ['NUL byte in message', { message: 'a\0b' }],
+    ['NUL byte in name', { name: 'a\0b' }],
+    ['NUL byte in email', { email: 'a\0@example.com' }],
   ])('rejects %s as invalid without touching the database', async (_, bad) => {
     await expect(submitContact(form({ ...valid, ...bad }))).resolves.toEqual({
       ok: false,
@@ -109,6 +112,14 @@ describe('submitContact', () => {
       ok: true,
     });
     expect(insert).toHaveBeenCalledWith(expect.objectContaining({ message }));
+  });
+
+  it('still reports ok when only the notification job cannot be enqueued', async () => {
+    enqueueJob.mockRejectedValue(new Error('queue down'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(submitContact(form(valid))).resolves.toEqual({ ok: true });
+    expect(insert).toHaveBeenCalledTimes(1);
   });
 
   it('reports failed when the insert fails and enqueues nothing', async () => {
