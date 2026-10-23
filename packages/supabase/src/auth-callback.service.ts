@@ -60,7 +60,14 @@ class AuthCallbackService {
       searchParams.get('next') ?? searchParams.get('callback');
 
     let nextPath: string | null = null;
-    const callbackUrl = callbackParam ? new URL(callbackParam) : null;
+    // relative values ("/home") resolve against the request; unparsable ones are ignored instead of throwing a 500
+    let callbackUrl: URL | null = null;
+
+    try {
+      callbackUrl = callbackParam ? new URL(callbackParam, url) : null;
+    } catch {
+      callbackUrl = null;
+    }
 
     // if we have a callback url, we check if it has a next path
     if (callbackUrl) {
@@ -68,7 +75,7 @@ class AuthCallbackService {
       const callbackNextPath = callbackUrl.searchParams.get('next');
 
       // if we have a next path in the callback url, we use that
-      if (callbackNextPath) {
+      if (isInternalPath(callbackNextPath)) {
         nextPath = callbackNextPath;
       } else {
         nextPath = callbackUrl.pathname;
