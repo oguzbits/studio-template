@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 create extension if not exists dblink with schema extensions;
 
-select plan(23);
+select plan(24);
 
 -- SKIP LOCKED ----------------------------------------------
 -- Session B sees only committed rows, so it commits the two fixture jobs itself,
@@ -160,12 +160,12 @@ select is(
 );
 
 -- Account deletion cancels billing ------------------------
-insert into auth.users (id, email) values
-  ('00000000-0000-0000-0000-0000000000f1', 'jobs-f1@test.local'),
-  ('00000000-0000-0000-0000-0000000000f2', 'jobs-f2@test.local');
+insert into auth.users (id, email, email_confirmed_at) values
+  ('00000000-0000-0000-0000-0000000000f1', 'jobs-f1@test.local', now()),
+  ('00000000-0000-0000-0000-0000000000f2', 'jobs-f2@test.local', now());
 
-insert into auth.users (id, email) values
-  ('00000000-0000-0000-0000-0000000000f3', 'jobs-f3@test.local');
+insert into auth.users (id, email, email_confirmed_at) values
+  ('00000000-0000-0000-0000-0000000000f3', 'jobs-f3@test.local', now());
 
 insert into public.billing_customers (user_id, provider, customer_id) values
   ('00000000-0000-0000-0000-0000000000f1', 'stripe', 'cus_jobs_test'),
@@ -204,8 +204,19 @@ reset role;
 
 select is(
   (select count(*) from public.jobs where type = 'daily-digest'),
-  (select count(*) from auth.users where email is not null),
-  'enqueue_daily_digests adds one job per user with email, also when called twice'
+  (select count(*) from auth.users where email is not null and email_confirmed_at is not null),
+  'enqueue_daily_digests adds one job per confirmed user with email, also when called twice'
+);
+
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000f5', 'jobs-f5@test.local');
+select public.enqueue_daily_digests();
+
+select is(
+  (select count(*) from public.jobs
+   where type = 'daily-digest' and payload->>'user_id' = '00000000-0000-0000-0000-0000000000f5'),
+  0::bigint,
+  'an unconfirmed user gets no digest job'
 );
 
 select is(
