@@ -29,7 +29,8 @@ test.describe('Auth flow', () => {
 
     await auth.visitConfirmEmailLink(email);
 
-    await page.waitForURL('**/home');
+    // a new account is sent on to the one-time welcome step (see onboarding.spec.ts)
+    await page.waitForURL(/\/home(\/welcome)?$/);
   });
 
   test('will sign-in with the correct credentials', async ({ page }) => {
@@ -43,7 +44,8 @@ test.describe('Auth flow', () => {
       password: 'password',
     });
 
-    await page.waitForURL('**/home');
+    // never onboarded here, so the welcome step is where /home leads
+    await page.waitForURL(/\/home(\/welcome)?$/);
 
     expect(page.url()).toContain('/home');
 

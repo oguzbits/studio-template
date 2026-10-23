@@ -17,10 +17,14 @@ const NameSchema = z
 export const completeOnboarding = enhanceAction(
   async (formData: FormData, user) => {
     // "Skip" is a submit button of the same form: a typed name is ignored then
-    const name =
+    const parsed =
       formData.get('intent') === 'skip'
-        ? ''
-        : NameSchema.parse(String(formData.get('name') ?? ''));
+        ? { success: true as const, data: '' }
+        : NameSchema.safeParse(String(formData.get('name') ?? ''));
+
+    if (!parsed.success) redirect('/home/welcome?error=name');
+
+    const name = parsed.data;
     const client = getSupabaseServerClient();
 
     if (name) {

@@ -83,10 +83,10 @@ describe('completeOnboarding', () => {
     expect(updateUser).toHaveBeenCalledWith({ data: { onboarded: true } });
   });
 
-  it('rejects a name over 80 characters and leaves the flag unset', async () => {
+  it('sends a name over 80 characters back to the form and leaves the flag unset', async () => {
     await expect(
       completeOnboarding(form({ intent: 'continue', name: 'a'.repeat(81) })),
-    ).rejects.not.toThrow('REDIRECT');
+    ).rejects.toThrow('REDIRECT /home/welcome?error=name');
 
     expect(accountsUpdate).not.toHaveBeenCalled();
     expect(updateUser).not.toHaveBeenCalled();

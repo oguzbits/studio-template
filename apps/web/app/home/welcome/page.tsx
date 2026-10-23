@@ -4,7 +4,13 @@ import { OnboardingForm } from './onboarding-form';
 
 export const metadata = { title: 'Welcome' };
 
-export default function WelcomePage() {
+export default async function WelcomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+
   return (
     <>
       <PageHeader
@@ -14,6 +20,11 @@ export default function WelcomePage() {
 
       <PageBody>
         <div className={'w-full max-w-[480px]'}>
+          {error === 'name' && (
+            <p role={'alert'} className={'text-destructive mb-4 text-sm'}>
+              Please enter a name of 2 to 80 characters, or skip this step.
+            </p>
+          )}
           <OnboardingForm />
         </div>
       </PageBody>

@@ -164,6 +164,14 @@ describe('loadAdminUsers', () => {
     expect(listUsers).toHaveBeenNthCalledWith(2, { page: 1, perPage: 50 });
   });
 
+  it('clamps an absurd page number', async () => {
+    listUsers.mockResolvedValue({ data: { users: [], total: 0 }, error: null });
+
+    await loadAdminUsers(1e15);
+
+    expect(listUsers).toHaveBeenCalledWith({ page: 10_000, perPage: 50 });
+  });
+
   it('sets hasMore from the total, not from a full page', async () => {
     const full = Array.from({ length: 50 }, (_, i) => user(`u${i}`));
 

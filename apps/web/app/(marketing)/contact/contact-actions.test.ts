@@ -80,6 +80,26 @@ describe('submitContact', () => {
     expect(enqueueJob).not.toHaveBeenCalled();
   });
 
+  it('rejects when the global cap is reached, even for a fresh IP', async () => {
+    rateLimit.mockImplementation(
+      async (
+        _scope: string,
+        _max: number,
+        _sec: number,
+        opts?: { global?: boolean },
+      ) => !opts?.global,
+    );
+
+    await expect(submitContact(form(valid))).resolves.toEqual({
+      ok: false,
+      error: 'rate-limited',
+    });
+    expect(rateLimit).toHaveBeenCalledWith('contact', 30, 3600, {
+      global: true,
+    });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
   it.each([
     ['empty message', { message: '   ' }],
     ['invalid email', { email: 'nope' }],
@@ -101,7 +121,7 @@ describe('submitContact', () => {
   it('counts invalid submissions against the limit (limit runs before validation)', async () => {
     await submitContact(form({ ...valid, message: '' }));
 
-    expect(rateLimit).toHaveBeenCalledTimes(1);
+    expect(rateLimit).toHaveBeenCalledTimes(2); // per IP + global
   });
 
   it('accepts exactly 2000 characters, umlauts and HTML characters unchanged', async () => {

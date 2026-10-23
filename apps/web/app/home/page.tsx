@@ -28,9 +28,17 @@ export default function HomePage() {
   return (
     <>
       <Suspense>
-        <OnboardingGate />
+        <OnboardingGate>
+          <HomeContent />
+        </OnboardingGate>
       </Suspense>
+    </>
+  );
+}
 
+function HomeContent() {
+  return (
+    <>
       <PageHeader title={'Home'} description={`Welcome to ${appConfig.name}`} />
 
       <PageBody>
@@ -63,7 +71,7 @@ export default function HomePage() {
 // Only this index page sends people to /home/welcome (no other route, so buyers going
 // straight to billing are not held up). The JWT claims can be stale right after the
 // flag is set, so the fresh user record is read.
-async function OnboardingGate() {
+async function OnboardingGate({ children }: { children: React.ReactNode }) {
   await requireUserInServerComponent();
 
   const { data } = await getSupabaseServerClient().auth.getUser();
@@ -72,5 +80,6 @@ async function OnboardingGate() {
     redirect('/home/welcome');
   }
 
-  return null;
+  // content renders only after the check, so nothing flashes before the redirect
+  return children;
 }

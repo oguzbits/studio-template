@@ -65,7 +65,9 @@ function isBetter(a: EntitlementRow, b: EntitlementRow, now: Date) {
 export async function loadAdminUsers(page: number) {
   await requireAdmin();
 
-  const current = Number.isInteger(page) && page >= 1 ? page : 1;
+  // upper bound: GoTrue fails on absurd page numbers
+  const current =
+    Number.isInteger(page) && page >= 1 ? Math.min(page, 10_000) : 1;
   const admin = getSupabaseServerAdminClient();
 
   const { data, error } = await admin.auth.admin.listUsers({

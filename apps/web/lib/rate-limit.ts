@@ -19,11 +19,16 @@ export function rateLimitKey(scope: string, headers: Headers) {
 }
 
 // true = allowed; fails open so a broken counter never blocks the caller
-export async function rateLimit(scope: string, max: number, windowSec: number) {
+export async function rateLimit(
+  scope: string,
+  max: number,
+  windowSec: number,
+  { global = false }: { global?: boolean } = {},
+) {
   const { data, error } = await getSupabaseServerAdminClient().rpc(
     'check_rate_limit',
     {
-      p_key: rateLimitKey(scope, await headers()),
+      p_key: global ? `${scope}:all` : rateLimitKey(scope, await headers()),
       p_max: max,
       p_window_seconds: windowSec,
     },
