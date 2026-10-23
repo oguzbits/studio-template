@@ -4,11 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 
-import {
-  baseFromMessages,
-  filterPatch,
-  hasNewMigrations,
-} from './studio-sync-lib.mjs';
+import { baseFromMessages, filterPatch } from './studio-sync-lib.mjs';
 import { loadSharedSecrets } from './studio-tokens.mjs';
 
 const VERCEL_CLI = 'vercel@62.7.0'; // shortcut: Version doppelt zu studio-new.mjs, beim nächsten Update beide ändern
@@ -121,9 +117,8 @@ const env = { ...loadSharedSecrets(), ...process.env };
 const web = resolve(target, 'apps/web');
 try {
   if (migrate) {
-    if (files && !hasNewMigrations(files))
-      console.log('Keine neuen Migrationen, --migrate übersprungen.');
-    else {
+    // no diff-based skip: the last sync may carry no migration while an earlier one did; db push applies only pending ones
+    {
       for (const key of ['SUPABASE_ACCESS_TOKEN'])
         if (!env[key]) throw new Error(`${key} fehlt.`);
       if (!state.supabaseRef || !state.dbPassword)
