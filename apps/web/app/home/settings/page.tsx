@@ -34,7 +34,7 @@ export const generateMetadata = async () => {
 function PersonalAccountSettingsPage() {
   return (
     <PageBody>
-      <div className={'flex w-full flex-1 flex-col lg:max-w-2xl'}>
+      <div className={'flex w-full flex-1 flex-col'}>
         <Suspense fallback={<SettingsSkeleton />}>
           <AccountSettings />
         </Suspense>

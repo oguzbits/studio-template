@@ -1,17 +1,11 @@
 'use client';
 
 import { routing } from '@kit/i18n/routing';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@kit/ui/card';
 import { If } from '@kit/ui/if';
 import { LanguageSelector } from '@kit/ui/language-selector';
 import { LoadingOverlay } from '@kit/ui/loading-overlay';
 import { Trans } from '@kit/ui/trans';
+import { cn } from '@kit/ui/utils';
 
 import { usePersonalAccountData } from '../hooks/use-personal-account-data';
 import { AccountDangerZone } from './account-danger-zone';
@@ -48,129 +42,103 @@ export function PersonalAccountSettingsContainer(
   }
 
   return (
-    <div className={'flex w-full flex-col space-y-4 pb-32'}>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Trans i18nKey={'account.accountImage'} />
-          </CardTitle>
+    <div className={'border-border flex w-full flex-col border-t pb-16'}>
+      <SettingsSection
+        title={'account.accountImage'}
+        description={'account.accountImageDescription'}
+      >
+        <UpdateAccountImageContainer
+          user={{
+            pictureUrl: user.data.picture_url,
+            id: user.data.id,
+          }}
+        />
+      </SettingsSection>
 
-          <CardDescription>
-            <Trans i18nKey={'account.accountImageDescription'} />
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <UpdateAccountImageContainer
-            user={{
-              pictureUrl: user.data.picture_url,
-              id: user.data.id,
-            }}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Trans i18nKey={'account.name'} />
-          </CardTitle>
-
-          <CardDescription>
-            <Trans i18nKey={'account.nameDescription'} />
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <UpdateAccountDetailsFormContainer user={user.data} />
-        </CardContent>
-      </Card>
+      <SettingsSection
+        title={'account.name'}
+        description={'account.nameDescription'}
+      >
+        <UpdateAccountDetailsFormContainer user={user.data} />
+      </SettingsSection>
 
       <If condition={supportsLanguageSelection}>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Trans i18nKey={'account.language'} />
-            </CardTitle>
-
-            <CardDescription>
-              <Trans i18nKey={'account.languageDescription'} />
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <LanguageSelector locales={routing.locales} />
-          </CardContent>
-        </Card>
+        <SettingsSection
+          title={'account.language'}
+          description={'account.languageDescription'}
+        >
+          <LanguageSelector locales={routing.locales} />
+        </SettingsSection>
       </If>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Trans i18nKey={'account.updateEmailCardTitle'} />
-          </CardTitle>
-
-          <CardDescription>
-            <Trans i18nKey={'account.updateEmailCardDescription'} />
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <UpdateEmailFormContainer callbackPath={props.paths.callback} />
-        </CardContent>
-      </Card>
+      <SettingsSection
+        title={'account.updateEmailCardTitle'}
+        description={'account.updateEmailCardDescription'}
+      >
+        <UpdateEmailFormContainer callbackPath={props.paths.callback} />
+      </SettingsSection>
 
       <If condition={props.features.enablePasswordUpdate}>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Trans i18nKey={'account.updatePasswordCardTitle'} />
-            </CardTitle>
-
-            <CardDescription>
-              <Trans i18nKey={'account.updatePasswordCardDescription'} />
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <UpdatePasswordFormContainer callbackPath={props.paths.callback} />
-          </CardContent>
-        </Card>
+        <SettingsSection
+          title={'account.updatePasswordCardTitle'}
+          description={'account.updatePasswordCardDescription'}
+        >
+          <UpdatePasswordFormContainer callbackPath={props.paths.callback} />
+        </SettingsSection>
       </If>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Trans i18nKey={'account.multiFactorAuth'} />
-          </CardTitle>
-
-          <CardDescription>
-            <Trans i18nKey={'account.multiFactorAuthDescription'} />
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <MultiFactorAuthFactorsList userId={props.userId} />
-        </CardContent>
-      </Card>
+      <SettingsSection
+        title={'account.multiFactorAuth'}
+        description={'account.multiFactorAuthDescription'}
+      >
+        <MultiFactorAuthFactorsList userId={props.userId} />
+      </SettingsSection>
 
       <If condition={props.features.enableAccountDeletion}>
-        <Card className={'border-destructive'}>
-          <CardHeader>
-            <CardTitle>
-              <Trans i18nKey={'account.dangerZone'} />
-            </CardTitle>
-
-            <CardDescription>
-              <Trans i18nKey={'account.dangerZoneDescription'} />
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <AccountDangerZone />
-          </CardContent>
-        </Card>
+        <SettingsSection
+          title={'account.dangerZone'}
+          description={'account.dangerZoneDescription'}
+          destructive
+        >
+          <AccountDangerZone />
+        </SettingsSection>
       </If>
     </div>
+  );
+}
+
+/**
+ * One settings area per row: title and grey description on the left, the form
+ * on the right, rows split by a quiet rule instead of boxed cards.
+ */
+function SettingsSection(
+  props: React.PropsWithChildren<{
+    title: string;
+    description: string;
+    destructive?: boolean;
+  }>,
+) {
+  return (
+    <section
+      className={
+        'border-border grid gap-4 border-b py-8 lg:grid-cols-[minmax(0,18rem)_minmax(0,36rem)] lg:gap-12'
+      }
+    >
+      <div className={'flex flex-col gap-1'}>
+        <h2
+          className={cn('text-base font-medium', {
+            'text-destructive': props.destructive,
+          })}
+        >
+          <Trans i18nKey={props.title} />
+        </h2>
+
+        <p className={'text-muted-foreground text-sm'}>
+          <Trans i18nKey={props.description} />
+        </p>
+      </div>
+
+      <div className={'min-w-0'}>{props.children}</div>
+    </section>
   );
 }
