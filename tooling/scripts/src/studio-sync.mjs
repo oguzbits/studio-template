@@ -104,7 +104,7 @@ function syncPatch() {
     `chore: sync from studio-template ${head.slice(0, 7)}`,
   ]);
   state.syncedFrom = head;
-  writeFileSync(stateFile, JSON.stringify(state, null, 2));
+  writeFileSync(stateFile, JSON.stringify(state, null, 2), { mode: 0o600 });
   chmodSync(stateFile, 0o600);
   console.log(`✓ Sync committet (${head.slice(0, 7)}).`);
   return files;

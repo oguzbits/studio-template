@@ -91,7 +91,7 @@ if (dryRun) {
 
 const save = () => {
   mkdirSync(resolve(target, '.studio'), { recursive: true });
-  writeFileSync(stateFile, JSON.stringify(state, null, 2));
+  writeFileSync(stateFile, JSON.stringify(state, null, 2), { mode: 0o600 });
   chmodSync(stateFile, 0o600);
 };
 
@@ -713,6 +713,7 @@ async function writeLocalEnv() {
       'STRIPE_WEBHOOK_SECRET=',
       '',
     ].join('\n'),
+    { mode: 0o600 },
   );
   chmodSync(file, 0o600);
   state.localEnv = true;
