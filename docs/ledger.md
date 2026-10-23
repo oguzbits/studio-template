@@ -96,3 +96,7 @@ Gates: `pnpm check` grün, pgTAP 67 Tests, E2E (Produktions-Build, `--retries=0`
 ### Audit test-dummy nach 2b+2c (2026-10-23, `pnpm studio:audit`)
 
 72/75 (vorher 61/75). Mobil: Perf 96 / 97 / 93 (`/`, `/pricing`, `/auth/sign-in`), a11y/Best Practices/SEO überall 100/100/100, Script 214 / 214 / 320 KB. Desktop: Perf 100, LCP 508–631 ms. Offen (hart): LCP mobil 2714 / 2585 / 3183 ms (Ziel < 2500). Weich: `Access-Control-Allow-Origin: *` auf `/`. Nächster Hebel: Sign-in (Supabase-Client ~68 KB) und Schriftladung (Newsreader-Preload) prüfen.
+
+### Review-Runde 2 (2026-10-23)
+
+Design-Review (live, Sonnet): 0 hoch, 2 mittel (Theme folgt nicht dem System: Env auf test-dummy; Logo-Umbruch mobil: behoben), Rest niedrig. Red-Team (opus, 98k Tokens, 3,4 min): 0 hoch, 2 mittel (Welcome-Mail/Digest an unbestätigte Nutzer: Migration `20261023100000`; IPv6-Rate-Limit nach /64: behoben), 6 niedrig (update-password-Redirect, Wartelisten-E-Mail-Länge, relativer `next`, Dateirechte 0600: behoben; `braces`-Override scheitert, Registry hat keine Version ≥ 3.0.4; `/admin` für Anonyme streamt Redirect statt 404: bewusst offen). Fix-Bündel: Subagent sonnet, 3,6 min, 79k Tokens. Gates: `pnpm check` grün, E2E 11/11. Neu: `/llms.txt`, `studio:sync`. Nach Deploy von test-dummy: Migrationen per `studio:sync --migrate`.
