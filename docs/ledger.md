@@ -100,3 +100,24 @@ Gates: `pnpm check` grün, pgTAP 67 Tests, E2E (Produktions-Build, `--retries=0`
 ### Review-Runde 2 (2026-10-23)
 
 Design-Review (live, Sonnet): 0 hoch, 2 mittel (Theme folgt nicht dem System: Env auf test-dummy; Logo-Umbruch mobil: behoben), Rest niedrig. Red-Team (opus, 98k Tokens, 3,4 min): 0 hoch, 2 mittel (Welcome-Mail/Digest an unbestätigte Nutzer: Migration `20261023100000`; IPv6-Rate-Limit nach /64: behoben), 6 niedrig (update-password-Redirect, Wartelisten-E-Mail-Länge, relativer `next`, Dateirechte 0600: behoben; `braces`-Override scheitert, Registry hat keine Version ≥ 3.0.4; `/admin` für Anonyme streamt Redirect statt 404: bewusst offen). Fix-Bündel: Subagent sonnet, 3,6 min, 79k Tokens. Gates: `pnpm check` grün, E2E 11/11. Neu: `/llms.txt`, `studio:sync`. Nach Deploy von test-dummy: Migrationen per `studio:sync --migrate`.
+
+### App-Shell im Console-Stil (2026-10-23)
+
+Subagent (opus), ~16 min laut Uhr, Tokens siehe Agent-Ergebnis. Umgesetzt (offener Punkt 5): schmale Sidebar
+(256 px) ohne Karten, Serifen-Wortmarke + Einklapp-Schalter oben, flache Liste Home/Pro/Billing/Settings mit
+Icons, aktive Zeile als neutrale gefüllte Pille, Konto-Block (Avatar, Name, E-Mail) mit Menü am Fuß; mobil
+Wortmarke + Menü-Button, der dieselbe Sidebar als Sheet öffnet. Page-Header: 24-px-Titel + grauer Satz,
+Aktion rechts oben. Billing als flache Tabelle (Status als Punkt + Wort), Settings als Label/Formular-Zeilen
+mit leisen Trennern und Outline-Speichern, Home/Pro als Listen, Welcome ohne Karte. Bugfix: Sidebar startete
+eingeklappt (`defaultOpen` bekam `sidebarCollapsed`).
+
+Geprüft: Screenshots 1440/390 hell+dunkel auf /home, /home/settings, /home/billing (leer und mit Abo),
+/home/pro, /home/welcome, dazu Mobil-Sheet, Kontomenü, eingeklappte Sidebar, 768 px. Taste-Inspektor (`--app`,
+auf statischen Snapshots, da er sich nicht anmelden kann): kein echter FAIL (nur `example.com` der Testmail),
+WARN nur Leerfläche unter wenig Daten (wie in der Referenz) und schmale Formularspalte. `pnpm check` grün,
+E2E (Produktions-Build, `--retries=0`) 11/11 grün, keine Test-Änderung nötig.
+
+Offen: Sidebar-Zustand (eingeklappt) wird nicht über Reloads gemerkt (Layout liest das Cookie bewusst nicht);
+Kontomenü verlinkt weiter auf Home statt Settings; Settings-Texte aus i18n noch in Title Case. Hinweis: lokale
+Screenshot-Nutzer mit `pro`-Berechtigung verfälschen den pgTAP-Test `40-admin` (zählt alle Abos) – nach
+manuellen Probeläufen löschen.
