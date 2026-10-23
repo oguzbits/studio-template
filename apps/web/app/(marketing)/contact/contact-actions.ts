@@ -26,7 +26,7 @@ const ContactSchema = z.object({
 export const submitContact = enhanceAction(
   async (formData: FormData) => {
     // before validation: junk submissions count too
-    // shortcut: global cap of 30/hour also blocks real senders during a flood and does not group IPv6 /64; add Turnstile when that happens
+    // shortcut: global cap of 30/hour also blocks real senders during a flood; add Turnstile when that happens
     if (
       !(await rateLimit('contact', 3, 3600)) ||
       !(await rateLimit('contact', 30, 3600, { global: true }))

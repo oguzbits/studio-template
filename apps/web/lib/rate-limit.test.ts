@@ -33,6 +33,20 @@ describe('rateLimitKey', () => {
     expect(rateLimitKey('w', new Headers())).toBe(`w:${sha('unknown')}`);
   });
 
+  it('groups IPv6 addresses by /64 and keeps IPv4 as is', () => {
+    const key = (ip: string) =>
+      rateLimitKey('w', new Headers({ 'x-real-ip': ip }));
+
+    expect(key('2001:db8:1:2:aaaa:bbbb:cccc:dddd')).toBe(
+      key('2001:DB8:1:2::1'),
+    );
+    expect(key('2001:db8:1:2::1')).toBe(key('2001:db8:1:2:0:0:0:ffff'));
+    expect(key('2001:db8:1:3::1')).not.toBe(key('2001:db8:1:2::1'));
+    expect(key('::1')).toBe(key('0:0:0:0:5::9'));
+    expect(key('::ffff:1.2.3.4')).toBe(`w:${sha('1.2.3.4')}`);
+    expect(key('1.2.3.4')).toBe(`w:${sha('1.2.3.4')}`);
+  });
+
   it('never contains the plain IP', () => {
     const key = rateLimitKey('w', new Headers({ 'x-real-ip': '9.9.9.9' }));
 

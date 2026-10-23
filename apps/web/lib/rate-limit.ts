@@ -1,10 +1,35 @@
 import 'server-only';
 
 import { createHash } from 'node:crypto';
+import { isIPv6 } from 'node:net';
 
 import { headers } from 'next/headers';
 
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
+
+// IPv6 clients own a whole /64, so rotating the host part must not mint new keys
+function normalizeIp(ip: string) {
+  const addr = ip.split('%')[0]!;
+
+  if (!isIPv6(addr)) return addr;
+
+  // IPv4-mapped (::ffff:a.b.c.d) is an IPv4 client
+  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/i.exec(addr);
+  if (mapped) return mapped[1]!;
+
+  const [head = '', tail] = addr.split('::');
+  const h = head ? head.split(':') : [];
+  const t = tail ? tail.split(':') : [];
+  const groups =
+    tail === undefined
+      ? h
+      : [...h, ...Array(8 - h.length - t.length).fill('0'), ...t];
+
+  return `${groups
+    .slice(0, 4)
+    .map((g) => g.padStart(4, '0').toLowerCase())
+    .join(':')}::/64`;
+}
 
 // x-real-ip is set by the platform; the first x-forwarded-for entry can be forged by the client
 // shortcut: trusts x-real-ip as set by Vercel; behind another proxy configure it to overwrite x-real-ip, else clients can rotate it
@@ -15,7 +40,7 @@ export function rateLimitKey(scope: string, headers: Headers) {
     'unknown';
 
   // shortcut: ungesalzener IPv4-Hash ist per Brute Force umkehrbar, Einträge leben max. 1 Tag; bei Bedarf HMAC mit eigenem Secret
-  return `${scope}:${createHash('sha256').update(ip).digest('hex')}`;
+  return `${scope}:${createHash('sha256').update(normalizeIp(ip)).digest('hex')}`;
 }
 
 // true = allowed; fails open so a broken counter never blocks the caller
