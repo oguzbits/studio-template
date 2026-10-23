@@ -7,7 +7,7 @@ import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client'
 
 import { rateLimit } from '~/lib/rate-limit';
 
-const EmailSchema = z.string().trim().toLowerCase().pipe(z.email());
+const EmailSchema = z.string().trim().toLowerCase().max(254).pipe(z.email());
 
 export const joinWaitlist = enhanceAction(
   async (formData: FormData) => {

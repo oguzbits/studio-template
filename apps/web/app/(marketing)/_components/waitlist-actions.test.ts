@@ -48,6 +48,17 @@ describe('joinWaitlist', () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
+  it('rejects an email longer than 254 characters', async () => {
+    await expect(
+      joinWaitlist(
+        form(
+          `${'a'.repeat(60)}@${'b'.repeat(63)}.${'c'.repeat(63)}.${'d'.repeat(63)}.com`,
+        ),
+      ),
+    ).resolves.toEqual({ ok: false, error: 'invalid-email' });
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
   it('stores trimmed lowercase email ignoring duplicates', async () => {
     await joinWaitlist(form('  Foo@Example.COM '));
 
