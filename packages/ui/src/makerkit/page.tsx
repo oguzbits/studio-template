@@ -1,9 +1,8 @@
 import * as React from 'react';
 
 import { cn } from '../lib/utils';
-import { Separator } from '../shadcn/separator';
 import { If } from './if';
-import { PageSidebarTrigger, PageStyleProvider } from './page-style-context';
+import { PageStyleProvider } from './page-style-context';
 
 export type PageLayoutStyle = 'sidebar' | 'header' | 'custom';
 
@@ -53,7 +52,7 @@ function PageWithSidebar(props: PageProps) {
         {MobileNavigation}
 
         <div
-          className={'bg-background flex min-w-0 flex-1 flex-col px-4 lg:px-0'}
+          className={'bg-background flex min-w-0 flex-1 flex-col px-4 md:px-8'}
         >
           {Children}
         </div>
@@ -126,7 +125,7 @@ export function PageBody(
     className?: string;
   }>,
 ) {
-  const className = cn('flex min-w-0 flex-1 flex-col lg:px-4', props.className);
+  const className = cn('flex min-w-0 flex-1 flex-col pb-16', props.className);
 
   return <main className={className}>{props.children}</main>;
 }
@@ -145,10 +144,8 @@ export function PageNavigation(props: React.PropsWithChildren) {
 
 export function PageDescription(props: React.PropsWithChildren) {
   return (
-    <div className={'flex h-6 items-center'}>
-      <div className={'text-muted-foreground text-xs leading-none font-normal'}>
-        {props.children}
-      </div>
+    <div className={'text-muted-foreground max-w-prose text-sm'}>
+      {props.children}
     </div>
   );
 }
@@ -157,7 +154,7 @@ export function PageTitle(props: React.PropsWithChildren) {
   return (
     <h1
       className={
-        'font-heading text-base leading-none font-bold tracking-tight dark:text-white'
+        'font-heading text-2xl leading-tight font-medium tracking-[-0.015em]'
       }
     >
       {props.children}
@@ -166,52 +163,45 @@ export function PageTitle(props: React.PropsWithChildren) {
 }
 
 export function PageHeaderActions(props: React.PropsWithChildren) {
-  return <div className={'flex items-center space-x-2'}>{props.children}</div>;
+  return <div className={'flex items-center gap-2'}>{props.children}</div>;
 }
 
+/**
+ * Title (24 px sans) with one grey sentence under it; actions sit top right.
+ * The sidebar toggle lives in the sidebar header, so headers carry no chrome.
+ */
 export function PageHeader({
   children,
   title,
   description,
   className,
-  displaySidebarTrigger = true,
 }: React.PropsWithChildren<{
   className?: string;
   title?: string | React.ReactNode;
   description?: string | React.ReactNode;
-  displaySidebarTrigger?: boolean;
 }>) {
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 py-4 sm:py-5 lg:flex-row lg:items-center lg:justify-between',
+        'flex flex-col gap-4 pt-6 pb-6 sm:flex-row sm:items-start sm:justify-between lg:pt-8',
         className,
       )}
     >
-      <div className={'flex min-w-0 flex-col gap-y-2'}>
-        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-          <If condition={displaySidebarTrigger}>
-            <PageSidebarTrigger className="text-muted-foreground hover:text-secondary-foreground h-4.5 w-4.5 cursor-pointer" />
-          </If>
-
-          <If condition={description}>
-            <Separator
-              orientation="vertical"
-              className="hidden h-4 w-px lg:group-data-[collapsible=icon]:block"
-            />
-
-            <PageDescription>{description}</PageDescription>
-          </If>
-        </div>
-
+      <div className={'flex min-w-0 flex-col gap-y-1.5'}>
         <If condition={title}>
           <PageTitle>{title}</PageTitle>
         </If>
+
+        <If condition={description}>
+          <PageDescription>{description}</PageDescription>
+        </If>
       </div>
 
-      <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
-        {children}
-      </div>
+      <If condition={children}>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {children}
+        </div>
+      </If>
     </div>
   );
 }

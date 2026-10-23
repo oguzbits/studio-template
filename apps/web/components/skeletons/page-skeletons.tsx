@@ -39,8 +39,8 @@ export function Delayed({
 
 export function PageHeaderSkeleton() {
   return (
-    <Delayed className={'flex flex-col gap-y-2 px-4 py-6'}>
-      <Skeleton className={'h-7 w-48'} />
+    <Delayed className={'flex flex-col gap-y-2.5 py-6 lg:pt-8'}>
+      <Skeleton className={'h-8 w-48'} />
       <Skeleton className={'h-4 w-64'} />
     </Delayed>
   );
