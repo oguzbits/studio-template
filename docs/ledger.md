@@ -92,3 +92,7 @@ Spec/Plan: [spec](superpowers/specs/2026-10-23-runde-2c-extras-design.md), [plan
 | Gesamt-Review | Subagent opus | 1,3 min | 89k | 0 hoch, 2 mittel (IPv6-Rate-Limit → globale Kappe 30/h; Redirect im Suspense → Inhalt im Gate), 4 niedrig (Name-Fehler als Hinweis, Seitenobergrenze, 2 bewusst belassen) |
 
 Gates: `pnpm check` grün, pgTAP 67 Tests, E2E (Produktions-Build, `--retries=0`) 11 von 11 grün (Auth, Passwort-Reset, Konto, Kontakt, Onboarding).
+
+### Audit test-dummy nach 2b+2c (2026-10-23, `pnpm studio:audit`)
+
+72/75 (vorher 61/75). Mobil: Perf 96 / 97 / 93 (`/`, `/pricing`, `/auth/sign-in`), a11y/Best Practices/SEO überall 100/100/100, Script 214 / 214 / 320 KB. Desktop: Perf 100, LCP 508–631 ms. Offen (hart): LCP mobil 2714 / 2585 / 3183 ms (Ziel < 2500). Weich: `Access-Control-Allow-Origin: *` auf `/`. Nächster Hebel: Sign-in (Supabase-Client ~68 KB) und Schriftladung (Newsreader-Preload) prüfen.
