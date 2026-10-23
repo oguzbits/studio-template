@@ -23,6 +23,7 @@ Pro Projekt (Template-Repo muss committet sein):
 
 ```bash
 pnpm studio:new mein-projekt            # --dry-run zeigt nur den Plan
+pnpm studio:sync ../mein-projekt        # Template-Änderungen übernehmen (--dry-run, --migrate, --deploy)
 ```
 
 Das Skript kopiert `HEAD` nach `../mein-projekt` (eigene lokale Ports), legt ein Supabase-Projekt in

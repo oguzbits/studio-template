@@ -36,6 +36,7 @@
     "studio:setup": "node tooling/scripts/src/studio-setup.mjs",
     "studio:doctor": "node tooling/scripts/src/studio-doctor.mjs",
     "studio:new": "node tooling/scripts/src/studio-new.mjs",
+    "studio:sync": "node tooling/scripts/src/studio-sync.mjs",
     "studio:audit": "node tooling/scripts/src/studio-audit.mjs"
   },
   "devDependencies": {
