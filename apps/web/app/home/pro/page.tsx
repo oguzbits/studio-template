@@ -12,10 +12,15 @@ export const metadata = {
 export default function ProPage() {
   return (
     <>
-      <PageHeader title={'Pro'} description={'Demo page behind the paywall'} />
+      <PageHeader
+        title={'Pro'}
+        description={
+          'Example page behind the paywall. Replace it with your feature.'
+        }
+      />
 
       <PageBody>
-        <Suspense fallback={<Skeleton className={'h-20 w-full rounded-lg'} />}>
+        <Suspense fallback={<Skeleton className={'h-36 w-full rounded-md'} />}>
           <ProContent />
         </Suspense>
       </PageBody>
@@ -26,5 +31,36 @@ export default function ProPage() {
 async function ProContent() {
   const entitlement = await requireEntitlement('pro');
 
-  return <p data-test={'pro-content'}>You have Pro ({entitlement.status}).</p>;
+  const periodEnd = entitlement.current_period_end
+    ? new Date(entitlement.current_period_end).toLocaleDateString('en', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : '—';
+
+  return (
+    <dl data-test={'pro-content'} className={'border-border border-t text-sm'}>
+      <Row label={'Access'}>You have Pro ({entitlement.status}).</Row>
+      <Row label={'Period ends'}>{periodEnd}</Row>
+      <Row label={'Guarded by'}>
+        <code className={'bg-muted rounded px-1.5 py-0.5 text-xs'}>
+          requireEntitlement(&apos;pro&apos;)
+        </code>
+      </Row>
+    </dl>
+  );
+}
+
+function Row({ label, children }: React.PropsWithChildren<{ label: string }>) {
+  return (
+    <div
+      className={
+        'border-border grid gap-1 border-b py-3.5 sm:grid-cols-[12rem_1fr] sm:gap-4'
+      }
+    >
+      <dt className={'text-muted-foreground'}>{label}</dt>
+      <dd className={'tabular-nums'}>{children}</dd>
+    </div>
+  );
 }

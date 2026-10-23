@@ -3,15 +3,9 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { ChevronRight } from 'lucide-react';
+
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
-import { buttonVariants } from '@kit/ui/button';
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@kit/ui/card';
 import { PageBody, PageHeader } from '@kit/ui/page';
 
 import appConfig from '~/config/app.config';
@@ -36,33 +30,54 @@ export default function HomePage() {
   );
 }
 
+const nextSteps = [
+  {
+    href: pathsConfig.app.billing,
+    title: 'Billing',
+    description: 'See your plan, payment status and invoices.',
+  },
+  {
+    href: pathsConfig.app.profileSettings,
+    title: 'Settings',
+    description: 'Change your name, email, password and two-factor sign-in.',
+  },
+];
+
 function HomeContent() {
   return (
     <>
-      <PageHeader title={'Home'} description={`Welcome to ${appConfig.name}`} />
+      <PageHeader
+        title={'Home'}
+        description={`You are signed in to ${appConfig.name}.`}
+      />
 
       <PageBody>
-        <Card className={'w-full lg:max-w-2xl'}>
-          <CardHeader>
-            <CardTitle>You are all set</CardTitle>
-            <CardDescription>
-              Manage your plan and invoices in Billing, or update your profile
-              in Settings.
-            </CardDescription>
-          </CardHeader>
+        <ul className={'border-border border-t'}>
+          {nextSteps.map((step) => (
+            <li key={step.href} className={'border-border border-b'}>
+              <Link
+                href={step.href}
+                className={
+                  'group hover:bg-muted/60 focus-visible:ring-ring -mx-2 flex items-center gap-4 rounded-md px-2 py-3.5 outline-none focus-visible:ring-2'
+                }
+              >
+                <span className={'flex min-w-0 flex-1 flex-col gap-0.5'}>
+                  <span className={'text-sm font-medium'}>{step.title}</span>
+                  <span className={'text-muted-foreground text-sm'}>
+                    {step.description}
+                  </span>
+                </span>
 
-          <CardFooter className={'gap-2'}>
-            <Link href={pathsConfig.app.billing} className={buttonVariants()}>
-              Billing
-            </Link>
-            <Link
-              href={pathsConfig.app.profileSettings}
-              className={buttonVariants({ variant: 'outline' })}
-            >
-              Settings
-            </Link>
-          </CardFooter>
-        </Card>
+                <ChevronRight
+                  aria-hidden
+                  className={
+                    'text-muted-foreground group-hover:text-foreground size-4 shrink-0'
+                  }
+                />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </PageBody>
     </>
   );
