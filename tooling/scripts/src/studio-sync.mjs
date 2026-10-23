@@ -49,70 +49,79 @@ const baseSha = tryGit(ROOT, [
 ])?.trim();
 if (!baseSha) fail(`Basis ${base} existiert im Template nicht.`);
 const head = git(ROOT, ['rev-parse', 'HEAD']).trim();
-if (head === baseSha) {
-  console.log(`Nichts zu tun: Ziel steht bereits auf ${head.slice(0, 7)}.`);
-  process.exit(0);
+const upToDate = head === baseSha;
+if (upToDate) {
+  console.log(`Ziel steht bereits auf ${head.slice(0, 7)}.`);
+  if (!migrate && !deploy) process.exit(0);
 }
 
-const diff = git(ROOT, ['diff', baseSha, head, '--binary']);
-const { patch, files, skipped } = filterPatch(diff);
-console.log(
-  `Basis ${baseSha.slice(0, 7)} → HEAD ${head.slice(0, 7)}: ${files.length} Dateien, ${skipped.length} ausgeschlossen.`,
-);
-if (!patch) {
-  console.log('Keine übernehmbaren Änderungen.');
-  process.exit(0);
-}
-const patchFile = resolve(target, '.git/studio-sync.patch');
-writeFileSync(patchFile, patch);
-
-if (dryRun) {
-  const res = spawnSync(
-    'git',
-    ['-C', target, 'apply', '--check', '--verbose', patchFile],
-    { encoding: 'utf8' },
-  );
-  console.log(`Betroffen:\n${files.map((f) => `  ${f}`).join('\n')}`);
-  const bad = (res.stderr ?? '').split('\n').filter((l) => /^error: /.test(l));
+function syncPatch() {
+  const diff = git(ROOT, ['diff', baseSha, head, '--binary']);
+  const { patch, files, skipped } = filterPatch(diff);
   console.log(
-    bad.length
-      ? `Nicht anwendbar:\n${bad.join('\n')}`
-      : 'Alle Änderungen anwendbar.',
+    `Basis ${baseSha.slice(0, 7)} → HEAD ${head.slice(0, 7)}: ${files.length} Dateien, ${skipped.length} ausgeschlossen.`,
   );
-  process.exit(bad.length ? 1 : 0);
+  if (!patch) {
+    console.log('Keine übernehmbaren Änderungen.');
+    return files;
+  }
+  const patchFile = resolve(target, '.git/studio-sync.patch');
+  writeFileSync(patchFile, patch);
+
+  if (dryRun) {
+    const res = spawnSync(
+      'git',
+      ['-C', target, 'apply', '--check', '--verbose', patchFile],
+      { encoding: 'utf8' },
+    );
+    console.log(`Betroffen:\n${files.map((f) => `  ${f}`).join('\n')}`);
+    const bad = (res.stderr ?? '')
+      .split('\n')
+      .filter((l) => /^error: /.test(l));
+    console.log(
+      bad.length
+        ? `Nicht anwendbar:\n${bad.join('\n')}`
+        : 'Alle Änderungen anwendbar.',
+    );
+    process.exit(bad.length ? 1 : 0);
+  }
+
+  spawnSync(
+    'git',
+    ['-C', target, 'apply', '--reject', '--whitespace=nowarn', patchFile],
+    { stdio: 'inherit' },
+  );
+  const rejects = git(target, ['ls-files', '--others', '--exclude-standard'])
+    .split('\n')
+    .filter((f) => f.endsWith('.rej'));
+  if (rejects.length) {
+    console.error(
+      `✗ ${rejects.length} Rejects, nicht committet. Manuell mergen:\n${rejects.map((f) => `  ${f}`).join('\n')}`,
+    );
+    process.exit(1);
+  }
+
+  git(target, ['add', '-A']);
+  git(target, [
+    'commit',
+    '-m',
+    `chore: sync from studio-template ${head.slice(0, 7)}`,
+  ]);
+  state.syncedFrom = head;
+  writeFileSync(stateFile, JSON.stringify(state, null, 2));
+  chmodSync(stateFile, 0o600);
+  console.log(`✓ Sync committet (${head.slice(0, 7)}).`);
+  return files;
 }
 
-spawnSync(
-  'git',
-  ['-C', target, 'apply', '--reject', '--whitespace=nowarn', patchFile],
-  { stdio: 'inherit' },
-);
-const rejects = git(target, ['ls-files', '--others', '--exclude-standard'])
-  .split('\n')
-  .filter((f) => f.endsWith('.rej'));
-if (rejects.length) {
-  console.error(
-    `✗ ${rejects.length} Rejects, nicht committet. Manuell mergen:\n${rejects.map((f) => `  ${f}`).join('\n')}`,
-  );
-  process.exit(1);
-}
-
-git(target, ['add', '-A']);
-git(target, [
-  'commit',
-  '-m',
-  `chore: sync from studio-template ${head.slice(0, 7)}`,
-]);
-state.syncedFrom = head;
-writeFileSync(stateFile, JSON.stringify(state, null, 2));
-chmodSync(stateFile, 0o600);
-console.log(`✓ Sync committet (${head.slice(0, 7)}).`);
+// up to date: --migrate/--deploy still run (db push only applies pending migrations)
+const files = upToDate ? null : syncPatch();
 
 const env = { ...loadSharedSecrets(), ...process.env };
 const web = resolve(target, 'apps/web');
 try {
   if (migrate) {
-    if (!hasNewMigrations(files))
+    if (files && !hasNewMigrations(files))
       console.log('Keine neuen Migrationen, --migrate übersprungen.');
     else {
       for (const key of ['SUPABASE_ACCESS_TOKEN'])
