@@ -109,7 +109,7 @@ export function ContactForm() {
             rows={6}
             maxLength={2000}
             defaultValue={state.values.message}
-            className={'bg-background'}
+            className={'min-h-32'}
           />
         </div>
 

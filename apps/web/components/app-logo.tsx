@@ -13,7 +13,7 @@ function LogoImage({ className }: { className?: string }) {
 
       <span
         className={
-          'text-base font-semibold tracking-tight group-data-[collapsible=icon]:sr-only'
+          'text-base font-semibold tracking-tight whitespace-nowrap group-data-[collapsible=icon]:sr-only'
         }
       >
         {process.env.NEXT_PUBLIC_PRODUCT_NAME}
