@@ -11,7 +11,9 @@ import { ChevronsUpDown, Home, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@kit/ui/dropdown-menu';
@@ -72,17 +74,17 @@ export function PersonalAccountDropdown({
         aria-label="Open your profile menu"
         data-test={'account-dropdown-trigger'}
         className={cn(
-          'animate-in fade-in focus:outline-primary flex cursor-pointer items-center duration-500 group-data-[minimized=true]:px-0',
+          'focus-visible:ring-ring flex cursor-pointer items-center rounded-md outline-none focus-visible:ring-2',
           className ?? '',
           {
-            ['active:bg-secondary/50 items-center gap-x-4 rounded-md' +
-            ' hover:bg-secondary p-2 transition-colors']: showProfileName,
+            ['hover:bg-sidebar-accent data-popup-open:bg-sidebar-accent gap-x-3 p-2 text-left transition-colors group-data-[collapsible=icon]:p-0']:
+              showProfileName,
           },
         )}
       >
         <ProfileAvatar
-          className={'rounded-md'}
-          fallbackClassName={'rounded-md border'}
+          className={'mx-0 shrink-0'}
+          fallbackClassName={'bg-muted text-foreground text-sm'}
           displayName={displayName ?? user?.email ?? ''}
           pictureUrl={personalAccountData?.data?.picture_url}
         />
@@ -90,19 +92,19 @@ export function PersonalAccountDropdown({
         <If condition={showProfileName}>
           <div
             className={
-              'fade-in animate-in flex w-full flex-col truncate text-left group-data-[minimized=true]:hidden'
+              'flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden'
             }
           >
             <span
               data-test={'account-dropdown-display-name'}
-              className={'truncate text-sm'}
+              className={'truncate text-sm leading-5 font-medium'}
             >
               {displayName}
             </span>
 
             <span
               data-test={'account-dropdown-email'}
-              className={'text-muted-foreground truncate text-xs'}
+              className={'text-muted-foreground truncate text-xs leading-4'}
             >
               {signedInAsLabel}
             </span>
@@ -110,38 +112,39 @@ export function PersonalAccountDropdown({
 
           <ChevronsUpDown
             className={
-              'text-muted-foreground mr-1 h-8 group-data-[minimized=true]:hidden'
+              'text-muted-foreground size-4 shrink-0 group-data-[collapsible=icon]:hidden'
             }
           />
         </If>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className={'xl:!min-w-[15rem]'}>
-        <DropdownMenuItem className={'!h-10 rounded-none'}>
-          <div
-            className={'flex flex-col justify-start truncate text-left text-xs'}
-          >
-            <div className={'text-muted-foreground'}>
+      <DropdownMenuContent
+        side={showProfileName ? 'top' : 'bottom'}
+        align={showProfileName ? 'start' : 'end'}
+        sideOffset={8}
+        className={'min-w-60'}
+      >
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className={'flex flex-col gap-0.5 font-normal'}>
+            <span className={'text-muted-foreground text-xs'}>
               <Trans i18nKey={'common.signedInAs'} />
-            </div>
+            </span>
 
-            <div>
-              <span className={'block truncate'}>{signedInAsLabel}</span>
-            </div>
-          </div>
-        </DropdownMenuItem>
+            <span className={'truncate text-sm'}>{signedInAsLabel}</span>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
           render={
             <Link
-              className={'s-full flex cursor-pointer items-center space-x-2'}
+              className={'flex w-full cursor-pointer items-center gap-x-2'}
               href={paths.home}
             />
           }
         >
-          <Home className={'h-5'} />
+          <Home className={'size-4'} />
 
           <span>
             <Trans i18nKey={'common.routes.home'} />
@@ -162,8 +165,8 @@ export function PersonalAccountDropdown({
           className={'cursor-pointer'}
           onClick={signOutRequested}
         >
-          <span className={'flex w-full items-center space-x-2'}>
-            <LogOut className={'h-5'} />
+          <span className={'flex w-full items-center gap-x-2'}>
+            <LogOut className={'size-4'} />
 
             <span>
               <Trans i18nKey={'auth.signOut'} />

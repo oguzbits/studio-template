@@ -43,6 +43,10 @@ type SidebarNavigationRouteGroup = Extract<
 type SidebarNavigationRouteChild =
   SidebarNavigationRouteGroup['children'][number];
 
+// quiet rows: grey label, the active row a filled neutral pill with the label in ink
+const navItemClassName =
+  'text-muted-foreground hover:text-foreground data-active:text-foreground h-9 gap-2.5 px-2.5';
+
 function getSidebarNavigationTooltip(
   open: boolean,
   t: ReturnType<typeof useTranslations>,
@@ -129,6 +133,11 @@ function SidebarNavigationRouteGroupLabel({
 }) {
   const className = cn({ hidden: !open });
 
+  // an empty label renders a flat list without a group heading
+  if (!label) {
+    return null;
+  }
+
   return (
     <If
       condition={collapsible}
@@ -192,6 +201,9 @@ function SidebarNavigationSubItems({
                 <SidebarMenuSubItem key={child.path}>
                   <SidebarMenuSubButton
                     isActive={isActive}
+                    className={
+                      'text-muted-foreground hover:text-foreground data-active:text-foreground h-8'
+                    }
                     render={
                       <Link className={linkClassName} href={child.path}>
                         {child.Icon}
@@ -231,7 +243,7 @@ function SidebarNavigationRouteChildItem({
   const triggerItem = collapsible ? (
     <CollapsibleTrigger
       render={
-        <SidebarMenuButton tooltip={tooltip}>
+        <SidebarMenuButton tooltip={tooltip} className={navItemClassName}>
           <span
             className={cn('flex items-center gap-2', {
               'mx-auto w-full gap-0 [&>svg]:flex-1 [&>svg]:shrink-0': !open,
@@ -274,9 +286,10 @@ function SidebarNavigationRouteChildItem({
         <SidebarMenuButton
           isActive={isActive}
           tooltip={tooltip}
+          className={navItemClassName}
           render={
             <Link
-              className={cn('flex items-center gap-x-2', {
+              className={cn('flex items-center gap-x-2.5', {
                 'mx-auto gap-0! [&>svg]:flex-1': !open,
               })}
               href={path}
@@ -338,7 +351,10 @@ function SidebarNavigationRouteGroupItem({
 
   return (
     <MaybeCollapsible enabled={collapsible} defaultOpen={!item.collapsed}>
-      <SidebarGroup key={item.label} className={cn({ 'p-0!': !open })}>
+      <SidebarGroup
+        key={item.label}
+        className={cn('px-3 py-1', { 'p-0!': !open })}
+      >
         <SidebarNavigationRouteGroupLabel
           label={item.label}
           collapsible={collapsible}

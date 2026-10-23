@@ -4,12 +4,15 @@ import { SidebarProvider } from '@kit/ui/sidebar';
 import { AppLogo } from '~/components/app-logo';
 import { AuthProvider } from '~/components/auth-provider';
 import { ZodJitless } from '~/components/zod-jitless';
+import { Wordmark } from '~/components/wordmark';
 import { navigationConfig } from '~/config/navigation.config';
+import pathsConfig from '~/config/paths.config';
 
 // home imports
 import { HomeMenuNavigation } from './_components/home-menu-navigation';
 import { HomeMobileNavigation } from './_components/home-mobile-navigation';
 import { HomeSidebar } from './_components/home-sidebar';
+import { HomeSidebarMenuButton } from './_components/home-sidebar-menu-button';
 
 /**
  * Synchronous on purpose. This layout used to await the layout-style cookie and
@@ -38,14 +41,17 @@ export default HomeLayout;
 
 function SidebarLayout({ children }: React.PropsWithChildren) {
   return (
-    <SidebarProvider defaultOpen={navigationConfig.sidebarCollapsed}>
+    <SidebarProvider defaultOpen={!navigationConfig.sidebarCollapsed}>
       <Page style={'sidebar'}>
         <PageNavigation>
           <HomeSidebar />
         </PageNavigation>
 
-        <PageMobileNavigation className={'flex items-center justify-between'}>
-          <MobileNavigation />
+        <PageMobileNavigation
+          className={'flex h-14 items-center justify-between md:hidden'}
+        >
+          <Wordmark href={pathsConfig.app.home} className={'text-xl'} />
+          <HomeSidebarMenuButton />
         </PageMobileNavigation>
 
         {children}

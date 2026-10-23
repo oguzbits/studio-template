@@ -8,13 +8,15 @@ import appConfig from '~/config/app.config';
 export function Wordmark({
   className,
   prefetch,
+  href = '/',
 }: {
   className?: string;
   prefetch?: boolean;
+  href?: string;
 }) {
   return (
     <Link
-      href={'/'}
+      href={href}
       prefetch={prefetch}
       className={cn('font-display text-2xl tracking-[-0.01em]', className)}
     >

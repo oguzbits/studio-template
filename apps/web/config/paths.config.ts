@@ -12,6 +12,7 @@ const pathsConfig = {
     home: '/home',
     profileSettings: '/home/settings',
     billing: '/home/billing',
+    pro: '/home/pro',
   },
 };
 

@@ -1,4 +1,4 @@
-import { CreditCard, Home, User } from 'lucide-react';
+import { CreditCard, Gem, Home, Settings } from 'lucide-react';
 import { z } from 'zod';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
@@ -7,9 +7,11 @@ import pathsConfig from '~/config/paths.config';
 
 const iconClasses = 'w-4';
 
+// One flat list (empty group label = no heading). Add a labelled group with
+// `children` only when a feature brings sub-pages.
 const routes = [
   {
-    label: 'common.routes.application',
+    label: '',
     children: [
       {
         label: 'common.routes.home',
@@ -18,20 +20,21 @@ const routes = [
         // exact match: do not stay highlighted on nested routes like /home/settings
         highlightMatch: `^${pathsConfig.app.home}$`,
       },
-    ],
-  },
-  {
-    label: 'common.routes.settings',
-    children: [
       {
-        label: 'common.routes.profile',
-        path: pathsConfig.app.profileSettings,
-        Icon: <User className={iconClasses} />,
+        // example paid page (requireEntitlement('pro')); rename or drop per product
+        label: 'Pro',
+        path: pathsConfig.app.pro,
+        Icon: <Gem className={iconClasses} />,
       },
       {
         label: 'common.routes.billing',
         path: pathsConfig.app.billing,
         Icon: <CreditCard className={iconClasses} />,
+      },
+      {
+        label: 'common.routes.settings',
+        path: pathsConfig.app.profileSettings,
+        Icon: <Settings className={iconClasses} />,
       },
     ],
   },
